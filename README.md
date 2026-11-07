@@ -1,11 +1,11 @@
-# Prumo · kit de SDD para o Claude Code e o Codex
+# Golem · kit de SDD para o Claude Code e o Codex
 
 > *A spec-driven development kit for coding agents (Claude Code and Codex): specs before code,
 > independent reviewer and validator agents, lessons that come back at the right moment, and
 > conversations with clear roles. The kit is written in Brazilian Portuguese.*
 
-O prumo é o fio com peso que o pedreiro usa para conferir se a parede está reta. Aqui, quem faz
-esse papel são a spec, o revisor e o validador: conferem o trabalho do agente antes de seguir.
+O nome vem do golem do folclore, o ser de barro que só se move pelo que está escrito no pergaminho
+que lhe dão. Aqui, o pergaminho é a spec: o agente age pelo que foi escrito e aprovado antes.
 
 Um jeito de trabalhar com um agente de código (Claude Code ou Codex) em que **a especificação vem
 antes do código**, e em que várias conversas do agente dividem o trabalho com papéis claros. O kit é
