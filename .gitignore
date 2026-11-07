@@ -1,0 +1,7 @@
+# O registro vivo da conversa gerente fica fora do Git.
+GERENTE.md
+# O log do gancho das lições.
+.claude/gancho-falhas.log
+.claude/settings.local.json
+__pycache__/
+.venv/

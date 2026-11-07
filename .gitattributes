@@ -1,0 +1,3 @@
+# O lançador do gancho precisa de LF: com CRLF, o sh quebra.
+*.sh text eol=lf
+* text=auto

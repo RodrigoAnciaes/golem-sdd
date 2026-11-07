@@ -1,0 +1,18 @@
+# GERADO por .claude/regua.py --gerar. NÃO EDITE À MÃO.
+# A fonte é o frontmatter de docs/licoes/*.md. `--conferir` falha se divergirem.
+licoes:
+  conferir-e-agir-em-chamadas-separadas:
+    area: "processo"
+    tipo: "armadilha"
+    data: "2026-11-06"
+    gatilho: "conferência e ação na mesma chamada de ferramenta (encadeadas com && ou ;) ou em chamadas paralelas da mesma mensagem"
+    gatilhos: ["\\bgh\\s+pr\\s+merge\\b", "\\bgit\\s+(push|merge)\\b", "\\bgit\\s+ls-remote\\b.*(&&|;)"]
+    arquivo: docs/licoes/conferir-e-agir-em-chamadas-separadas.md
+  suite-verde-so-vale-com-a-linha-de-resumo:
+    area: "processo"
+    tipo: "armadilha"
+    data: "2026-11-06"
+    gatilho: "rodar a suíte com o -q do arquivo de configuração somado ao -q da linha de comando, ou num ambiente sem a variável ou o dado que alguns testes exigem"
+    gatilhos: ["\\bpytest\\b", "\\bnpm\\s+(run\\s+)?test\\b", "\\bmake\\s+test", "(^|/)(pytest\\.ini|pyproject\\.toml|setup\\.cfg|tox\\.ini)$"]
+    arquivo: docs/licoes/suite-verde-so-vale-com-a-linha-de-resumo.md
+total: 2
