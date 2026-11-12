@@ -155,7 +155,7 @@ dentro do mesmo valor, pelo menor custo.
 | # | Melhoria | Critério | Valor | Custo |
 |---|---|---|---|---|
 | 1 | **Aprovação passo a passo:** a implementação para ao fim de cada grupo e mostra o que mudou; os grupos são pequenos (um arquivo ou uma função) | estilo | A | P |
-| 2 | **Gancho que acha o Python e falha uma vez só:** ele procura também onde o instalador oficial põe o Python; quando falha, avisa uma vez, em palavras simples, cita a lição e dá o conserto em uma linha. Numa máquina sem Python nenhum, ele pode ser desligado: as skills passam a mandar buscar as lições em momentos fixos (o modo sem Python, de reserva) | fácil, custo | A | P |
+| 2 | **Gancho que acha o Python e falha uma vez só:** a configuração pergunta se ele tem Python e onde, e o gancho usa esse caminho ou procura também onde o instalador oficial põe o Python; quando falha, avisa uma vez, em palavras simples, cita a lição e dá o conserto em uma linha. Numa máquina sem Python nenhum, ele pode ser desligado: as skills passam a mandar buscar as lições em momentos fixos (o modo sem Python, de reserva) | fácil, custo | A | P |
 | 3 | **Receitas prontas, escolha por etapa e configuração por conversa:** três receitas recomendadas (`so-eu`, `economico`, `completo`); cada etapa opcional responde `sempre`, `perguntar` ou `nunca`; ele configura pedindo "configurar o Golem" e respondendo a botões; e o "guia de configuração", de uma página, explica cada escolha | custo, fácil | A | M |
 | 4 | **Pacote Roblox mínimo:** os comandos reais de um projeto Rojo, os gatilhos `.luau`/`rojo`/`selene`/`stylua`, um `tech-stack` modelo, critérios com playtest passo a passo e o uso do Studio MCP | Roblox | A | M |
 | 5 | **Aprender o estilo:** uma skill lê os programas que **ele escolher** e propõe as regras do estilo dele, cada uma com um exemplo `arquivo:linha` do próprio código; ele aprova uma a uma | estilo | A | M |
@@ -243,14 +243,22 @@ receita = "economico"            # so-eu | economico | completo
 # gancho_teto      = 2             # lições novas por ação (hoje fixo em 4)
 ```
 
+```toml
+# golem.local.toml: o que é desta máquina. Fica fora do git.
+python = 'C:\...\python.exe'       # o Python que o usuário informou ou confirmou (aspas simples)
+```
+
 **Por que cada chave existe.** As de revisor, validador, guardião, conversas e modelos atacam o
 maior custo medido (seção 1.2). O `revisor_quando` é o que expressa o "uma vez por fase" contra o
 "a cada grupo". A de parar a cada parte é o pedido do primeiro usuário. O `gancho = "desligado"`
-resolve a máquina sem Python nenhum. O `gancho_teto` custa pouco (o gancho injeta no máximo ~600
-tokens por ação), mas é o que controla quanto contexto o gancho injeta, um dos itens do critério
-"customizável", e é uma linha. O gancho continua rodando antes de comandos em todas as receitas:
-as três lições do kit disparam por comando, e quem roda os comandos do `validation.md` (a
-conversa, e o validador quando ele existe) precisa delas.
+resolve a máquina sem Python nenhum. O `python`, no `golem.local.toml`, guarda o caminho que o
+usuário informou ou confirmou (o pedido do autor do kit, abaixo, em "Primeiro perguntar, depois
+procurar"). Ele mora num arquivo à parte porque é desta máquina: um caminho como
+`C:\Users\<nome>\...` está errado em qualquer outra e expõe o nome do usuário. O `gancho_teto`
+custa pouco (o gancho injeta no máximo ~600 tokens por ação), mas é o que controla quanto contexto
+o gancho injeta, um dos itens do critério "customizável", e é uma linha. O gancho continua
+rodando antes de comandos em todas as receitas: as três lições do kit disparam por comando, e quem
+roda os comandos do `validation.md` (a conversa, e o validador quando ele existe) precisa delas.
 
 **Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`
 (`python .claude/golem.py aplicar`, no molde do `instalar_codex.py`) junta a receita e as linhas
@@ -273,16 +281,58 @@ fica escrito, esperando o Python para ser aplicado.
 
 **Python fora do PATH.** O caso visto (uma máquina, em 2026-11-12) não foi a falta de Python, e
 sim o Python instalado fora do PATH (lição `sem-python-no-path-nao-e-maquina-sem-python`). A
-pergunta ao primeiro usuário sobre o Python (seção 7) diz se o caso dele é o mesmo. Para esse caso:
-- o `gancho.sh` passa a procurar também onde o instalador oficial do Windows o põe: na instalação
-  "só para mim", `%LOCALAPPDATA%\Programs\Python\Python3*\python.exe` e o `py.exe` de
-  `...\Python\Launcher`; na "para todos os usuários", `%ProgramFiles%\Python3*` (a conferir);
-- o aviso de falha diz onde procurou, cita a lição pelo id e manda rodar o diagnóstico, em vez de
-  dar a entender que o Python não existe. Isso importa porque o gancho não consegue entregar a
-  lição justamente quando não acha o Python.
+pergunta ao primeiro usuário sobre o Python (seção 7) diz se o caso dele é o mesmo.
 
-Uma linha `python = "caminho"` no `golem.toml` cobriria um Python fora desses lugares (conda, uma
-pasta própria). Esse caso não foi visto, e ela fica de fora até aparecer (regra 10).
+**Primeiro perguntar, depois procurar.** O pedido do autor do kit (2026-11-12): "Antes de fazer a
+busca, é importante perguntar para o usuário se ele tem ou não. Senão a gente vai buscar à toa,
+né? E também tem que dar a possibilidade dele de falar onde, se ele souber."
+
+**Os ajustes do agente, aceitos com o plano (seção 8, decisão 4):**
+- a pergunta vem uma vez, na configuração, porque o gancho roda sozinho e não pode perguntar: na
+  skill de configurar (fase 1) e, com o plugin, no `comecar` e no `diagnostico` (fase 4);
+- o botão "Não sei", ao lado do sim e do não;
+- com "Não", uma busca rápida mesmo assim;
+- o caminho guardado na linha `python`, entre aspas simples. O arquivo, `golem.local.toml`, foi
+  mudança depois do ok (seção 8, decisão 4);
+- a ordem de procura do gancho, abaixo.
+
+A pergunta vem com botões:
+
+| Resposta | O que o agente faz |
+|---|---|
+| **Sim, e sei onde** | o usuário cola o caminho; o agente testa se aquele Python roda (3.8 ou mais novo) e grava o caminho na linha `python` do `golem.local.toml` |
+| **Sim, mas não sei onde** | procura nos lugares de costume, mostra o que achou, e o usuário confirma antes de gravar |
+| **Não sei** | o mesmo que "sim, mas não sei onde" |
+| **Não** | faz mesmo assim uma busca rápida, porque quem acha que não tem pode ter (a lição acima). Se achar, pergunta: "Achei um em `...`. Quer usar este?" Se não achar, oferece o comando de instalação ou o modo sem Python |
+
+A busca rápida é olhar se dois ou três arquivos existem. Na skill, ela custa uma chamada de
+ferramenta, poucas centenas de tokens; no gancho, nenhum. Os lugares de costume, no Windows, são
+os do instalador oficial: na instalação "só para mim",
+`%LOCALAPPDATA%\Programs\Python\Python3*\python.exe` e o `py.exe` de `...\Python\Launcher`; na
+"para todos os usuários", `%ProgramFiles%\Python3*` (a conferir).
+
+**Depois, o gancho não pergunta nada:** procura nesta ordem:
+1. (novo) o caminho da linha `python` do `golem.local.toml`, lida em `sh`. A leitura do
+   `golem.toml` pelo `gancho.sh`, para o `gancho = "desligado"`, também é nova, da fase 1;
+2. o `.venv` do projeto e o da pasta principal (como hoje);
+3. o PATH (como hoje);
+4. (novo) os lugares do instalador oficial.
+
+Um caminho que não roda mais (o Python foi desinstalado) é tratado como os candidatos de hoje, que
+só valem se rodarem um Python 3.8+: o gancho passa ao passo 2. Se nada mais for achado, o aviso
+diz que a linha `python` não roda, sem citar o caminho (o `avisar` do `gancho.sh` encerra o gancho
+sem entregar lição nenhuma e só aceita texto fixo, sem barra invertida, dentro do JSON). Avisar isso sem cortar as lições,
+quando o passo 2 ou outro acha um Python, pediria uma peça nova (ver "Detalhes a conferir").
+
+O aviso de falha diz onde procurou, cita a lição pelo id e manda rodar o diagnóstico, em vez de
+dar a entender que o Python não existe. Isso importa porque o gancho não consegue entregar a lição
+justamente quando não acha o Python.
+
+**A linha `python` vai entre aspas simples** (`python = 'C:\...\python.exe'`). No TOML, as aspas
+simples fazem uma string literal, sem escape. O `gancho.sh` lê com `read -r`, que não trata a
+barra invertida (conferido no Git Bash em 2026-11-12: com `-r`, o caminho chega inteiro; sem ele,
+as barras somem). Um caminho com aspa simples dentro não cabe nesse formato: a skill o recusa e
+pede outro (a conferir).
 
 **A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, a receita `completo` roda
 7 subagentes (3 revisores, 3 validadores e o guardião). A `economico` roda 1: um revisor no Sonnet
@@ -306,7 +356,16 @@ isso numa linha, e a escolha é dele.
 **Detalhes a conferir na fase:**
 - o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: ou se sobe o mínimo, ou o arquivo usa
   só `chave = valor`, que se lê com meia dúzia de linhas;
-- se o formato de agente do Codex aceita modelo por agente.
+- se o formato de agente do Codex aceita modelo por agente;
+- como o `golem.local.toml` chega a um worktree: ele fica fora do git, como o `.venv`, então o
+  `gancho.sh` o procura também na pasta principal do repositório, do mesmo jeito que já procura o
+  `.venv` (`gancho.sh`, `achar_venv` e o `--git-common-dir`);
+- o aviso da linha `python` que não roda, quando outro Python é achado: ou nenhum aviso (o gancho
+  segue com o Python achado), ou um aviso que não interrompe e deixa a lição seguir. E, se o aviso
+  de falha for listar os lugares onde procurou, como pôr caminho com barra invertida no JSON do
+  aviso, que hoje só aceita texto fixo (`gancho.sh`, o comentário do `avisar`);
+- no `sh` do Git Bash, o `%ProgramFiles%` do Windows chega como `$PROGRAMFILES`, em maiúsculas
+  (`$ProgramFiles` sai vazio); o `$LOCALAPPDATA` chega com esse nome (conferido em 2026-11-12).
 
 ---
 
@@ -411,9 +470,11 @@ precisa dele: o Claude Code tem a própria busca. Sem Python, o que se perde é:
 - o `aplicar` e o instalador do Codex.
 
 Há quatro saídas, e elas não se excluem:
-- **(a)** o gancho e o diagnóstico procuram o Python também nos lugares do instalador oficial
-  (seção 3, "Python fora do PATH"). Só se não acharem nenhum, o diagnóstico diz como instalar (no
-  Windows, um comando do `winget`; o id exato fica a conferir);
+- **(a)** a configuração pergunta se ele tem Python e onde, e confere com uma busca rápida nos
+  lugares do instalador oficial; o gancho usa o caminho registrado e, sem ele, procura nesses
+  mesmos lugares (seção 3, "Primeiro perguntar, depois procurar"). Só se nada for achado, a
+  configuração e o diagnóstico dizem como instalar (no Windows, um comando do `winget`; o id exato
+  fica a conferir);
 - **(b)** o modo sem Python, de reserva: `gancho = "desligado"` (lido pelo `gancho.sh`, seção 3).
   As skills buscam as lições em momentos fixos (no começo da fase e antes de rodar os testes)
   **sempre**, com ou sem gancho: a busca é barata, e assim não depende do `aplicar` para saber que
@@ -424,7 +485,8 @@ Há quatro saídas, e elas não se excluem:
   esse tipo de gancho pode injetar contexto;
 - **(d)** a estudar: reescrever em Luau, rodando no Lune, se o usuário já tiver o Lune.
 
-**Decidido em 2026-11-12:** a (a), com a (b) de reserva. A (c) e a (d) só se, depois, mais gente
+**Decidido em 2026-11-12:** a (a), com a (b) de reserva. A (a) foi ampliada no mesmo dia pela
+decisão 4 da seção 8 (perguntar antes de procurar). A (c) e a (d) só se, depois, mais gente
 travar na instalação do Python. A skill de configurar escreve o `golem.toml` sem Python; aplicá-lo
 pede Python, menos o desligar do gancho.
 
@@ -447,12 +509,12 @@ pede Python, menos o desligar do gancho.
     projeto. Falta decidir de onde ele tira as cópias.
 - **`/golem:comecar`:** cria o que o projeto precisa (o `AGENTS.md`, `docs/licoes/`, `specs/` e o
   `golem.toml` com a receita `economico`). Preenche as lacunas `<< >>` por entrevista ("como você
-  roda o jogo?", "usa Rojo?", "onde estão seus módulos?"), passa pela configuração com botões e
-  termina testando o gancho.
+  roda o jogo?", "usa Rojo?", "onde estão seus módulos?"), passa pela configuração com botões (com
+  a pergunta do Python) e termina testando o gancho.
 - **`/golem:diagnostico`:** confere o Python, o `sh`, o git, o índice, o gancho, a configuração e
-  o Studio MCP, e diz em uma linha o que fazer em cada falha. Acha o Python fora do PATH nos
-  lugares do instalador oficial. Sem Python nenhum, diz o comando que o instala e oferece o modo
-  sem Python enquanto isso.
+  o Studio MCP, e diz em uma linha o que fazer em cada falha. Quando o gancho não acha o Python,
+  faz a mesma pergunta com botões da configuração (seção 3) e grava a resposta. Sem Python
+  nenhum, diz o comando que o instala e oferece o modo sem Python enquanto isso.
 - **O guia do primeiro dia:** uma página com um fluxo só (spec → implementar → validar), numa
   conversa só, sem GER, EST nem MET. O `docs/operacao-das-conversas.md` fica para a receita
   `completo`.
@@ -469,7 +531,7 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
-| **1. Configuração e receita econômica** | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões) e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; o gancho que falha uma vez só; o `gancho.sh` achando o Python fora do PATH (os lugares do instalador oficial); e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2, 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo, roda um revisor só, no Sonnet, e o aviso do gancho aparece uma vez; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
+| **1. Configuração e receita econômica** | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões) e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; o gancho que falha uma vez só; a pergunta do Python na skill de configurar e a linha `python` do `golem.local.toml` (que entra no `.gitignore`); o `gancho.sh` achando o Python fora do PATH (a linha `python`, depois os lugares do instalador oficial); e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2, 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo, roda um revisor só, no Sonnet, e o aviso do gancho aparece uma vez; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; com a linha `python` apontando para um Python fora dos lugares de costume, o gancho entrega a lição; com ela apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
 | **2. Roblox mínimo** | os modelos de tech-stack e de comandos para Rojo, os gatilhos, duas lições de exemplo e os testes pelo Studio MCP | 4 | M | num place Rojo de exemplo, uma fase pequena vai da spec ao validado, com o resumo dos testes lido no console |
 | **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
 | **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` e o guia do primeiro dia | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
@@ -477,10 +539,10 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 | **6. Produto** | versões, notas de versão, como atualizar, a página do kit, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
 
 **Perguntas ao primeiro usuário.**
-- **Antes da fase 1:** qual modelo o Pro dele mostra no `/model`. As receitas fixam o Sonnet e o
-  Opus, e o "pronto" da fase 1 pede o Sonnet.
-- **Antes da fase 2:** se ele usa Rojo ou só o Studio, que framework de teste usa e se já tem
-  Python instalado.
+- **Antes da fase 1:** qual modelo o Pro dele mostra no `/model` (as receitas fixam o Sonnet e o
+  Opus, e o "pronto" da fase 1 pede o Sonnet) e se ele já tem Python instalado, e onde (o
+  trabalho do Python é da fase 1).
+- **Antes da fase 2:** se ele usa Rojo ou só o Studio e que framework de teste usa.
 
 ---
 
@@ -507,11 +569,26 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 3. **A ordem do roteiro, em 2026-11-12.** O cartão recomendou a fase 1 (configuração e receita
    econômica) antes da fase 2 (Roblox mínimo). As palavras dele: "Configuração primeiro". A ordem
    da seção 7 fica como está.
+4. **Perguntar antes de procurar o Python, em 2026-11-12.** A proposta veio dele (as palavras
+   estão na seção 3, "Primeiro perguntar, depois procurar"). As palavras dele sobre os ajustes do
+   agente: "sim, pode atualizar o plano". Os ajustes aceitos:
+   - a pergunta vem na configuração, porque o gancho não pode perguntar;
+   - o botão "Não sei", ao lado do sim e do não;
+   - com "Não", uma busca rápida antes de mandar instalar, por causa da lição
+     `sem-python-no-path-nao-e-maquina-sem-python`;
+   - a linha `python` de volta, entre aspas simples, para guardar o caminho que o usuário informar;
+   - a ordem de procura do gancho: a linha `python`, o `.venv`, o PATH e os lugares do instalador.
+
+   Mudança depois do ok, para a spec da fase 1 confirmar: a linha `python` foi para um
+   `golem.local.toml`, fora do git, e não para o `golem.toml`. O caminho é desta máquina, está
+   errado em qualquer outra e expõe o nome do usuário.
 
 **Em aberto, uma de cada vez:**
-1. **Uma fase 0 para o gancho achar o Python?** A busca do Python fora do PATH não depende do
-   `golem.toml` e conserta já a falha vista. Ela pode sair numa fase pequena antes da 1 (só o
-   `gancho.sh`, o aviso e um teste) ou ficar dentro da 1, que já é a maior do roteiro.
+1. **Uma fase 0 para o gancho achar o Python?** A busca do Python nos lugares do instalador não
+   depende do `golem.toml` e conserta já a falha vista. Ela pode sair numa fase pequena antes da 1
+   (só o `gancho.sh`, o aviso e um teste) ou ficar dentro da 1, que já é a maior do roteiro. O
+   porém: a fase 0 traria só o passo 4 da ordem, a busca sem perguntar, que é o que o autor do kit
+   quis evitar ("senão a gente vai buscar à toa"). A pergunta e a linha `python` ficariam na 1.
 2. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
    de investir em página e identidade (a conferir).
 3. **O que é pago, se algo for:** com a MIT mantida, a parte paga, se houver, é serviço ou um
