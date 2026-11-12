@@ -45,7 +45,7 @@ foi **medido**, não estimado (seção 1.2).
 | Peça | Tamanho | Tokens (estim.) |
 |---|---|---|
 | `AGENTS.md` (o `CLAUDE.md` o importa inteiro) | 12.987 bytes | ~3,4 mil |
-| descrições das 12 skills (só o `description` entra antes de a skill ser chamada) | 4.520 bytes | ~1,2 mil |
+| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes) | 4.520 bytes | ~1,2 mil |
 | **total fixo** | | **~4,6 mil** |
 
 **O que entra quando se usa:**

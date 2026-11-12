@@ -79,17 +79,17 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 ## G3 — A skill `diagnostico` mínima e a varredura (R4, R6)
 
-- [ ] O id do `winget` conferido (a pergunta em aberto) antes de a skill citá-lo.
-- [ ] `.claude/skills/diagnostico/SKILL.md`, com a tabela do R4, a gravação na pasta principal,
+- [x] O id do `winget` conferido (a pergunta em aberto) antes de a skill citá-lo.
+- [x] `.claude/skills/diagnostico/SKILL.md`, com a tabela do R4, a gravação na pasta principal,
   a recusa do caminho com aspa simples, a busca nos passos 4 e 5 do R2 e o teste final do gancho
   sem `session_id`. O frontmatter traz `name`, `description` e `license` (a linha de crédito).
-- [ ] `.claude/tests/test_credito.py`: `diagnostico` na lista `SKILLS`.
-- [ ] A varredura do R6:
+- [x] `.claude/tests/test_credito.py`: `diagnostico` na lista `SKILLS`.
+- [x] A varredura do R6:
   - os Requisitos e o passo 2 do `README.md`;
   - a lista de skills esperadas da `iniciar-sdd`;
   - a tabela "Em volta de tudo" do `WORKFLOW.md`;
   - os `refs` da lição, com o índice regerado (`regua.py --gerar`) e o `git add` do índice.
-- [ ] O instalador do Codex, rodado numa cópia, leva a skill nova (`--conferir` ok).
+- [x] O instalador do Codex, rodado numa cópia, leva a skill nova (`--conferir` ok).
 
 **Revisão:** revisor + validador.
 
@@ -108,7 +108,10 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 | 2026-11-12 | G1: o `gancho.sh` não tira o `\r` do fim da linha, que o R1 pedia; o R1 foi ajustado. | O validador mostrou que a linha não tinha efeito (mutante equivalente em 16 arquivos, 4 com CR): o valor é cortado na segunda aspa, e o `\r` fica depois dela. O teste 4 continua provando que o CRLF é lido. | agente (regra 10, sem efeito para o usuário) |
 | 2026-11-12 | G2: a leitura dos ids parte o JSON nas aspas (`ids_da_entrada`), em vez de cortar a entrada com `${entrada#*\"id\"}`. | O corte era quadrático: 4 s em 80 KB sem `agent_id`, o caso de toda ação da conversa principal; e um valor `"agent_id"` no `tool_input` o enganava. Partir é linear: 2 MB quase sem aspas em 0,04 s; 1,56 MB cheios de aspas em 5,9 s, medido pelo revisor. | agente (achado do revisor do G2) |
 | 2026-11-12 | G2: o teste 18 (pasta temporária sem escrita) entra, e a contagem do fim da fase vai de 93 para 94. | A marca que não pôde ser criada conta como nova (o R3: só sai calado quando as marcas existem), e nada provava isso. | agente (achado do revisor do G2) |
+| 2026-11-12 | G3: a skill `diagnostico` confere se o `golem.local.toml` está no `.gitignore` e, se não estiver, propõe a linha, que só entra com o ok do usuário. O R4 não pedia isso. | Um projeto que instalou o kit antes da fase 0 tem o `.gitignore` sem essa linha, e o arquivo traz o nome do usuário no caminho (regra 5). Nesta máquina, a pasta principal está nesse caso até o merge. | agente, para o autor do kit confirmar ou tirar |
+| 2026-11-12 | G3: os `refs` da lição `sem-python-no-path-nao-e-maquina-sem-python` citam funções, e não linhas, contra a regra da skill `licao` ("`refs` com linha"). | Pedido do R6: esta fase muda os números de linha do `gancho.sh`. O ref histórico diz o commit (`f912da6`). | spec aprovada (R6) |
+| 2026-11-12 | G3: a skill grava sempre o `sys.executable` do Python que rodou, também para o `py.exe`. | O gancho só aceita um arquivo que existe; um nome solto (`python3`) ou um caminho relativo passaria no teste e seria recusado depois. | agente (achado do revisor do G3) |
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1 e G2 feitos (revisor sem bloqueio, validador valida). Em andamento: G3.
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). Em andamento: G4.

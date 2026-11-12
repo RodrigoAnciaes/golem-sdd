@@ -222,8 +222,16 @@ Nenhum: a fase não gasta dinheiro.
 
 ## Perguntas em aberto
 
-- **O id do `winget` para o Python 3** (por exemplo, `Python.Python.3.12`): a conferir no G3, com
-  a saída de `winget search`, antes de a skill citá-lo.
+- ~~**O id do `winget` para o Python 3**~~ Respondida no G3 (2026-11-12), pelo repositório
+  oficial dos manifestos (`microsoft/winget-pkgs`, lido com `gh api`, e não com `winget search`,
+  que pediria para aceitar os termos da fonte). O arquivo
+  `manifests/p/Python/Python/3/14/3.14.10/Python.Python.3.14.yaml` traz
+  `PackageIdentifier: Python.Python.3.14` e `PackageVersion: 3.14.10`. Existe também
+  `Python.Python.3.15` (3.15.2, de 2026-10-25), e os dois manifestos têm `Scope: user`. O
+  manifesto não diz a pasta, e a skill não a afirma: depois da instalação, a busca do passo 4 acha
+  o Python novo. Que o `winget` instale em `%LOCALAPPDATA%\Programs\Python` não foi conferido (é
+  onde está o Python312 desta máquina), e a skill não depende disso. A skill cita o 3.14 e manda conferir com
+  `winget search Python.Python`, porque o número muda a cada versão.
 - **Se a entrada de gancho do Codex traz `session_id`:** a conferir. Sem ele, o aviso sai em toda
   ação, como hoje (R3).
 - **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** não conferido no G2.
