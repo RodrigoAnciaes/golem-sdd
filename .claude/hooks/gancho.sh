@@ -10,11 +10,16 @@
 #   1. se localiza pelo próprio caminho: a raiz do projeto é `../..` daqui (nunca depende do cwd);
 #   2. procura um Python, nesta ordem, e só aceita o candidato que RODA um Python 3.8+ de verdade
 #      (senão passa ao próximo):
-#        a. o `.venv` da raiz;
-#        b. o `.venv` da PASTA PRINCIPAL do repositório (o pai de `git rev-parse --git-common-dir`),
+#        a. a linha `python = '<caminho>'` do `golem.local.toml` (fora do git) da raiz ou, se a
+#           raiz não tiver a linha, da PASTA PRINCIPAL; quem a grava é a skill `diagnostico`;
+#        b. o `.venv` da raiz;
+#        c. o `.venv` da PASTA PRINCIPAL do repositório (o pai de `git rev-parse --git-common-dir`),
 #           para quem trabalha em worktree;
-#        c. `python3`, `python` e `py -3` do PATH (no Windows, o `python3` do PATH pode ser um
+#        d. `python3`, `python` e `py -3` do PATH (no Windows, o `python3` do PATH pode ser um
 #           atalho da loja que não executa nada; o `py` é o lançador do instalador oficial);
+#        e. os lugares do instalador oficial do Windows, que costumam ficar fora do PATH:
+#           `$LOCALAPPDATA/Programs/Python/Python3*`, o `Launcher/py.exe` (com `-3`) e
+#           `$PROGRAMFILES/Python3*` (lição sem-python-no-path-nao-e-maquina-sem-python);
 #      o gancho só usa biblioteca padrão, então qualquer Python 3.8+ serve;
 #   3. qualquer falha avisa os DOIS: o usuário pelo `systemMessage` e o agente pelo
 #      `additionalContext`, mais uma linha em `.claude/gancho-falhas.log` (ponha no .gitignore).
@@ -86,17 +91,82 @@ achar_no_path() {
     return 1
 }
 
-py=$(achar_venv "$raiz")
+achar_no_instalador() {
+    # Um glob que não casa devolve o padrão literal: o `[ -f ]` o descarta.
+    if [ -n "$LOCALAPPDATA" ]; then
+        for candidato in "$LOCALAPPDATA"/Programs/Python/Python3*/python.exe; do
+            if [ -f "$candidato" ] && roda_py38 "$candidato"; then
+                py="$candidato"
+                return 0
+            fi
+        done
+        candidato="$LOCALAPPDATA/Programs/Python/Launcher/py.exe"
+        if [ -f "$candidato" ] && roda_py38 "$candidato" -3; then
+            py="$candidato"
+            py_arg="-3"
+            return 0
+        fi
+    fi
+    if [ -n "$PROGRAMFILES" ]; then
+        for candidato in "$PROGRAMFILES"/Python3*/python.exe; do
+            if [ -f "$candidato" ] && roda_py38 "$candidato"; then
+                py="$candidato"
+                return 0
+            fi
+        done
+    fi
+    return 1
+}
+
+# A linha `python = '<caminho>'` de um golem.local.toml ($1), em `linha_python`. Vale a primeira
+# linha que começa com `python` seguido de espaços opcionais e `=`; o valor vai da primeira aspa
+# simples até a seguinte, e o resto da linha (um comentário) é ignorado. O `-r` guarda as barras
+# invertidas do caminho do Windows. O `\r` de um arquivo em CRLF fica depois da segunda aspa e
+# cai junto com o resto da linha.
+linha_python=""
+ler_linha_python() {
+    [ -f "$1" ] || return 1
+    while read -r linha || [ -n "$linha" ]; do
+        case $linha in
+            python*=*) ;;
+            *) continue ;;
+        esac
+        meio=${linha#python}
+        meio=${meio%%=*}
+        case $meio in
+            *[!' 	']*) continue ;;
+        esac
+        case $linha in
+            *\'*\'*) ;;
+            *) return 1 ;;
+        esac
+        linha_python=${linha#*\'}
+        linha_python=${linha_python%%\'*}
+        return 0
+    done < "$1"
+    return 1
+}
+
 # Limites conhecidos, todos terminando em AVISO, nunca em silêncio: repositório bare com worktrees
 # ou `--separate-git-dir` (o common-dir não fica dentro da pasta principal); e git < 2.31, que não
-# conhece `--path-format`. Nesses casos o PATH ainda pode salvar.
-if [ -z "$py" ]; then
-    comum=$(git -C "$raiz" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
-    if [ -n "$comum" ]; then
-        py=$(achar_venv "$(dirname "$comum")")
+# conhece `--path-format`. Nesses casos o PATH e o instalador ainda podem salvar.
+principal=""
+comum=$(git -C "$raiz" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+[ -z "$comum" ] || principal=$(dirname "$comum")
+
+py=""
+if ler_linha_python "$raiz/golem.local.toml" \
+    || { [ -n "$principal" ] && ler_linha_python "$principal/golem.local.toml"; }; then
+    if [ -f "$linha_python" ] && roda_py38 "$linha_python"; then
+        py="$linha_python"
     fi
 fi
+[ -n "$py" ] || py=$(achar_venv "$raiz")
+if [ -z "$py" ] && [ -n "$principal" ]; then
+    py=$(achar_venv "$principal")
+fi
 [ -n "$py" ] || achar_no_path
+[ -n "$py" ] || achar_no_instalador
 [ -n "$py" ] || avisar "nenhum Python 3.8+ encontrado (nem .venv na pasta da sessão ou na principal, nem python3, python ou py -3 no PATH)"
 
 # O stdout do gancho só sai se ele terminar bem: JSON pela metade seguido do aviso quebraria o

@@ -5,3 +5,5 @@ GERENTE.md
 .claude/settings.local.json
 __pycache__/
 .venv/
+# O caminho local do Python (a skill diagnostico grava; é desta máquina, não viaja).
+golem.local.toml

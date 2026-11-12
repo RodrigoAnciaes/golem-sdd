@@ -8,6 +8,13 @@ licoes:
     gatilho: "conferência e ação na mesma chamada de ferramenta (encadeadas com && ou ;) ou em chamadas paralelas da mesma mensagem"
     gatilhos: ["\\bgh\\s+pr\\s+merge\\b", "\\bgit\\s+(push|merge)\\b", "\\bgit\\s+ls-remote\\b.*(&&|;)"]
     arquivo: docs/licoes/conferir-e-agir-em-chamadas-separadas.md
+  o-windows-muda-o-que-o-sh-recebe-do-python:
+    area: "processo"
+    tipo: "armadilha"
+    data: "2026-11-12"
+    gatilho: "testes do gancho.sh que rodam o sh do Git Bash pelo subprocess do Python, no Windows"
+    gatilhos: ["\\bPROGRAMFILES\\b", "(^|/)\\.claude/tests/test_(gancho|codex)\\.py$"]
+    arquivo: docs/licoes/o-windows-muda-o-que-o-sh-recebe-do-python.md
   sem-python-no-path-nao-e-maquina-sem-python:
     area: "processo"
     tipo: "erro-de-diagnostico"
@@ -22,4 +29,4 @@ licoes:
     gatilho: "rodar a suíte com o -q do arquivo de configuração somado ao -q da linha de comando, ou num ambiente sem a variável ou o dado que alguns testes exigem"
     gatilhos: ["\\bpytest\\b", "\\bnpm\\s+(run\\s+)?test\\b", "\\bmake\\s+test", "(^|/)(pytest\\.ini|pyproject\\.toml|setup\\.cfg|tox\\.ini)$"]
     arquivo: docs/licoes/suite-verde-so-vale-com-a-linha-de-resumo.md
-total: 3
+total: 4

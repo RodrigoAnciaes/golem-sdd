@@ -257,7 +257,7 @@ procurar"). Ele mora num arquivo à parte porque é desta máquina: um caminho c
 `C:\Users\<nome>\...` está errado em qualquer outra e expõe o nome do usuário. O `gancho_teto`
 custa pouco (o gancho injeta no máximo ~600 tokens por ação), mas é o que controla quanto contexto
 o gancho injeta, um dos itens do critério "customizável", e é uma linha. O gancho continua
-rodando antes de comandos em todas as receitas: as três lições do kit disparam por comando, e quem
+rodando antes de comandos em todas as receitas: as lições do kit disparam por comando, e quem
 roda os comandos do `validation.md` (a conversa, e o validador quando ele existe) precisa delas.
 
 **Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`

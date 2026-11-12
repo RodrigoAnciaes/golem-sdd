@@ -21,7 +21,8 @@ procurou e cita a lição (`docs/plano-produto.md`, seção 7, linha da fase 0).
   - O `gancho.sh` o procura na raiz e, se não achar, na pasta principal do repositório (o mesmo
     `--git-common-dir` do `.venv`).
   - **A regra de leitura**, em `sh` e com `read -r`: a primeira linha que começa com `python`
-    (com espaços opcionais antes do `=`). Antes de tudo, tira-se o `\r` do fim. O valor vai da
+    (com espaços opcionais antes do `=`; o `read` também aceita espaço antes do `python`). O `\r`
+    de um arquivo em CRLF fica depois da segunda aspa e cai com o resto da linha. O valor vai da
     primeira aspa simples até a seguinte, e o resto da linha (um comentário, por exemplo) é
     ignorado. Linha sem as duas aspas não vale.
 - **R2. A ordem de procura.** O `gancho.sh` tenta, nesta ordem:
@@ -215,6 +216,7 @@ Nenhum: a fase não gasta dinheiro.
   ação, como hoje (R3).
 - **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** a conferir no G2. O
   desenho não depende da resposta: só a conversa principal põe o `systemMessage`.
-- **Se o `sh` do Git Bash executa o `_repassador` com o nome `python.exe`** num lugar de costume
-  falso: a conferir no G1. Se não executar, o teste do passo 5 usa outra forma de Python falso, e
-  isso entra na tabela de alterações do `plan.md`.
+- ~~**Se o `sh` do Git Bash executa o `_repassador` com o nome `python.exe`**~~ Respondida no G1
+  (2026-11-12): executa, e também pelo caminho com barra invertida (`C:\...\python.exe`). Achado
+  junto: o `PROGRAMFILES` não se troca pelo ambiente do teste no Windows (tabela de alterações do
+  `plan.md`).

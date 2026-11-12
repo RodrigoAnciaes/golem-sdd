@@ -6,15 +6,15 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 ## G1 — A linha `python` e a ordem de procura (R1, R2, R5)
 
-- [ ] `.claude/hooks/gancho.sh`: ler a linha `python` pela regra do R1, do `golem.local.toml` da
+- [x] `.claude/hooks/gancho.sh`: ler a linha `python` pela regra do R1, do `golem.local.toml` da
   raiz e, se não houver, do da pasta principal; tentá-la antes do `.venv`.
-- [ ] `.claude/hooks/gancho.sh`: o passo 5 do R2, depois do PATH. Cada candidato só vale com o
+- [x] `.claude/hooks/gancho.sh`: o passo 5 do R2, depois do PATH. Cada candidato só vale com o
   `[ -f ]` e o `roda_py38`; o `py.exe` do `Launcher` entra com `-3`, pelo `py_arg` de hoje.
-- [ ] `.gitignore`: a linha `golem.local.toml`.
-- [ ] `.claude/tests/test_gancho.py`: o `_path_sem_python` (linha 382) passa a isolar também o
+- [x] `.gitignore`: a linha `golem.local.toml`.
+- [x] `.claude/tests/test_gancho.py`: o `_path_sem_python` (linha 382) passa a isolar também o
   `LOCALAPPDATA` e o `PROGRAMFILES`, em pastas vazias do `tmp_path`, e o `TMPDIR`, num `tmp_path`
   (R5). Assim, os testes que já o usam continuam provando o que dizem.
-- [ ] Testes novos em `.claude/tests/test_gancho.py`, no padrão das linhas 314-454. Todos partem
+- [x] Testes novos em `.claude/tests/test_gancho.py`, no padrão das linhas 314-454. Todos partem
   do `_path_sem_python`, salvo onde o teste aponta uma das variáveis de propósito:
   1. `test_lancador_usa_a_linha_python` — a linha aponta para um `_repassador`, com o PATH
      quebrado: a lição chega;
@@ -100,7 +100,10 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-12 | G1: os testes do lançador que usam o `_rodar_lancador` passam a lançá-lo pelo `_comando_do_lancador`, que põe o `PROGRAMFILES` de dentro de um `sh` (ou o tira). Os testes 8 e 9 dependem disso. | No Windows, o sistema reescreve o `PROGRAMFILES` de todo processo novo, e o `env=` do teste não o troca (lição `o-windows-muda-o-que-o-sh-recebe-do-python`). | agente (detalhe de teste, sem efeito para o usuário) |
+| 2026-11-12 | G1: o `test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git` (`test_codex.py`) passa o texto do lançador ao `sh -c` por dentro de um `sh`. A contagem não muda. | O `gancho.sh` passou de 8 mil caracteres, e um argumento desse tamanho chega cortado ao `sh` quando vem do Python (mesma lição). O Claude Code e o Codex rodam `sh <arquivo>` e não são afetados. | agente (detalhe de teste) |
+| 2026-11-12 | G1: o `gancho.sh` não tira o `\r` do fim da linha, que o R1 pedia; o R1 foi ajustado. | O validador mostrou que a linha não tinha efeito (mutante equivalente em 16 arquivos, 4 com CR): o valor é cortado na segunda aspa, e o `\r` fica depois dela. O teste 4 continua provando que o CRLF é lido. | agente (regra 10, sem efeito para o usuário) |
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. Em andamento: G1.
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1 feito (revisor sem bloqueio, validador valida). Em andamento: G2.

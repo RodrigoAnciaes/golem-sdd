@@ -240,11 +240,15 @@ def test_settings_json_sem_claude_project_dir_acha_a_raiz_pelo_git(acervo):
 
 def test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git(acervo):
     """O lançador lido por `sh -c` (o `$0` não aponta para ele), de uma subpasta: a raiz vem do
-    `git rev-parse --show-toplevel`, e a lição chega."""
+    `git rev-parse --show-toplevel`, e a lição chega.
+
+    O texto passa ao `sh -c` de dentro de um `sh`, como no `sh -c "$(cat …)"`: dado direto pelo
+    Python, um argumento de mais de uns 8 mil caracteres chega cortado ao `sh` do Git Bash."""
     sh = _sh()
     sub = _arvore_com_git(acervo)
-    texto = (acervo.raiz / ".claude" / "hooks" / "gancho.sh").read_text(encoding="utf-8")
-    r = subprocess.run([sh, "-c", texto], input=json.dumps(codex("Bash", "pytest -q")),
+    lancador = acervo.raiz / ".claude" / "hooks" / "gancho.sh"
+    r = subprocess.run([sh, "-c", 'exec sh -c "$(cat "$1")"', "sh", str(lancador)],
+                       input=json.dumps(codex("Bash", "pytest -q")),
                        capture_output=True, text=True, encoding="utf-8", cwd=sub,
                        env=sem_claude_project_dir())
     assert r.returncode == 0, r.stderr[:300]
