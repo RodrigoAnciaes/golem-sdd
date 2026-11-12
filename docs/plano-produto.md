@@ -1,7 +1,12 @@
 # Plano de produto do Golem
 
-Rascunho de 2026-11-12, base `c880a17`. É um plano: nada aqui mudou o kit. Cada decisão volta ao
-autor do kit num cartão, uma de cada vez.
+Rascunho de 2026-11-12. As citações `arquivo:linha` se referem ao commit `c880a17`, o kit antes
+deste plano. O commit `ccca28b`, do crédito, pôs uma linha no topo de vários arquivos e uma seção
+no README. As linhas citadas desses arquivos que vêm depois da inserção andaram uma: o
+`gancho.sh:99` é hoje o 100, e o `README.md:228`, o 229; o `README.md:74` e o `:83` não mudaram.
+
+É um plano: ele não muda o kit sozinho. Cada decisão volta ao autor do kit num cartão, uma de cada
+vez, e as que já foram tomadas estão na seção 8, com as palavras dele.
 
 **Para quem é a primeira versão.** O primeiro usuário programa em Luau no Roblox Studio e usa pouco
 a IA, só para ajudar no código. Ele quer reaproveitar o que já escreveu e manter o próprio estilo.
@@ -57,9 +62,10 @@ foi **medido**, não estimado (seção 1.2).
 
 **O revisor e o validador são o maior custo medido.** Medi todas as transcrições de subagente
 guardadas nesta máquina (`~/.claude/projects/*/*/subagents/`). 91% das rodadas vêm de um mesmo
-grupo de pastas (o mesmo prefixo de caminho), que é um projeto grande. Os subagentes de tipo próprio entram pelo tipo; os `general-purpose` entram pela
-descrição ("revis" ou "guardi" para o revisor, "valida" para o validador). As 48 descrições com
-as duas palavras ficaram de fora. Todos os números são medianas por rodada:
+grupo de pastas (o mesmo prefixo de caminho), que é um projeto grande. Os subagentes de tipo
+próprio entram pelo tipo; os `general-purpose` entram pela descrição ("revis" ou "guardi" para o
+revisor, "valida" para o validador). As 48 descrições com as duas palavras ficaram de fora. Todos
+os números são medianas por rodada:
 
 | Subagente | Rodadas (no Opus) | Chamadas | Entrada nova | Cache relido | Saída | Pico de contexto |
 |---|---|---|---|---|---|---|
@@ -93,10 +99,16 @@ cada um pesa.
   e o `.gitignore`, gerar o índice e testar o gancho), mais 3 passos para o Codex. Ela exige
   **Python 3.8+ e o Git Bash no Windows** (`README.md:74` e `:83`). Quem programa Roblox
   costuma não ter Python.
-- **A prova veio na sessão de análise de 2026-11-12.** A máquina não tinha Python no PATH, e o
-  gancho falhou em **todas** as ações (`gancho.sh:99`). Cada falha mostrou um aviso ao usuário e
-  pôs ~90 tokens no contexto. O aviso está certo; o problema é repeti-lo a cada ação, sem dizer
-  como resolver em uma linha.
+- **A prova veio na sessão de análise de 2026-11-12.** O gancho falhou em **todas** as ações
+  (`gancho.sh:99`), com "nenhum Python 3.8+ encontrado". Cada falha mostrou um aviso ao usuário e
+  pôs ~90 tokens no contexto.
+  - **O Python existia.** O do instalador oficial estava em
+    `%LOCALAPPDATA%\Programs\Python\Python312`, e o lançador `py.exe` em `...\Python\Launcher`,
+    os dois fora do PATH. No PATH só estavam os atalhos da Microsoft Store, que não rodam nada.
+  - **O gancho só procura no `.venv` e no PATH.** O agente leu o aviso como "a máquina não tem
+    Python", e o autor do kit corrigiu. Virou a lição `sem-python-no-path-nao-e-maquina-sem-python`.
+  - **O problema, então, é triplo:** repetir o aviso a cada ação; não procurar o Python onde o
+    instalador o põe; e um aviso que leva a concluir que o Python falta.
 - **O vocabulário é o de uma equipe de conversas:** GER, EST, MET, frentes, PEDIDO/LIBERADO,
   níveis 1 a 3, decisões P/M/G (a G confirmada num segundo turno), o fecho de quatro itens. Tudo
   isso vale para quem toca várias entregas ao mesmo tempo. Para uma pessoa, é ruído.
@@ -143,82 +155,139 @@ dentro do mesmo valor, pelo menor custo.
 | # | Melhoria | Critério | Valor | Custo |
 |---|---|---|---|---|
 | 1 | **Aprovação passo a passo:** a implementação para ao fim de cada grupo e mostra o que mudou; os grupos são pequenos (um arquivo ou uma função) | estilo | A | P |
-| 2 | **Gancho que falha uma vez só**, em palavras simples, com o conserto em uma linha; ele também pode ser desligado, e aí as lições se buscam sob demanda | fácil, custo | A | P |
-| 3 | **Modo econômico com um interruptor** (`modo = "economico"`): uma conversa, revisor uma vez por fase e no Sonnet, validador só com os comandos do `validation.md`, sem mutação nem guardião | custo | A | M |
+| 2 | **Gancho que acha o Python e falha uma vez só:** ele procura também onde o instalador oficial põe o Python; quando falha, avisa uma vez, em palavras simples, cita a lição e dá o conserto em uma linha. Numa máquina sem Python nenhum, ele pode ser desligado: as skills passam a mandar buscar as lições em momentos fixos (o modo sem Python, de reserva) | fácil, custo | A | P |
+| 3 | **Receitas prontas, escolha por etapa e configuração por conversa:** três receitas recomendadas (`so-eu`, `economico`, `completo`); cada etapa opcional responde `sempre`, `perguntar` ou `nunca`; ele configura pedindo "configurar o Golem" e respondendo a botões; e o "guia de configuração", de uma página, explica cada escolha | custo, fácil | A | M |
 | 4 | **Pacote Roblox mínimo:** os comandos reais de um projeto Rojo, os gatilhos `.luau`/`rojo`/`selene`/`stylua`, um `tech-stack` modelo, critérios com playtest passo a passo e o uso do Studio MCP | Roblox | A | M |
 | 5 | **Aprender o estilo:** uma skill lê os programas que **ele escolher** e propõe as regras do estilo dele, cada uma com um exemplo `arquivo:linha` do próprio código; ele aprova uma a uma | estilo | A | M |
 | 6 | **Catálogo do que reaproveitar:** uma linha por módulo dele (o nome, o caminho, o que faz, a interface). A entrevista e o plano consultam o catálogo antes de criar algo novo | estilo | A | M |
 | 7 | **Instalação como plugin do Claude Code**, com uma skill de diagnóstico e o `AGENTS.md` preenchido por entrevista | fácil | A | M |
 | 8 | **Medidor de custo:** um script local que lê as transcrições e diz quanto cada papel gastou na semana (o desta análise, arrumado) | custo | M | P |
-| 9 | **Modo simples de documentação:** um guia "primeiro dia" de uma página; os papéis de várias conversas e o vocabulário de equipe só no modo completo | fácil, custo | M | M |
-| 10 | **Configuração completa:** o modelo e o esforço de cada papel, quais papéis rodam e o teto do gancho | custo | M | M |
-| 11 | **Infraestrutura de produto:** versões, notas de versão, o comando de atualizar, a página e a licença decidida | produto | M | M |
+| 9 | **Modo simples de documentação:** o "guia do primeiro dia", de uma página; os papéis de várias conversas e o vocabulário de equipe só na receita `completo` | fácil, custo | M | M |
+| 10 | **Configuração completa:** o esforço de cada papel, o `--conferir` do `aplicar` e, se a configuração por conversa não bastar, a página HTML que gera o `golem.toml` | custo, fácil | M | M |
+| 11 | **Infraestrutura de produto:** versões, notas de versão, o comando de atualizar e a página do kit | produto | M | M |
 | 12 | **Busca uniforme no índice:** a `implementar-fase` usa o mesmo `grep` da `iniciar-conversa` | custo | B agora, M com o acervo maior | P |
 | 13 | **Configuração também no Codex** (o instalador passa a ler o mesmo arquivo) | custo | B | M |
 
-**O que fica de fora de propósito:** reescrever o kit em inglês, uma interface gráfica, um
-servidor próprio e cobrança. Nada disso ajuda o primeiro usuário.
+**O que fica de fora de propósito:** reescrever o kit em inglês, um servidor próprio e cobrança.
+Nada disso ajuda o primeiro usuário.
+
+**O que fica para depois: a interface gráfica de configuração.** O autor do kit a vê como "uma
+demanda que eu vejo nesses tipos de pessoa" e "difícil da gente fazer". Primeiro vem a configuração
+com botões (melhoria 3). Se ela não bastar, vem a página HTML que gera o arquivo (melhoria 10) e,
+depois, a estudar, um painel dentro do Claude Code por plugin.
 
 ---
 
-## 3. Esboço da configuração de custo
+## 3. Esboço da configuração
 
-**Um arquivo, um interruptor.** A configuração mora num `golem.toml` na raiz do projeto. Para
-trocar de modo, ele muda uma linha, roda `golem aplicar` e abre uma conversa nova. Na fase 1,
-isso é um script (`python .claude/golem.py aplicar`) e uma skill `modo` ("mude para o modo
-econômico"), que faz as duas primeiras coisas por ele. Com o plugin da fase 4, a skill vira
-`/golem:modo`.
+**O pedido (2026-11-12, nas palavras do autor do kit):** "tinha que ser fácil de customizar para
+ele"; "imagina que ele nem quer usar o revisor no final do código, o ideal seria aparecer para
+ele, tipo, você quer usar o revisor?"; "a gente manteria os nossos recomendados, com várias
+configurações diferentes já prontas, mas é livre para ele configurar como ele quiser"; e "uma
+interface gráfica para configuração. Ou um guia muito bom".
+
+**Três camadas, do mais fácil ao mais livre:**
+1. **Configurar conversando.** Ele pede "configurar o Golem". O agente faz de 3 a 4 perguntas com
+   botões, e cada opção diz o que custa ("1 conversa extra por pedido", "nenhuma"). No fim, ele
+   escreve o `golem.toml` e o aplica. Os botões vêm da ferramenta de pergunta do Claude Code
+   (`AskUserQuestion`).
+   - No app desktop ela aparece com botões.
+   - No terminal, fica a conferir: o `docs/operacao-das-conversas.md` diz que a caixa com botões é
+     só do app.
+   - No Codex, também a conferir. Onde não houver botões, as mesmas perguntas saem em texto,
+     numeradas.
+2. **Escolher uma receita.** As receitas são os recomendados do kit e vêm prontas com ele (num
+   arquivo do kit, não no do projeto).
+3. **Mudar qualquer peça.** Cada linha escrita no `golem.toml` vale mais que a receita.
+
+**Cada etapa opcional responde `sempre`, `perguntar` ou `nunca`.** Com `perguntar`, a etapa vira
+uma pergunta com botões na hora em que chega, por exemplo "Quer que o revisor olhe o que foi feito?
+(abre 1 conversa extra)". O exemplo dele ("o ideal seria aparecer para ele, tipo, você quer usar o
+revisor?") é o caso do `perguntar`; quem já sabe que não quer usa o `nunca`.
+
+**Os comandos do `validation.md` rodam sempre.** Em toda receita, a própria conversa roda os
+critérios e lê a linha de resumo antes de dar uma parte por pronta (regras 4 e 8). O "validador"
+das receitas é só o subagente a mais, que roda tudo de novo e tenta quebrar o código numa cópia (a
+mutação).
+
+**As receitas** (os valores são a proposta para a spec da fase 1):
+
+| Etapa | `so-eu` | `economico` (o padrão) | `completo` (o fluxo de hoje) |
+|---|---|---|---|
+| revisor | nunca | sempre, uma vez por fase, no Sonnet | sempre, a cada grupo, no Opus |
+| validador (o subagente) | nunca | nunca | sempre, a cada grupo, no Opus |
+| guardião | nunca | nunca | sempre |
+| parar a cada parte | sempre | sempre | nunca |
+| conversas | uma | uma | papéis (GER, EST, MET) |
+| teto do gancho | 2 | 2 | 4 |
+
+Três receitas cobrem os casos que existem hoje: o usuário que não quer revisor (`so-eu`), o plano
+Pro (`economico`) e o fluxo do projeto de origem (`completo`). Uma receita intermediária entra
+quando aparecer quem a use.
 
 ```toml
-# golem.toml: quanto o Golem gasta.
-# Mude "modo", rode "golem aplicar" (ou peça à skill modo) e abra uma conversa nova.
-modo = "economico"            # economico | completo
+# golem.toml: como o Golem trabalha neste projeto.
+# O jeito mais fácil de mudar: peça "configurar o Golem" e responda aos botões.
+receita = "economico"            # so-eu | economico | completo
 
-[economico]                   # o padrão, pensado para o plano Pro
-conversas  = "uma"            # uma | papeis (GER, EST, MET)
-aprovacao  = "por_grupo"      # por_grupo: para ao fim de cada grupo | por_fase: segue sozinho
-revisor    = "por_fase"       # por_grupo | por_fase
-validador  = "comandos"       # mutacao: o subagente | comandos: a conversa roda o validation.md
-guardiao   = false
-modelo_revisor   = "sonnet"   # sonnet | opus | haiku | inherit
-modelo_validador = "inherit"
-gancho_ligado    = true
-gancho_teto      = 2          # lições novas por ação (hoje fixo em 4)
-
-[completo]                    # o fluxo de hoje, para planos maiores
-conversas  = "papeis"
-aprovacao  = "por_fase"
-revisor    = "por_grupo"
-validador  = "mutacao"
-guardiao   = true
-modelo_revisor   = "opus"
-modelo_validador = "opus"
-gancho_ligado    = true
-gancho_teto      = 4
+# Opcional. Cada linha abaixo vale mais que a receita; tire o # da que quiser mudar.
+# revisor          = "perguntar"   # sempre | perguntar | nunca
+# revisor_quando   = "por_fase"    # por_fase | por_grupo
+# modelo_revisor   = "sonnet"      # sonnet | opus | haiku | inherit
+# validador        = "nunca"       # sempre | perguntar | nunca (o subagente; os comandos rodam sempre)
+# modelo_validador = "opus"
+# guardiao         = "nunca"       # sempre | perguntar | nunca
+# parar_a_cada_parte = "sempre"    # sempre | nunca
+# conversas        = "uma"         # uma | papeis
+# gancho           = "ligado"      # ligado | desligado (máquina sem Python)
+# gancho_teto      = 2             # lições novas por ação (hoje fixo em 4)
 ```
 
 **Por que cada chave existe.** As de revisor, validador, guardião, conversas e modelos atacam o
-maior custo medido (seção 1.2). A de aprovação é o pedido do primeiro usuário. O `gancho_ligado`
-resolve a máquina sem Python. O `gancho_teto` custa pouco (o gancho injeta no máximo ~600 tokens
-por ação), mas é o que controla quanto contexto o gancho injeta, um dos itens do critério
-"customizável", e é uma linha. O gancho continua
-rodando antes de comandos nos dois modos: as duas lições do kit disparam por comando, e é a
-conversa que roda os comandos do `validation.md` no modo econômico.
+maior custo medido (seção 1.2). O `revisor_quando` é o que expressa o "uma vez por fase" contra o
+"a cada grupo". A de parar a cada parte é o pedido do primeiro usuário. O `gancho = "desligado"`
+resolve a máquina sem Python nenhum. O `gancho_teto` custa pouco (o gancho injeta no máximo ~600
+tokens por ação), mas é o que controla quanto contexto o gancho injeta, um dos itens do critério
+"customizável", e é uma linha. O gancho continua rodando antes de comandos em todas as receitas:
+as três lições do kit disparam por comando, e quem roda os comandos do `validation.md` (a
+conversa, e o validador quando ele existe) precisa delas.
 
-**Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`, no molde do
-`instalar_codex.py`, lê o arquivo e gera três coisas:
+**Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`
+(`python .claude/golem.py aplicar`, no molde do `instalar_codex.py`) junta a receita e as linhas
+do usuário e gera três coisas:
 1. o `model:` e o `effort:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita;
 2. no `.claude/settings.json`, a chamada do gancho com o teto (o `licoes_relevantes.py` passa a
    ler o teto de uma variável, em vez do `TETO = 4` fixo) ou sem o gancho;
-3. um bloco curto e **gerado** no `AGENTS.md`, "Modo atual", que as regras 1, 10 e 11 passam a
-   citar. Como o `AGENTS.md` já entra em todo turno, o agente sabe o modo sem abrir arquivo novo.
+3. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 1, 10
+   e 11 passam a citar. Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração
+   sem abrir arquivo novo, e sabe em que momento perguntar.
 
-Um `--conferir`, como o da régua, acusa quando o `golem.toml` e o que foi gerado divergem.
+A skill de configurar escreve o `golem.toml` e roda o `aplicar` por ele. Mudou a configuração,
+abre-se uma conversa nova. Com o plugin da fase 4, a skill vira `/golem:configurar`.
 
-**A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, o modo completo roda 7
-subagentes (3 revisores, 3 validadores e o guardião). O econômico roda 1: um revisor no Sonnet
-sobre o diff da fase. O validador vira os comandos do `validation.md`, rodados pela própria
-conversa com a linha de resumo lida.
+**Sem Python.** Escrever o `golem.toml` não precisa de Python; aplicá-lo, sim, menos o desligar do
+gancho. Para o `gancho = "desligado"` valer numa máquina sem Python, quem o lê é o próprio
+`gancho.sh`, que roda em `sh`: ele acha a linha no `golem.toml` e sai calado, antes de procurar o
+Python. Assim, a máquina sem Python para de mostrar o aviso a cada ação, e o resto da configuração
+fica escrito, esperando o Python para ser aplicado.
+
+**Python fora do PATH.** O caso visto (uma máquina, em 2026-11-12) não foi a falta de Python, e
+sim o Python instalado fora do PATH (lição `sem-python-no-path-nao-e-maquina-sem-python`). A
+pergunta ao primeiro usuário sobre o Python (seção 7) diz se o caso dele é o mesmo. Para esse caso:
+- o `gancho.sh` passa a procurar também onde o instalador oficial do Windows o põe: na instalação
+  "só para mim", `%LOCALAPPDATA%\Programs\Python\Python3*\python.exe` e o `py.exe` de
+  `...\Python\Launcher`; na "para todos os usuários", `%ProgramFiles%\Python3*` (a conferir);
+- o aviso de falha diz onde procurou, cita a lição pelo id e manda rodar o diagnóstico, em vez de
+  dar a entender que o Python não existe. Isso importa porque o gancho não consegue entregar a
+  lição justamente quando não acha o Python.
+
+Uma linha `python = "caminho"` no `golem.toml` cobriria um Python fora desses lugares (conda, uma
+pasta própria). Esse caso não foi visto, e ela fica de fora até aparecer (regra 10).
+
+**A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, a receita `completo` roda
+7 subagentes (3 revisores, 3 validadores e o guardião). A `economico` roda 1: um revisor no Sonnet
+sobre o diff da fase. Os comandos do `validation.md` ficam com a própria conversa, que lê a linha
+de resumo.
 - **Se os 7 tivessem o tamanho mediano medido**, o corte no que os subagentes gastam seria de uns
   85%.
 - **Mas o revisor do econômico lê o diff da fase inteira.** Com o dobro do tamanho de uma rodada
@@ -228,9 +297,11 @@ conversa com a linha de resumo lida.
 
 O número real se mede com o medidor (melhoria 8) no primeiro projeto Roblox.
 
-**O que o modo econômico não corta:** a spec com entrevista, a aprovação do usuário, os critérios
-como comando, as lições e a regra de simplicidade. Elas custam pouco e são o que o primeiro
-usuário gostou.
+**O que nenhuma receita corta:** a spec com entrevista, a aprovação do usuário, os critérios como
+comando, as lições e a regra de simplicidade. Elas custam pouco e são o que o primeiro usuário
+gostou. Quem desliga o revisor e o validador (a `so-eu`, ou um `nunca`) fica sem a leitura e a
+prova independentes; os comandos do `validation.md` continuam rodando. A skill de configurar diz
+isso numa linha, e a escolha é dele.
 
 **Detalhes a conferir na fase:**
 - o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: ou se sobe o mínimo, ou o arquivo usa
@@ -264,8 +335,8 @@ usuário gostou.
   Sem ela, o revisor acusa.
 
 **Passos pequenos que ele aprova** (melhoria 1):
-- `aprovacao = "por_grupo"` faz a implementação parar ao fim de cada grupo, com o diff e uma linha
-  do que mudou. O próximo grupo só começa com o ok dele.
+- `parar_a_cada_parte = "sempre"` faz a implementação parar ao fim de cada grupo, com o diff e
+  uma linha do que mudou. O próximo grupo só começa com o ok dele.
 - A `spec-de-fase` passa a propor grupos do tamanho de um arquivo ou de uma função.
 - O guia recomenda o modo de permissão padrão do Claude Code, que pede licença antes de cada
   edição, e desaconselha o modo automático para ele.
@@ -331,14 +402,31 @@ Isso funciona, mas é mais fraco. O guia sugere migrar para o Rojo quando o proj
 - duas lições de exemplo do mundo Roblox no lugar das de pytest.
 
 **O kit fora de um repositório JS ou Python.** O método não depende da linguagem. Só o ferramental
-do kit (o gancho, a régua e o instalador) é Python. Há três saídas, e não se excluem:
-- **(a)** o diagnóstico confere o Python e diz como instalar (no Windows, um comando do `winget`;
-  o id exato fica a conferir);
-- **(b)** o gancho pode ser desligado (`gancho_ligado = false`), e as lições se buscam sob
-  demanda;
+do kit (o gancho, a régua e o instalador) é Python. A busca nas lições e nos documentos não
+precisa dele: o Claude Code tem a própria busca. Sem Python, o que se perde é:
+- a entrega automática das lições na hora certa (o gancho);
+- a geração e a conferência do índice: a `licao` gera o índice, e o `regua.py --conferir` é
+  critério na `validar-fase`, na `auditar-specs` e na `sessao-gerente`. Sem Python, o índice
+  envelhece;
+- o `aplicar` e o instalador do Codex.
+
+Há quatro saídas, e elas não se excluem:
+- **(a)** o gancho e o diagnóstico procuram o Python também nos lugares do instalador oficial
+  (seção 3, "Python fora do PATH"). Só se não acharem nenhum, o diagnóstico diz como instalar (no
+  Windows, um comando do `winget`; o id exato fica a conferir);
+- **(b)** o modo sem Python, de reserva: `gancho = "desligado"` (lido pelo `gancho.sh`, seção 3).
+  As skills buscam as lições em momentos fixos (no começo da fase e antes de rodar os testes)
+  **sempre**, com ou sem gancho: a busca é barata, e assim não depende do `aplicar` para saber que
+  o gancho está desligado. Sem Python, a busca vai direto a `docs/licoes/`, e não ao índice, que
+  pode estar velho. Os passos de régua das skills dizem que foram pulados, em vez de falhar;
 - **(c)** a estudar: o Claude Code aceita ganchos escritos em JavaScript num plugin (os "hooks
   modules"), o que tiraria o Python do caminho. Isso só vale para o Claude, e falta conferir se
-  esse tipo de gancho pode injetar contexto.
+  esse tipo de gancho pode injetar contexto;
+- **(d)** a estudar: reescrever em Luau, rodando no Lune, se o usuário já tiver o Lune.
+
+**Decidido em 2026-11-12:** a (a), com a (b) de reserva. A (c) e a (d) só se, depois, mais gente
+travar na instalação do Python. A skill de configurar escreve o `golem.toml` sem Python; aplicá-lo
+pede Python, menos o desligar do gancho.
 
 ---
 
@@ -358,12 +446,16 @@ do kit (o gancho, a régua e o instalador) é Python. Há três saídas, e não 
   - **O Codex perde a fonte.** O `instalar_codex.py` lê `.claude/skills/`, que deixa de existir no
     projeto. Falta decidir de onde ele tira as cópias.
 - **`/golem:comecar`:** cria o que o projeto precisa (o `AGENTS.md`, `docs/licoes/`, `specs/` e o
-  `golem.toml` no modo econômico). Preenche as lacunas `<< >>` por entrevista ("como você roda o
-  jogo?", "usa Rojo?", "onde estão seus módulos?") e termina testando o gancho.
-- **`/golem:diagnostico`:** confere o Python, o `sh`, o git, o índice, o gancho, o modo e o Studio
-  MCP, e diz em uma linha o que fazer em cada falha.
-- **O guia "primeiro dia":** uma página com um fluxo só (spec → implementar → validar), numa
-  conversa só, sem GER, EST nem MET. O `docs/operacao-das-conversas.md` fica para o modo completo.
+  `golem.toml` com a receita `economico`). Preenche as lacunas `<< >>` por entrevista ("como você
+  roda o jogo?", "usa Rojo?", "onde estão seus módulos?"), passa pela configuração com botões e
+  termina testando o gancho.
+- **`/golem:diagnostico`:** confere o Python, o `sh`, o git, o índice, o gancho, a configuração e
+  o Studio MCP, e diz em uma linha o que fazer em cada falha. Acha o Python fora do PATH nos
+  lugares do instalador oficial. Sem Python nenhum, diz o comando que o instala e oferece o modo
+  sem Python enquanto isso.
+- **O guia do primeiro dia:** uma página com um fluxo só (spec → implementar → validar), numa
+  conversa só, sem GER, EST nem MET. O `docs/operacao-das-conversas.md` fica para a receita
+  `completo`.
 - **As mensagens:** a falha do gancho aparece uma vez por sessão, diz o que deixou de funcionar e
   como consertar. Nenhuma mensagem usa sigla sem dizer o que é.
 
@@ -373,27 +465,54 @@ do kit (o gancho, a régua e o instalador) é Python. Há três saídas, e não 
 
 Cada fase é uma branch, mergeável sozinha, com spec aprovada antes (regra 1). A ordem põe primeiro
 o que o primeiro usuário sente no primeiro dia. A instalação vem depois porque, no começo, o autor
-do kit pode instalar com ele.
+do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 8, item 3).
 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
-| **1. Econômico e passo a passo** | o `golem.toml` com os dois modos; a skill `modo`; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Modo atual" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo ao modo; o gancho que falha uma vez só | 1, 2, 3 | M | numa fase de teste em modo econômico, a conversa para a cada grupo, roda um revisor só, no Sonnet, e o aviso do gancho aparece uma vez |
+| **1. Configuração e receita econômica** | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões) e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; o gancho que falha uma vez só; o `gancho.sh` achando o Python fora do PATH (os lugares do instalador oficial); e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2, 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo, roda um revisor só, no Sonnet, e o aviso do gancho aparece uma vez; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
 | **2. Roblox mínimo** | os modelos de tech-stack e de comandos para Rojo, os gatilhos, duas lições de exemplo e os testes pelo Studio MCP | 4 | M | num place Rojo de exemplo, uma fase pequena vai da spec ao validado, com o resumo dos testes lido no console |
 | **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
-| **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` e o guia "primeiro dia" | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia, num Windows sem Python instalado de antemão |
-| **5. Configuração completa e medidor** | o esforço por papel, quais papéis rodam, o `golem aplicar --conferir`, o medidor e a busca uniforme no índice | 8, 10, 12 | M | trocar `modo` e rodar `aplicar` muda o que a fase 1 gera, o `--conferir` acusa a divergência, e o medidor mostra o gasto por papel antes e depois |
-| **6. Produto** | versões, notas de versão, como atualizar, a página, a licença decidida, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
+| **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` e o guia do primeiro dia | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
+| **5. Configuração completa e medidor** | o esforço por papel, o `golem aplicar --conferir`, a página HTML de configuração (se a fase 1 mostrar que a conversa com botões não basta), o medidor e a busca uniforme no índice | 8, 10, 12 | M | trocar a `receita` e rodar o `aplicar` muda o que a fase 1 gera, o `--conferir` acusa a divergência, e o medidor mostra o gasto por papel antes e depois |
+| **6. Produto** | versões, notas de versão, como atualizar, a página do kit, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
 
-**Antes da fase 1:** a decisão da licença (cartão à parte) e uma conversa com o primeiro usuário
-para confirmar três coisas: se ele usa Rojo ou só o Studio, que framework de teste usa e qual
-modelo o Pro dele mostra no `/model`.
+**Perguntas ao primeiro usuário.**
+- **Antes da fase 1:** qual modelo o Pro dele mostra no `/model`. As receitas fixam o Sonnet e o
+  Opus, e o "pronto" da fase 1 pede o Sonnet.
+- **Antes da fase 2:** se ele usa Rojo ou só o Studio, que framework de teste usa e se já tem
+  Python instalado.
 
 ---
 
-## 8. Decisões que ficam com o autor do kit, uma de cada vez
+## 8. Decisões do autor do kit
 
-1. **A licença:** cartão enviado em 2026-11-12, junto com este plano.
-2. **A ordem do roteiro:** se a fase 2 (Roblox) vem antes da 1 (econômico).
-3. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
+**Tomadas:**
+1. **A licença, em 2026-11-12.** O cartão recomendou manter a MIT. As palavras dele: "Ok, eu
+   quero manter a MIT só que eu só quero pelo menos reforçar que me deem os créditos" e, sobre
+   como reforçar, "MIT, com aviso por arquivo". Aplicado no commit `ccca28b`: o nome completo no
+   `LICENSE`, a cópia em `.claude/LICENSE`, a linha de crédito em cada skill, agente e script, a
+   seção "Licença e crédito" do README e o teste que acusa crédito ausente.
+2. **A configuração, em 2026-11-12.** O pedido está na seção 3. As palavras dele sobre a
+   recomendação: "sim, pode seguir sua recomendação". Entra na fase 1 (seções 3, 5 e 7). Os pontos
+   aceitos:
+   - configurar conversando, com botões, mais um guia de uma página;
+   - receitas prontas, com linhas livres que valem mais que elas;
+   - cada etapa opcional com `sempre`, `perguntar` ou `nunca`;
+   - a página HTML e um painel de plugin ficam para depois;
+   - o Python como requisito, com o diagnóstico guiando a instalação e o modo sem Python de
+     reserva; reescrever o gancho em JavaScript ou em Luau, só se mais gente travar no Python.
+
+   Mudança depois do ok, para a spec da fase 1 confirmar: a receita `equilibrado`, que estava na
+   recomendação, saiu do esboço por não ter um usuário que a peça (regra 10).
+3. **A ordem do roteiro, em 2026-11-12.** O cartão recomendou a fase 1 (configuração e receita
+   econômica) antes da fase 2 (Roblox mínimo). As palavras dele: "Configuração primeiro". A ordem
+   da seção 7 fica como está.
+
+**Em aberto, uma de cada vez:**
+1. **Uma fase 0 para o gancho achar o Python?** A busca do Python fora do PATH não depende do
+   `golem.toml` e conserta já a falha vista. Ela pode sair numa fase pequena antes da 1 (só o
+   `gancho.sh`, o aviso e um teste) ou ficar dentro da 1, que já é a maior do roteiro.
+2. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
    de investir em página e identidade (a conferir).
-4. **O que é pago, se algo for:** depende da licença.
+3. **O que é pago, se algo for:** com a MIT mantida, a parte paga, se houver, é serviço ou um
+   repositório à parte (o núcleo aberto do cartão da licença).
