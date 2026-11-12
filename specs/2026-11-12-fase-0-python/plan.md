@@ -95,9 +95,23 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 ## G4 — Verificação
 
-- [ ] rodar o `validation.md` inteiro, com a saída colada;
-- [ ] o passo a passo manual nesta máquina (Python fora do PATH);
-- [ ] spec e código reconciliados.
+- [x] rodar o `validation.md` inteiro, com a saída colada: as verificações automatizadas e os
+  casos de borda passaram em `e05344d` (2026-11-12). Saídas, na ordem do `validation.md`:
+  - a suíte: `94 passed`;
+  - os 18 nós: `18 passed`;
+  - a régua: `ok       .claude/indice/licoes.yaml`;
+  - o instalador do Codex numa cópia: `ok       23 arquivos do Codex batem com .claude/`, com a
+    `.agents/skills/diagnostico/SKILL.md` presente;
+  - `sh -n`: rc 0; o fim de linha: `i/lf w/lf`;
+  - `git check-ignore`: `.gitignore:9:golem.local.toml`;
+  - sem a linha `license:` da skill nova: `1 failed, 1 passed`;
+  - o diff do `licoes_relevantes.py` desde `f912da6`: vazio;
+  - o `git grep` de caminho pessoal: sem resultado.
+- [ ] o passo a passo manual nesta máquina (Python fora do PATH): o passo 1 passou (a lição
+  `sem-python-no-path-nao-e-maquina-sem-python` chega, sem `systemMessage`). Os passos 2 a 5
+  pedem uma sessão nova do Claude Code no worktree e as respostas do usuário; o 3 e o 4 gravam o
+  `golem.local.toml` na pasta principal de verdade.
+- [x] spec e código reconciliados: as mudanças estão na tabela abaixo.
 
 ## Alterações de escopo durante a fase
 
@@ -114,4 +128,4 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). Em andamento: G4.
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). G4: o automatizado passou; faltam os passos manuais 2 a 5, com o usuário, e depois a skill `validar-fase` (o guardião, o registro no `docs/plano-produto.md` e o PR).
