@@ -39,21 +39,21 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 
 ## G2 — O aviso uma vez por sessão (R3, R5)
 
-- [ ] `.claude/hooks/gancho.sh`: no caminho da falha "nenhum Python", ler o stdin com `read`
+- [x] `.claude/hooks/gancho.sh`: no caminho da falha "nenhum Python", ler o stdin com `read`
   embutido e extrair o `session_id` e o `agent_id` por expansão de parâmetro, tolerando espaço
   depois dos dois-pontos. Validar cada id com `case` (`*[!A-Za-z0-9_-]*` invalida); um id com mais
   de 128 caracteres também. O agente ausente é `principal`.
-- [ ] Duas marcas na pasta temporária (`${TMPDIR:-${TEMP:-/tmp}}`), criadas com `set -C` e `>`,
+- [x] Duas marcas na pasta temporária (`${TMPDIR:-${TEMP:-/tmp}}`), criadas com `set -C` e `>`,
   com o ponto como separador, que os ids não podem ter: `golem-aviso.<sessao>` (a do usuário) e
   `golem-aviso.<sessao>.<agente>`.
   - A marca do usuário só é tentada pela conversa principal. Quem a cria põe o `systemMessage`.
   - Quem cria a do agente põe o `additionalContext`.
   - Sem marca nova, o gancho sai calado.
   - Sem `session_id` válido, avisa em toda ação.
-- [ ] O texto do aviso (R3), em texto fixo, sem aspas nem barra invertida, com a frase da linha
+- [x] O texto do aviso (R3), em texto fixo, sem aspas nem barra invertida, com a frase da linha
   `python` quando ela existe e não roda.
-- [ ] O `gancho-falhas.log` recebe a linha também nas ações caladas.
-- [ ] Testes novos em `.claude/tests/test_gancho.py`, todos a partir do `_path_sem_python` (sem
+- [x] O `gancho-falhas.log` recebe a linha também nas ações caladas.
+- [x] Testes novos em `.claude/tests/test_gancho.py`, todos a partir do `_path_sem_python` (sem
   Python achável e com o `TMPDIR` num `tmp_path`):
   10. `test_aviso_sai_uma_vez_na_conversa_principal` — duas ações com `session_id` e sem
       `agent_id`: a primeira traz o `systemMessage` e o `additionalContext`, a segunda sai vazia;
@@ -67,10 +67,13 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
   15. `test_aviso_com_ids_hostis_nao_escapa_da_pasta` — `session_id` com `../` e barra: nada é
       criado fora da pasta temporária, e o aviso sai como se não houvesse id;
   16. `test_aviso_le_o_json_com_espacos` — `"session_id" : "s1"` com espaços: a marca vale, e a
-      segunda ação sai vazia;
+      segunda ação sai vazia; um `tool_input` com o valor `"agent_id"` e um `\"session_id\"`
+      escapado não engana a leitura;
   17. `test_aviso_ao_usuario_mesmo_se_o_subagente_falhar_primeiro` — primeiro um `agent_id` de
       subagente (só o `additionalContext`), depois a conversa principal: ela ainda traz o
-      `systemMessage`.
+      `systemMessage`;
+  18. `test_aviso_sem_pasta_temporaria_gravavel_avisa_em_toda_acao` — o `TMPDIR` aponta para uma
+      pasta que não existe: as duas ações avisam (acrescentado na revisão do G2).
 
 **Revisão:** revisor + validador.
 
@@ -103,7 +106,9 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 | 2026-11-12 | G1: os testes do lançador que usam o `_rodar_lancador` passam a lançá-lo pelo `_comando_do_lancador`, que põe o `PROGRAMFILES` de dentro de um `sh` (ou o tira). Os testes 8 e 9 dependem disso. | No Windows, o sistema reescreve o `PROGRAMFILES` de todo processo novo, e o `env=` do teste não o troca (lição `o-windows-muda-o-que-o-sh-recebe-do-python`). | agente (detalhe de teste, sem efeito para o usuário) |
 | 2026-11-12 | G1: o `test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git` (`test_codex.py`) passa o texto do lançador ao `sh -c` por dentro de um `sh`. A contagem não muda. | O `gancho.sh` passou de 8 mil caracteres, e um argumento desse tamanho chega cortado ao `sh` quando vem do Python (mesma lição). O Claude Code e o Codex rodam `sh <arquivo>` e não são afetados. | agente (detalhe de teste) |
 | 2026-11-12 | G1: o `gancho.sh` não tira o `\r` do fim da linha, que o R1 pedia; o R1 foi ajustado. | O validador mostrou que a linha não tinha efeito (mutante equivalente em 16 arquivos, 4 com CR): o valor é cortado na segunda aspa, e o `\r` fica depois dela. O teste 4 continua provando que o CRLF é lido. | agente (regra 10, sem efeito para o usuário) |
+| 2026-11-12 | G2: a leitura dos ids parte o JSON nas aspas (`ids_da_entrada`), em vez de cortar a entrada com `${entrada#*\"id\"}`. | O corte era quadrático: 4 s em 80 KB sem `agent_id`, o caso de toda ação da conversa principal; e um valor `"agent_id"` no `tool_input` o enganava. Partir é linear: 2 MB quase sem aspas em 0,04 s; 1,56 MB cheios de aspas em 5,9 s, medido pelo revisor. | agente (achado do revisor do G2) |
+| 2026-11-12 | G2: o teste 18 (pasta temporária sem escrita) entra, e a contagem do fim da fase vai de 93 para 94. | A marca que não pôde ser criada conta como nova (o R3: só sai calado quando as marcas existem), e nada provava isso. | agente (achado do revisor do G2) |
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1 feito (revisor sem bloqueio, validador valida). Em andamento: G2.
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1 e G2 feitos (revisor sem bloqueio, validador valida). Em andamento: G3.

@@ -631,6 +631,156 @@ def test_lancador_sem_lugares_de_costume_avisa_sem_erro_de_sh(acervo, sessao, tm
     assert estranhas == [], estranhas
 
 
+# ------------------------------------------------- o aviso uma vez por sessão, sem Python (fase 0)
+
+
+def _sem_python(sh: str, acervo, ambiente: dict, payload):
+    """Roda o lançador sem nenhum Python achável. Devolve o JSON da saída, ou None se ele saiu
+    calado. `payload` é um dict ou o texto exato do stdin."""
+    entrada = payload if isinstance(payload, str) else json.dumps(payload)
+    r = subprocess.run(_comando_do_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh",
+                                            ambiente), input=entrada,
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente)
+    assert r.returncode == 0, r.stderr[:300]
+    return json.loads(r.stdout) if r.stdout.strip() else None
+
+
+def _contexto(saida: dict) -> str:
+    return saida["hookSpecificOutput"]["additionalContext"]
+
+
+def test_aviso_sai_uma_vez_na_conversa_principal(acervo, tmp_path):
+    """Duas ações da conversa principal: a primeira avisa os dois, a segunda sai calada; o log
+    recebe as duas."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    acao = {"session_id": "s1", "tool_input": {"command": "ls"}}
+    primeira = _sem_python(sh, acervo, ambiente, acao)
+    assert "systemMessage" in primeira and "falhou" in _contexto(primeira)
+    assert _sem_python(sh, acervo, ambiente, acao) is None
+    log = (acervo.raiz / ".claude" / "gancho-falhas.log").read_text(encoding="utf-8")
+    assert log.count("nenhum Python") == 2, log
+
+
+def test_aviso_ao_subagente_sem_repetir_ao_usuario(acervo, tmp_path):
+    """Depois da conversa principal, um subagente novo recebe o aviso no contexto dele, e o
+    usuário não o vê de novo."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    assert _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}}) is not None
+    sub = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "agent_id": "a1", "tool_input": {}})
+    assert "systemMessage" not in sub, sub.get("systemMessage")
+    assert "falhou" in _contexto(sub)
+    assert _sem_python(sh, acervo, ambiente,
+                       {"session_id": "s1", "agent_id": "a1", "tool_input": {}}) is None
+
+
+def test_aviso_sem_session_id_sai_em_toda_acao(acervo, tmp_path):
+    """Sem `session_id` não há como marcar a sessão: o aviso sai em toda ação, como antes."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    for _ in range(2):
+        saida = _sem_python(sh, acervo, ambiente, {"tool_input": {"command": "ls"}})
+        assert "systemMessage" in saida and "falhou" in _contexto(saida)
+    assert list(Path(ambiente["TMPDIR"]).iterdir()) == []
+
+
+def test_aviso_cita_a_linha_python_que_nao_roda(acervo, tmp_path):
+    """A linha `python` aponta para um caminho que não existe, e nada mais roda: o aviso diz que é
+    a linha."""
+    sh = _sh()
+    _golem_local(acervo.raiz, tmp_path / "nao-existe" / "python.exe")
+    saida = _sem_python(sh, acervo, _path_sem_python(tmp_path), {"tool_input": {}})
+    assert "linha python do golem.local.toml aponta" in saida["systemMessage"]
+    assert "linha python do golem.local.toml aponta" in _contexto(saida)
+
+
+def test_aviso_cita_a_licao_e_o_diagnostico(acervo, tmp_path):
+    """O aviso diz onde procurou, cita a lição pelo id e manda pedir o diagnóstico."""
+    sh = _sh()
+    saida = _sem_python(sh, acervo, _path_sem_python(tmp_path), {"tool_input": {}})
+    for campo in (saida["systemMessage"], _contexto(saida)):
+        assert "sem-python-no-path-nao-e-maquina-sem-python" in campo
+        assert "diagnóstico do Golem" in campo
+        assert "instalador do Windows" in campo and "golem.local.toml" in campo
+    assert "aponta" not in saida["systemMessage"], "sem linha python, a frase dela não entra"
+
+
+def test_aviso_com_ids_hostis_nao_escapa_da_pasta(acervo, tmp_path):
+    """Um `session_id` ou `agent_id` que não casa com `[A-Za-z0-9_-]{1,128}` vale como ausente:
+    nenhum arquivo nasce do id, e o aviso sai como sem id.
+
+    Os ids com `..` e barra mostram que nada sai da pasta; quem prova a validação são o de 129
+    caracteres e o com ponto, que sem ela virariam marca."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    hostis = ["../../fora", "a/b", "a\\\\b", "x" * 129, "s.1"]
+    antes = set(tmp_path.rglob("*"))
+
+    def novos():
+        return {p for p in set(tmp_path.rglob("*")) - antes
+                if p.is_file() and p.name != "gancho-falhas.log"}
+
+    for hostil in hostis:
+        texto = '{"session_id":"%s","tool_input":{}}' % hostil
+        for _ in range(2):
+            saida = _sem_python(sh, acervo, ambiente, texto)
+            assert "systemMessage" in saida and "falhou" in _contexto(saida), hostil
+    assert novos() == set(), novos()
+    # O `agent_id` hostil também não vira nome de arquivo: o agente vale como `principal`.
+    for hostil in hostis:
+        _sem_python(sh, acervo, ambiente,
+                    '{"session_id":"s1","agent_id":"%s","tool_input":{}}' % hostil)
+    assert sorted(p.name for p in novos()) == ["golem-aviso.s1", "golem-aviso.s1.principal"]
+    assert all(p.parent == Path(ambiente["TMPDIR"]) for p in novos()), novos()
+
+
+def test_aviso_le_o_json_com_espacos(acervo, tmp_path):
+    """`"session_id" : "s1"`, com espaços em volta dos dois-pontos, ainda é lido; e um texto da
+    ferramenta que traz o nome de um id (como valor, ou entre aspas escapadas) não engana."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    texto = '{"tool_input": {"command": "ls"}, "session_id" : "s1"}'
+    assert _sem_python(sh, acervo, ambiente, texto) is not None
+    assert _sem_python(sh, acervo, ambiente, texto) is None
+    # Uma ação da conversa principal (sem `agent_id`) cujo texto traz o nome dos ids: se um deles
+    # fosse lido do texto, ela viraria um "subagente" e o usuário perderia o aviso.
+    principal = ('{"tool_input": {"pattern": "agent_id", "path": "src",'
+                 ' "command": "echo \\"session_id\\":\\"zz\\""}, "session_id" : "s2"}')
+    json.loads(principal)
+    saida = _sem_python(sh, acervo, ambiente, principal)
+    assert "systemMessage" in saida and "falhou" in _contexto(saida), saida
+    sub = principal[:-1] + ', "agent_id" : "a1"}'
+    json.loads(sub)
+    saida = _sem_python(sh, acervo, ambiente, sub)
+    assert "systemMessage" not in saida and "falhou" in _contexto(saida), saida
+    assert _sem_python(sh, acervo, ambiente, sub) is None
+    assert sorted(p.name for p in Path(ambiente["TMPDIR"]).iterdir()) == [
+        "golem-aviso.s1", "golem-aviso.s1.principal",
+        "golem-aviso.s2", "golem-aviso.s2.a1", "golem-aviso.s2.principal"]
+
+
+def test_aviso_ao_usuario_mesmo_se_o_subagente_falhar_primeiro(acervo, tmp_path):
+    """O subagente falha antes da conversa principal: ele não gasta o aviso do usuário."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    sub = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "agent_id": "a1", "tool_input": {}})
+    assert "systemMessage" not in sub and "falhou" in _contexto(sub)
+    principal = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}})
+    assert "systemMessage" in principal and "falhou" in _contexto(principal)
+
+
+def test_aviso_sem_pasta_temporaria_gravavel_avisa_em_toda_acao(acervo, tmp_path):
+    """A marca não pôde ser criada (a pasta temporária não existe): conta como nova, e o aviso sai
+    em vez de calar a sessão inteira."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    ambiente["TMPDIR"] = str(tmp_path / "nao-existe")
+    for _ in range(2):
+        saida = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}})
+        assert "systemMessage" in saida and "falhou" in _contexto(saida)
+
+
 def test_o_comando_exato_do_settings_json_entrega(acervo, tmp_path):
     """Roda o `command` de cada gancho do `.claude/settings.json` como o Claude Code roda: pelo
     `sh`, com `CLAUDE_PROJECT_DIR` apontando para o projeto e a pasta corrente em outro lugar.

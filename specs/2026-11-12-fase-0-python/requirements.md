@@ -107,10 +107,22 @@ procurou e cita a lição (`docs/plano-produto.md`, seção 7, linha da fase 0).
   seria peça nova sem caso visto (regra 10).
 - **Limpar as marcas velhas do aviso:** fora. São arquivos vazios, um por sessão com falha mais um por
   agente, na pasta temporária do sistema.
-- **Um limite conhecido, sem conserto nesta fase:** o `read` embutido lê o stdin byte a byte. Uma
-  entrada de 2 MB levou 4,6 s no `sh` do Git Bash (medido pelo revisor em 2026-11-12), e o gancho
-  tem `timeout: 10` no `settings.json`. Um `Write` de vários MB, no caminho da falha, pode estourar
-  o tempo. É raro, e o caminho da falha só existe sem Python.
+- **Um limite conhecido, sem conserto nesta fase:** o `read` embutido lê o stdin byte a byte, e o
+  gancho tem `timeout: 10` no `settings.json`. Medido em 2026-11-12, no `sh` do Git Bash, com a
+  entrada por pipe, como o Claude Code a passa:
+  - só o `read`: 130 KB em 0,40 s, 1 MB entre 2,5 e 3,75 s, e 2 MB em 9,3 s;
+  - com texto cheio de aspas escapadas, a leitura dos ids também pesa (cada aspa vira um campo):
+    1,2 MB levaram cerca de 13 s no total;
+  - de uma rodada para outra, o tempo variou mais de 2 vezes.
+
+  Um `Write` de **uns 1 a 2 MB, menos com texto cheio de aspas**, numa máquina sem Python, pode
+  estourar o tempo. A primeira extração dos ids (`${entrada#*\"agent_id\"}`) era quadrática, com 4 s
+  em 80 KB: o revisor do G2 a pegou, e ela foi trocada (tabela de alterações do `plan.md`).
+- **O `sh` do Linux:** a conferir. Num `dash`, se o `shift` copiar o vetor de argumentos, a
+  leitura dos ids volta a ser quadrática com muitas aspas. Lá, o `python3` costuma estar no PATH,
+  e o caminho da falha é raro.
+- **A compactação do contexto:** fora. A marca do aviso é por sessão: um agente que compacta o
+  contexto perde o aviso e não o recebe de novo. Está registrado no comentário do `gancho.sh`.
 - **O diagnóstico completo, o plugin e o `comecar`:** fase 4.
 
 ## Decisões
@@ -214,8 +226,10 @@ Nenhum: a fase não gasta dinheiro.
   a saída de `winget search`, antes de a skill citá-lo.
 - **Se a entrada de gancho do Codex traz `session_id`:** a conferir. Sem ele, o aviso sai em toda
   ação, como hoje (R3).
-- **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** a conferir no G2. O
-  desenho não depende da resposta: só a conversa principal põe o `systemMessage`.
+- **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** não conferido no G2.
+  Nesta sessão, o gancho antigo avisa em toda ação da conversa principal, e não dá para separar
+  o aviso de um subagente. O desenho não depende da resposta: só a conversa principal põe o
+  `systemMessage`.
 - ~~**Se o `sh` do Git Bash executa o `_repassador` com o nome `python.exe`**~~ Respondida no G1
   (2026-11-12): executa, e também pelo caminho com barra invertida (`C:\...\python.exe`). Achado
   junto: o `PROGRAMFILES` não se troca pelo ambiente do teste no Windows (tabela de alterações do

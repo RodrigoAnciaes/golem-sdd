@@ -23,6 +23,8 @@
 #      o gancho só usa biblioteca padrão, então qualquer Python 3.8+ serve;
 #   3. qualquer falha avisa os DOIS: o usuário pelo `systemMessage` e o agente pelo
 #      `additionalContext`, mais uma linha em `.claude/gancho-falhas.log` (ponha no .gitignore).
+#      Na falha "nenhum Python", o usuário é avisado uma vez por sessão e cada agente uma vez; sem
+#      `session_id`, em toda ação (o porquê está lá embaixo). O log recebe a linha sempre.
 #      Sai sempre 0: o 2 é o código que bloqueia a ferramenta, e o 1 só chegaria ao usuário
 #      (o agente seguiria sem lição e sem saber).
 #
@@ -44,13 +46,29 @@ if [ ! -f "$aqui/licoes_relevantes.py" ]; then
     fi
 fi
 
+# Quem recebe o aviso: `ao_usuario` (o `systemMessage`) e `ao_agente` (o `additionalContext`), 1
+# ou 0. Só o caminho "nenhum Python" os muda, para avisar uma vez por sessão; o log sempre recebe.
+ao_usuario=1
+ao_agente=1
+
 avisar() {
-    # $1 vai dentro de uma string JSON: só texto fixo, sem aspas nem barra invertida.
-    printf 'gancho das lições: %s (pasta: %s)\n' "$1" "$raiz" >&2
+    # $1 (o motivo) e $2 (frases a mais, opcional, terminadas em ". ") vão dentro de uma string
+    # JSON: só texto fixo, sem aspas nem barra invertida.
     printf '%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$raiz" "$1" \
         >> "$raiz/.claude/gancho-falhas.log" 2>/dev/null
+    [ "$ao_usuario" = 1 ] || [ "$ao_agente" = 1 ] || exit 0
+    printf 'gancho das lições: %s (pasta: %s)\n' "$1" "$raiz" >&2
+    separador=""
+    printf '{'
     # `systemMessage` é o que chega ao USUÁRIO: com saída 0, o stderr só aparece no modo verbose.
-    printf '{"systemMessage":"⚠️ Gancho das lições falhou (%s). Detalhe em .claude/gancho-falhas.log.","hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ O gancho das lições falhou (%s): nenhuma lição nem regra de área foi injetada nesta ação. Leia docs/licoes/ à mão (índice em .claude/indice/licoes.yaml) e avise o usuário. Detalhe em .claude/gancho-falhas.log."}}\n' "$1" "$1"
+    if [ "$ao_usuario" = 1 ]; then
+        printf '"systemMessage":"⚠️ Gancho das lições falhou (%s). %sDetalhe em .claude/gancho-falhas.log."' "$1" "$2"
+        separador=","
+    fi
+    if [ "$ao_agente" = 1 ]; then
+        printf '%s"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ O gancho das lições falhou (%s): nenhuma lição nem regra de área foi injetada nesta ação. Leia docs/licoes/ à mão (índice em .claude/indice/licoes.yaml) e avise o usuário. %sDetalhe em .claude/gancho-falhas.log."}' "$separador" "$1" "$2"
+    fi
+    printf '}\n'
     exit 0
 }
 
@@ -155,10 +173,13 @@ comum=$(git -C "$raiz" rev-parse --path-format=absolute --git-common-dir 2>/dev/
 [ -z "$comum" ] || principal=$(dirname "$comum")
 
 py=""
+linha_quebrada=""
 if ler_linha_python "$raiz/golem.local.toml" \
     || { [ -n "$principal" ] && ler_linha_python "$principal/golem.local.toml"; }; then
     if [ -f "$linha_python" ] && roda_py38 "$linha_python"; then
         py="$linha_python"
+    else
+        linha_quebrada="A linha python do golem.local.toml aponta para algo que não roda um Python 3.8+. "
     fi
 fi
 [ -n "$py" ] || py=$(achar_venv "$raiz")
@@ -167,7 +188,78 @@ if [ -z "$py" ] && [ -n "$principal" ]; then
 fi
 [ -n "$py" ] || achar_no_path
 [ -n "$py" ] || achar_no_instalador
-[ -n "$py" ] || avisar "nenhum Python 3.8+ encontrado (nem .venv na pasta da sessão ou na principal, nem python3, python ou py -3 no PATH)"
+
+# Um id só vale com `[A-Za-z0-9_-]`, até 128 caracteres, como no `pasta_de_marca` do
+# licoes_relevantes.py: ele vira nome de arquivo, e nada nele pode sair da pasta temporária.
+id_valido() {
+    case $1 in "" | *[!A-Za-z0-9_-]*) return 1 ;; esac
+    [ ${#1} -le 128 ]
+}
+
+# O `session_id` e o `agent_id` da entrada do gancho (o JSON em `entrada`), em `sessao` e `agente`;
+# vazios se faltarem ou não valerem. O JSON é partido nas aspas: uma chave é um pedaço seguido de
+# outro que só tem `:` e espaços, e o valor vem logo depois. Dentro de um texto, as aspas vêm
+# escapadas (`\"`), e o pedaço fica com a barra: não engana. Partir é linear; cortar a entrada com
+# `${entrada#*\"agent_id\"}`, que testa cada prefixo, levava 4 s numa entrada de 80 KB. A primeira
+# chave achada vence, mesmo aninhada: hoje nenhum `tool_input` dos matchers do settings.json tem
+# uma chave `session_id` ou `agent_id`.
+ids_da_entrada() {
+    sessao=""
+    agente=""
+    set -f
+    ifs_antes=$IFS
+    IFS='"'
+    set -- $entrada
+    IFS=$ifs_antes
+    set +f
+    while [ $# -ge 3 ]; do
+        case $2 in
+            *[!' :']*) ;;
+            *:*)
+                case $1 in
+                    session_id) [ -n "$sessao" ] || sessao=$3 ;;
+                    agent_id) [ -n "$agente" ] || agente=$3 ;;
+                esac
+                ;;
+        esac
+        shift
+    done
+    id_valido "$sessao" || sessao=""
+    id_valido "$agente" || agente=""
+}
+
+# Sai 0 se esta chamada criou a marca `$1`. O `set -C` faz o `>` falhar se ela já existe, de uma
+# vez só: duas ferramentas em paralelo não criam a mesma marca. Se a marca não existe e não pôde
+# ser criada (a pasta temporária sem escrita), conta como nova: o aviso sai em vez de calar.
+marca_nova() {
+    ( set -C; : > "$1" ) 2>/dev/null || [ ! -e "$1" ]
+}
+
+# Sem Python: o aviso sai uma vez por sessão. O `systemMessage` só pela conversa principal (um
+# subagente pode ser o primeiro a falhar, e não se sabe se o aviso dele chega ao usuário); o
+# `additionalContext` uma vez por agente, porque um subagente começa sem o contexto de quem o
+# chamou. Sem `session_id` válido, avisa em toda ação. O stdin só é lido aqui, onde nenhum Python
+# vai lê-lo, com o `read` embutido. Limite conhecido: a marca é por sessão, então um agente que
+# compacta o contexto perde o aviso e não o recebe de novo.
+if [ -z "$py" ]; then
+    entrada=""
+    while IFS= read -r pedaco || [ -n "$pedaco" ]; do
+        entrada="$entrada$pedaco"
+    done
+    ids_da_entrada
+    agente=${agente:-principal}
+    if [ -n "$sessao" ]; then
+        pasta_tmp=${TMPDIR:-${TEMP:-/tmp}}
+        ao_usuario=0
+        if [ "$agente" = principal ] && marca_nova "$pasta_tmp/golem-aviso.$sessao"; then
+            ao_usuario=1
+        fi
+        ao_agente=0
+        marca_nova "$pasta_tmp/golem-aviso.$sessao.$agente" && ao_agente=1
+    fi
+    avisar "nenhum Python 3.8+ encontrado: procurei na linha python do golem.local.toml, no .venv da pasta da sessão e no da principal, em python3, python e py -3 no PATH e nos lugares do instalador do Windows" \
+        "${linha_quebrada}O Python pode existir fora desses lugares (lição sem-python-no-path-nao-e-maquina-sem-python). Peça o diagnóstico do Golem. "
+fi
 
 # O stdout do gancho só sai se ele terminar bem: JSON pela metade seguido do aviso quebraria o
 # parse do harness. O stdin (o JSON da ferramenta) passa direto, e o stderr dele vai ao usuário.
