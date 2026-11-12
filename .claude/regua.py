@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """Régua das lições: gera o índice `.claude/indice/licoes.yaml` e confere que ele não envelheceu.
 
     python3 .claude/regua.py --gerar      # valida as lições e escreve o índice

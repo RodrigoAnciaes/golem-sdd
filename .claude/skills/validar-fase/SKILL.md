@@ -1,6 +1,7 @@
 ---
 name: validar-fase
 description: Percorre o validation.md da fase com evidência real, atualiza changelog e roadmap, e fecha a fase com PR e merge (pelo PEDIDO → LIBERADO com a conversa gerente) quando tudo passa. Use quando o usuário disser "validar a fase", "rodar a validação", "podemos fechar a fase?", "fechar e mergear" ou invocar /validar-fase.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Validar e fechar a fase

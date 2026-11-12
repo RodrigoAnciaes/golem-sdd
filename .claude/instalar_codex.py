@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """Instala o kit para o Codex: gera, a partir de `.claude/`, as cópias que o Codex lê.
 
     python3 .claude/instalar_codex.py              # escreve as cópias (rode de novo a cada mudança)

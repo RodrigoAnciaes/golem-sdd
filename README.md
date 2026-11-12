@@ -90,8 +90,9 @@ Windows costuma ser um atalho da loja que não roda nada).
 O projeto precisa ser um repositório git (`git init`, se ainda não for).
 
 1. **Copie para a raiz do projeto:**
-   - a pasta `.claude/` inteira (skills, agentes, gancho, régua, `settings.json`, testes e o índice
-     das lições, que **já vem pronto** no kit);
+   - a pasta `.claude/` inteira (skills, agentes, gancho, régua, `settings.json`, testes, o índice
+     das lições, que **já vem pronto** no kit, e o `LICENSE` do kit, que fica junto: é a condição
+     da licença, veja "Licença e crédito");
    - a pasta `docs/` (a operação das conversas e as lições de exemplo);
    - o `AGENTS.md`, o `WORKFLOW.md` e o `CLAUDE.md` (ele importa o `AGENTS.md` para o Claude
      Code; quem usa só o Codex não precisa dele).
@@ -249,6 +250,7 @@ conversa para a gerente e o LIBERADO de volta. O método funciona igual; só o c
 | `.claude/regua.py` | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`) |
 | `.claude/indice/licoes.yaml` | o índice das lições, gerado pela régua; nunca se edita à mão |
 | `.claude/settings.json` | liga o gancho no Claude Code |
+| `.claude/LICENSE` | a licença do kit (MIT), que viaja com a pasta `.claude/`; igual ao `LICENSE` da raiz do kit |
 | `.claude/instalar_codex.py` | gera as cópias do Codex (`.agents/skills/`, `.codex/agents/`, `.codex/hooks.json`) e confere que estão em dia (`--conferir`) |
 | `.agents/skills/`, `.codex/` | (geradas pelo instalador, só para o Codex) as cópias das skills, dos agentes e do gancho |
 | `.claude/tests/` | os testes do ferramental: `python3 -m pytest .claude/tests -o addopts= -q -p no:cacheprovider` |
@@ -274,6 +276,21 @@ conversa para a gerente e o LIBERADO de volta. O método funciona igual; só o c
 O resto pode ficar como está até incomodar. Quando uma regra produzir efeito ruim, mude a regra
 (é para isso que existe a conversa de método), em vez de contorná-la em silêncio.
 
-## Licença
+## Licença e crédito
 
-MIT. Veja o [LICENSE](LICENSE).
+MIT, © 2026 Rodrigo Anciães Patelli. Veja o [LICENSE](LICENSE).
+
+Você pode usar, mudar, juntar ao seu projeto e até vender o kit. A única condição da MIT é manter o
+aviso de copyright e o texto da licença em toda cópia, ou parte substancial, do kit. Por isso:
+
+- **O `.claude/LICENSE` viaja com o kit.** Não o apague ao instalar.
+- **Cada skill, agente e script traz uma linha de crédito.** Nas skills, ela fica no campo
+  `license:` do frontmatter; nos agentes, num comentário no fim; nos scripts, no topo (logo depois
+  do shebang, quando há). Se você copiar só um desses arquivos para outro projeto, leve o `LICENSE`
+  junto: a linha aponta para ele, não o substitui.
+- **O que você escreve é seu.** A constituição, as specs e as lições que você escreve usam os
+  modelos só como estrutura. O `AGENTS.md` e as lições de exemplo vêm do kit e ficam cobertos pelo
+  `.claude/LICENSE`, que continua no mesmo repositório.
+
+Se o Golem ajudou no seu projeto, um link para o repositório no seu README é um bom jeito de dar o
+crédito. É um pedido, não uma condição.

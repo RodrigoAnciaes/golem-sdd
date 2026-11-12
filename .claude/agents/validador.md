@@ -71,3 +71,5 @@ Head testado: <sha>, <com ou sem mudanças não commitadas>
 "Valida" só quando todos os critérios do grupo passaram com saída colada, a suíte está verde com o
 resumo lido e a mutação foi pega. Qualquer critério reprovado, ou mutação que nenhum teste pegou,
 é "não valida". Item não exercitado não reprova sozinho, mas aparece no veredito.
+
+<!-- Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd -->

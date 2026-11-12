@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """Injeta as lições relevantes de docs/licoes/ antes de editar arquivo ou rodar comando.
 
 É um gancho PreToolUse do agente (Claude Code ou Codex). Lê o JSON da ferramenta no stdin, decide

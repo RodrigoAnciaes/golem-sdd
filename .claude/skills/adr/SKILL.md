@@ -1,6 +1,7 @@
 ---
 name: adr
 description: Registra uma decisão técnica em docs/adr/NNN-titulo.md com contexto, opções consideradas, decisão, consequências e gatilho de revisão. Use quando o usuário disser "registrar decisão", "escrever um ADR", "documentar por que escolhemos X", "vale a pena usar A ou B?" ou invocar /adr.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # ADR: registro de decisão de arquitetura

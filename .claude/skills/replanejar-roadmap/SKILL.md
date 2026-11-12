@@ -1,6 +1,7 @@
 ---
 name: replanejar-roadmap
 description: Revisa e reorganiza specs/roadmap.md à luz do que já foi implementado — junta, divide ou remove fases pendentes e propaga mudanças de requisito para a constituição e para as specs já escritas. Use quando o usuário disser "replanejar", "revisar o roadmap", "mudou o requisito", "essas fases não fazem mais sentido" ou invocar /replanejar-roadmap.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Replanejar o roadmap

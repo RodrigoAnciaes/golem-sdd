@@ -1,6 +1,7 @@
 ---
 name: constituicao
 description: Cria a constituição de um projeto em specs/ (mission.md, tech-stack.md, roadmap.md) a partir do briefing dos stakeholders, entrevistando o usuário antes de escrever qualquer arquivo. Funciona também para projeto legado, reconstruindo a constituição a partir do código existente. Use quando o usuário disser "criar constituição", "começar projeto novo com SDD", "escrever as specs de produto", "documentar este projeto legado" ou invocar /constituicao.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Constituição do projeto

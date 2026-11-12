@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """O kit no Codex: a entrada dele no gancho, o instalador e o comando do `.codex/hooks.json`.
 
 E o lançador sem `CLAUDE_PROJECT_DIR`: a raiz vem do `git rev-parse --show-toplevel`.

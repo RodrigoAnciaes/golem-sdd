@@ -1,6 +1,7 @@
 ---
 name: implementar-fase
 description: Executa o plan.md da fase em andamento, grupo por grupo, com revisor e validador independentes a cada grupo, mantendo a spec e o código em sincronia e parando quando algo exigir decisão humana. Use quando o usuário disser "implementar a fase", "executar o plano", "seguir com o grupo N", "pode implementar" ou invocar /implementar-fase.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Implementar a fase

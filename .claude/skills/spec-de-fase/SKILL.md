@@ -1,6 +1,7 @@
 ---
 name: spec-de-fase
 description: Inicia a próxima fase do roadmap — encontra a fase pendente em specs/roadmap.md, cria a branch, entrevista o usuário sobre escopo, decisões e contexto e escreve specs/AAAA-MM-DD-nome/ com requirements.md, plan.md e validation.md. Use quando o usuário disser "próxima fase", "especificar a fase", "spec de feature", "vamos começar a fase X" ou invocar /spec-de-fase.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Spec de fase

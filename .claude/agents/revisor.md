@@ -75,3 +75,5 @@ Base lida: <commit ou intervalo>, <arquivos>
 Todo achado tem `arquivo:linha`. Achado sem evidência não entra. Sem achados, diga "nenhum achado"
 e o que você conferiu. "Com bloqueio" quando houver ao menos um achado que bloqueia; senão, "sem
 bloqueio".
+
+<!-- Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd -->

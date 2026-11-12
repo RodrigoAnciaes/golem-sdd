@@ -1,6 +1,7 @@
 ---
 name: licao
 description: Registra uma armadilha técnica ou erro de diagnóstico em docs/licoes/, no formato do projeto, e regera o índice das lições. Use quando uma hipótese sua foi refutada por evidência, uma premissa do projeto se revelou falsa, um defeito custou mais de uma rodada para diagnosticar, ou o usuário corrigiu um entendimento seu — e também quando ele disser "registre essa lição", "isso vale uma lição" ou invocar /licao.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Registrar uma lição
