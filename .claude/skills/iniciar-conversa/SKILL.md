@@ -1,6 +1,7 @@
 ---
 name: iniciar-conversa
 description: Abre uma conversa nova no repositório — confere o estado do git e o registro da conversa gerente, descobre em que fase estamos e abre só os documentos que a tarefa de hoje exige, em vez de mandar ler tudo. Use no começo de qualquer sessão, quando o usuário disser "onde paramos", "continuando", "bom dia", "o que tem para hoje" ou invocar /iniciar-conversa.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Abrir uma conversa

@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """O gancho das lições: entrega a lição que casa, cala a que não casa, e nunca cai."""
 import json
 import os

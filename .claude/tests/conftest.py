@@ -1,4 +1,6 @@
-"""Suíte do ferramental do agente: o gancho das lições e a régua do índice.
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
+"""Suíte do ferramental do agente: o gancho das lições, a régua do índice, as cópias do Codex e o
+crédito do kit.
 
 Rode da raiz do projeto:
 

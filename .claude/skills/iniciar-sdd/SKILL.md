@@ -1,6 +1,7 @@
 ---
 name: iniciar-sdd
 description: Prepara um projeto para trabalhar com spec-driven development — cria a estrutura specs/, AGENTS.md, CHANGELOG.md, docs/licoes/ e template de PR, e confere quais skills de SDD estão instaladas. Use quando o usuário disser "iniciar SDD neste projeto", "preparar o projeto para specs", "montar o ambiente de spec-driven", "reproduzir meu setup de SDD aqui" ou invocar /iniciar-sdd.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Iniciar ambiente SDD
@@ -71,7 +72,7 @@ comando: se não achar, pergunte.
 ### 3. Conferir as peças do kit
 
 ```bash
-ls .claude/skills/
+ls .claude/skills/ .claude/LICENSE    # o LICENSE do kit é a condição da MIT: não pode faltar
 git add docs/licoes                   # a régua só indexa as lições que o git conhece
 python3 .claude/regua.py --gerar      # escreve .claude/indice/licoes.yaml
 python3 .claude/regua.py --conferir

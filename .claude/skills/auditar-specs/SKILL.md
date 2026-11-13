@@ -1,6 +1,7 @@
 ---
 name: auditar-specs
 description: Audita a distância entre o que as specs dizem e o que o código faz — dependências fora da stack, fases marcadas erradas, requisitos não implementados e comportamento sem respaldo em spec. Só relata, não corrige. Use quando o usuário disser "as specs estão em dia?", "auditar as specs", "o que saiu do combinado", "revisar a constituição" ou invocar /auditar-specs.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Auditar specs contra o código

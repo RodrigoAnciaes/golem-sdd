@@ -1,6 +1,7 @@
 ---
 name: changelog
 description: Mantém o CHANGELOG.md na raiz do projeto, com seções por data geradas a partir do histórico do git. Use quando o usuário disser "atualizar o changelog", "gerar changelog", pedir para registrar o que mudou antes de um merge, ou invocar /changelog.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Changelog

@@ -1,3 +1,4 @@
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """A régua: gera o índice, confere que ele não envelheceu, e RECUSA a lição que não consegue ler."""
 import re
 import shutil

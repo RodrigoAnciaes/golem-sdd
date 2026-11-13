@@ -1,6 +1,7 @@
 ---
 name: sessao-gerente
 description: Faz desta conversa a conversa gerente (GER) de um projeto com várias conversas de fase em paralelo — levanta o estado de cada uma, confere no git e no GitHub o que elas relatam, detecta colisões (número de fase, pasta compartilhada, base desatualizada, conflito em arquivo comum, ambiente de worktree), responde PEDIDO com LIBERADO, mantém a fila de merges e repassa informação entre fases. Use quando o usuário disser "você será a gerente", "gerenciar as conversas", "reverifique a situação", "o que as fases estão fazendo" ou invocar /sessao-gerente.
+license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Conversa gerente (GER)

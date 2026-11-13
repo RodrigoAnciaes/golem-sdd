@@ -1,4 +1,5 @@
 #!/bin/sh
+# Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 # Lançador do gancho das lições: acha um Python e roda licoes_relevantes.py.
 #
 # Por que existe: chamar `./.venv/bin/python ... 2>/dev/null || true` direto do settings.json é
