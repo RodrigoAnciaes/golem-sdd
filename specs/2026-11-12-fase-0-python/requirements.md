@@ -24,7 +24,9 @@ procurou e cita a lição (`docs/plano-produto.md`, seção 7, linha da fase 0).
     (com espaços opcionais antes do `=`; o `read` também aceita espaço antes do `python`). O `\r`
     de um arquivo em CRLF fica depois da segunda aspa e cai com o resto da linha. O valor vai da
     primeira aspa simples até a seguinte, e o resto da linha (um comentário, por exemplo) é
-    ignorado. Linha sem as duas aspas não vale.
+    ignorado. Linha sem as duas aspas não vale: o gancho a trata como ausente, e o aviso não a
+    cita (uma linha com aspas duplas, por exemplo). O "a linha `python` não roda" do R3 vale só
+    para a linha com as duas aspas. Escrito em 2026-11-13, a partir do guardião.
 - **R2. A ordem de procura.** O `gancho.sh` tenta, nesta ordem:
   1. o caminho da linha `python`;
   2. o `.venv` da raiz;
@@ -67,7 +69,7 @@ procurou e cita a lição (`docs/plano-produto.md`, seção 7, linha da fase 0).
   | Resposta | O que a skill faz |
   |---|---|
   | Sim, e sei onde | recebe o caminho; se tiver aspa simples, recusa e pede outro; testa se roda um Python 3.8+; se rodar, grava a linha `python`; se não rodar, diz isso e oferece a busca |
-  | Sim, mas não sei onde | procura nos passos 4 e 5 do R2; mostra o que achou e grava depois do ok; se não achar nada, dá o comando de instalação |
+  | Sim, mas não sei onde | procura nos passos 4 e 5 do R2; mostra o que achou e grava depois do ok (um caminho com aspa simples não se grava, venha de onde vier; acrescentado na validação); se não achar nada, dá o comando de instalação |
   | Não sei | o mesmo que a anterior |
   | Não | faz a mesma busca; se achar, pergunta "Achei um em `...`. Quer usar este?"; se não achar, dá o comando de instalação |
 
@@ -233,8 +235,10 @@ Nenhum: a fase não gasta dinheiro.
   onde está o Python312 desta máquina), e a skill não depende disso. A skill cita o 3.14 e manda conferir com
   `winget search Python.Python`, porque o número muda a cada versão.
 - **Se a entrada de gancho do Codex traz `session_id`:** a conferir. Sem ele, o aviso sai em toda
-  ação, como hoje (R3).
-- **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** não conferido no G2.
+  ação, como hoje (R3). Movida para o `docs/plano-produto.md`, "Detalhes a conferir na fase"
+  (fase 6), em 2026-11-13.
+- **Se o `systemMessage` do gancho de um subagente aparece ao usuário:** movida para o
+  `docs/plano-produto.md` (fase 1), em 2026-11-13. Não conferido no G2.
   Nesta sessão, o gancho antigo avisa em toda ação da conversa principal, e não dá para separar
   o aviso de um subagente. O desenho não depende da resposta: só a conversa principal põe o
   `systemMessage`.

@@ -35,6 +35,13 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
   9. `test_lancador_sem_lugares_de_costume_avisa_sem_erro_de_sh` — `LOCALAPPDATA` vazio e
      `PROGRAMFILES` ausente: o aviso sai, sem mensagem de erro do `sh` no stderr.
 
+  Acrescentados na validação (2026-11-13), ver a tabela de alterações:
+
+  19. `test_lancador_le_a_ultima_linha_sem_fim_de_linha` — a linha `python` no fim do arquivo,
+      sem o fim de linha: ela vale;
+  20. `test_lancador_recusa_a_linha_com_uma_aspa_so` — sem a aspa de fechar, a linha não vale: o
+      aviso sai, sem a frase da linha `python`.
+
 **Revisão:** revisor + validador.
 
 ## G2 — O aviso uma vez por sessão (R3, R5)
@@ -111,7 +118,7 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
   ajustado em 2026-11-13: a busca vazia num `sh`. O usuário aprovou o ajuste ("Sim, ajuste")
   sabendo que, com ele, o item ia a `[x]`. O passo 6 da skill, o `winget`, não foi visto numa
   sessão, e o critério ajustado não o exige; o que a skill faria está em `SKILL.md:53` e
-  `:96-102`.
+  `:97-103`.
   - passo 1: passou (a lição `sem-python-no-path-nao-e-maquina-sem-python` chega, sem
     `systemMessage`);
   - passos 2 a 4: passaram, segundo o relato do usuário, que os rodou numa sessão nova do app
@@ -133,7 +140,7 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
       `command -v saiu com 1` e `ls saiu com 2`, nenhum candidato. Para "Sim, mas não sei onde"
       sem nada achado, a skill manda ao passo 6 (`SKILL.md:53`), que dá
       `winget install -e --id Python.Python.3.14 --scope user` para o usuário rodar
-      (`SKILL.md:96-102`);
+      (`SKILL.md:97-103`);
     - a sessão nova, segundo a saída que o usuário colou: ele a abriu no PowerShell, em
       2026-11-13, com uma linha que guarda o `LOCALAPPDATA`, põe nele uma pasta nova em `%TEMP%`,
       roda o `claude.exe` do app e devolve o valor no fim. No Git Bash, o `claude.exe` caiu no
@@ -168,8 +175,12 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 | 2026-11-12 | G3: a skill `diagnostico` confere se o `golem.local.toml` está no `.gitignore` e, se não estiver, propõe a linha, que só entra com o ok do usuário. O R4 não pedia isso. | Um projeto que instalou o kit antes da fase 0 tem o `.gitignore` sem essa linha, e o arquivo traz o nome do usuário no caminho (regra 5). Nesta máquina, a pasta principal está nesse caso até o merge. | agente, para o autor do kit confirmar ou tirar |
 | 2026-11-12 | G3: os `refs` da lição `sem-python-no-path-nao-e-maquina-sem-python` citam funções, e não linhas, contra a regra da skill `licao` ("`refs` com linha"). | Pedido do R6: esta fase muda os números de linha do `gancho.sh`. O ref histórico diz o commit (`f912da6`). | spec aprovada (R6) |
 | 2026-11-12 | G3: a skill grava sempre o `sys.executable` do Python que rodou, também para o `py.exe`. | O gancho só aceita um arquivo que existe; um nome solto (`python3`) ou um caminho relativo passaria no teste e seria recusado depois. | agente (achado do revisor do G3) |
+| 2026-11-12 | G3: a skill lê também o `golem.local.toml` da raiz da sessão e, se um worktree tiver uma linha `python` própria, avisa que ela vence a da pasta principal e propõe apagá-la, com o ok do usuário (`SKILL.md:11-12`, `:26` e `:33-34`). O R4 não pedia isso. | O gancho prefere a linha da raiz (`gancho.sh:177-178`); sem o aviso, a gravação na pasta principal não teria efeito. A skill nunca grava na raiz, então o caso só nasce de uma linha escrita à mão. Achado pelo guardião em 2026-11-13: faltava nesta tabela. | agente, para o autor do kit confirmar ou tirar |
+| 2026-11-13 | Validação: a skill passa a recusar o caminho com aspa simples também no passo 5 (Gravar), venha ele do usuário ou da busca, e o `grep` do passo 1 aceita tab antes do `python`, como o gancho. O R1 ganha a frase sobre a linha sem as duas aspas. | Achados do guardião: um caminho achado pela busca também pode ter `'` (um nome de usuário com apóstrofo), e o gancho o cortaria; o `grep '^ *python *='` não via a linha indentada com tab, que o gancho lê. | agente (achados do guardião, sem efeito no que o usuário escolhe) |
+| 2026-11-13 | Validação: os `refs` da lição `o-windows-muda-o-que-o-sh-recebe-do-python` e o da skill na `sem-python-no-path-nao-e-maquina-sem-python` ganham a linha. | A skill `licao` pede `refs` com linha; a exceção acima vale só para os refs do `gancho.sh`. | agente (achado do guardião) |
+| 2026-11-13 | Validação: os testes 19 e 20 entram (a última linha sem fim de linha; a linha com uma aspa só), e a contagem do fim da fase vai de 94 para 96. | O validador da fase inteira deu "não valida": dois mutantes das regras de leitura do R1 sobreviviam à suíte (o `while read` sem o `\|\| [ -n "$linha" ]` e o `case` que aceitava uma aspa só). Com os dois testes, cada mutante faz 1 teste falhar, rodado numa cópia. | agente (achado do validador) |
 | 2026-11-13 | G4: o passo 5 manual roda em duas partes: a busca da skill, pelo agente, num `sh` com as pastas do instalador vazias e o PATH sem Python; e a sessão nova, aberta pelo usuário com o `claude.exe` que o app traz, pelo PowerShell. O "nada achado" do `validation.md` só se vê na primeira. | O CLI `claude` não está no PATH (o agente primeiro escreveu "não está instalado", e o revisor achou o `claude.exe` do app). No Git Bash, ele cai no modo `--print`, com ou sem o `winpty`; pelo PowerShell, abre. Na sessão nova, o agente notou o `LOCALAPPDATA` de teste e achou o Python real (por quê, a conferir: o nome da pasta entregava o teste). | usuário, em 2026-11-13: "Você roda", e depois "Rodo pelo Git Bash" (que acabou sendo o PowerShell); o critério do `validation.md` ajustado com "Sim, ajuste" |
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). G4: o automatizado passou. Dos passos manuais, o 1 passou; o 2 a 4 passaram, segundo o relato do usuário (o 2 numa sessão aberta na pasta do worktree); o 5 rodou em duas partes: a busca, pelo agente, não acha nada; a sessão nova, aberta pelo usuário no PowerShell, furou o teste, achou o Python real e o gravou. O critério do passo 5 foi ajustado à busca vazia (`validation.md`, com o ok do usuário), e o item está `[x]`. Na pasta principal (`main`), a sessão do passo 5 pôs `+golem.local.toml` no `.gitignore`, sem commit; o agente a desfez em 2026-11-13, com o ok do usuário ("Desfazer agora"), porque o merge desta fase traz a mesma linha. Até o merge, o `golem.local.toml` de lá aparece como `??` no `git status`: não o adicione. Depois, a skill `validar-fase`: o guardião, o registro no `docs/plano-produto.md` e o PR.
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). G4: o automatizado passou. Dos passos manuais, o 1 passou; o 2 a 4 passaram, segundo o relato do usuário (o 2 numa sessão aberta na pasta do worktree); o 5 rodou em duas partes: a busca, pelo agente, não acha nada; a sessão nova, aberta pelo usuário no PowerShell, furou o teste, achou o Python real e o gravou. O critério do passo 5 foi ajustado à busca vazia (`validation.md`, com o ok do usuário), e o item está `[x]`. Na pasta principal (`main`), a sessão do passo 5 pôs `+golem.local.toml` no `.gitignore`, sem commit; o agente a desfez em 2026-11-13, com o ok do usuário ("Desfazer agora"), porque o merge desta fase traz a mesma linha. Até o merge, o `golem.local.toml` de lá aparece como `??` no `git status`: não o adicione. A skill `validar-fase` rodou em 2026-11-13: o `validation.md` marcado, a fase registrada no `docs/plano-produto.md`, o guardião "sem bloqueio" (os achados na tabela) e o validador da fase inteira "não valida", por dois mutantes do R1, corrigidos com os testes 19 e 20 (96 passed). O validador, de novo sobre a correção, deu "valida", e o revisor das mudanças depois do guardião, "sem bloqueio". Falta: o commit da validação, e o push e o PR, com o ok do usuário.

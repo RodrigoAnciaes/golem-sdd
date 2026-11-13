@@ -22,8 +22,8 @@ máquina não tem Python (lição `sem-python-no-path-nao-e-maquina-sem-python`)
 ```bash
 principal=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
 raiz=$(git rev-parse --show-toplevel)
-grep -Hn '^ *python *=' "$principal/golem.local.toml" 2>/dev/null
-[ "$raiz" -ef "$principal" ] || grep -Hn '^ *python *=' "$raiz/golem.local.toml" 2>/dev/null
+grep -Hn '^[[:space:]]*python[[:space:]]*=' "$principal/golem.local.toml" 2>/dev/null
+[ "$raiz" -ef "$principal" ] || grep -Hn '^[[:space:]]*python[[:space:]]*=' "$raiz/golem.local.toml" 2>/dev/null
 git -C "$principal" check-ignore -q golem.local.toml && echo ignorado || echo "NÃO ignorado"
 ```
 
@@ -91,7 +91,8 @@ python = 'C:\Users\<usuario>\AppData\Local\Programs\Python\Python312\python.exe'
 ```
 
 O caminho vai entre **aspas simples**: no TOML, elas guardam a barra invertida do Windows como
-está. Aspas duplas tornam o `\U` inválido.
+está. Aspas duplas tornam o `\U` inválido. Um caminho com aspa simples (`'`) não se grava, venha
+ele do usuário ou da busca: o gancho o cortaria nela. Diga isso ao usuário e peça outro Python.
 
 ## 6. Nada achado: o comando de instalação
 

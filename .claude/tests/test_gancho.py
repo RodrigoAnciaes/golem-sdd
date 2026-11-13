@@ -558,6 +558,33 @@ def test_lancador_le_a_linha_com_crlf_e_comentario(acervo, sessao, tmp_path):
                                        _path_sem_python(tmp_path)))
 
 
+def test_lancador_le_a_ultima_linha_sem_fim_de_linha(acervo, sessao, tmp_path):
+    """A linha `python` no fim do arquivo, sem o fim de linha (o Bloco de Notas salva assim)."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    (acervo.raiz / "golem.local.toml").write_bytes(f"python = '{py}'".encode("utf-8"))
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path)))
+
+
+def test_lancador_recusa_a_linha_com_uma_aspa_so(acervo, sessao, tmp_path):
+    """Sem a aspa de fechar, a linha não vale (R1), mesmo apontando para um Python bom: o aviso
+    sai, e sem a frase da linha `python`, que é só para a linha com as duas aspas."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    (acervo.raiz / "golem.local.toml").write_bytes(f"python = '{py}\n".encode("utf-8"))
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    saida = _rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                            _path_sem_python(tmp_path))
+    assert "nenhum Python 3.8+ encontrado" in saida.get("systemMessage", ""), saida
+    assert "aponta para algo que não roda" not in saida.get("systemMessage", ""), saida
+
+
 def test_lancador_pula_a_linha_python_que_nao_roda(acervo, sessao, tmp_path):
     """A linha aponta para um caminho que não existe: o lançador segue, em silêncio, até o PATH."""
     sh = _sh()

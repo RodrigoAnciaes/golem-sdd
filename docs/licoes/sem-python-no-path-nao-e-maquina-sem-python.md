@@ -9,7 +9,7 @@ refs:
   - ".claude/hooks/gancho.sh, achar_venv e achar_no_path (em f912da6, os únicos lugares de procura: o .venv da raiz, o da pasta principal e o PATH)"
   - ".claude/hooks/gancho.sh, o aviso 'nenhum Python 3.8+ encontrado'"
   - ".claude/hooks/gancho.sh, ler_linha_python e achar_no_instalador (o conserto da fase 0)"
-  - ".claude/skills/diagnostico/SKILL.md (pergunta onde está o Python e grava a linha python)"
+  - ".claude/skills/diagnostico/SKILL.md:38-47 e :83-96 (pergunta onde está o Python e grava a linha python)"
   - "instalador oficial do Python no Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe e %LOCALAPPDATA%\\Programs\\Python\\Launcher\\py.exe"
 gatilhos:
   - '\b(where(\.exe)?|which|type|command\s+-v|get-command)\s+(python3?|py|claude)\b'
@@ -22,10 +22,10 @@ sessão ou na principal, nem python3, python ou py -3 no PATH)", queria dizer qu
 Python. O agente repetiu isso ao usuário ("esta máquina não tem Python") e montou uma proposta em
 cima. O usuário corrigiu: o Python existe e é usado por vários ambientes e conversas.
 
-**O que é:** o gancho só procura no `.venv` da raiz, no da pasta principal e no PATH. O Python do
-instalador oficial e o `py.exe` estavam fora do PATH (os caminhos estão nos `refs`). No PATH, só os
-atalhos da Microsoft Store, que imprimem "Python não foi encontrado" e saem com erro (49 no Git
-Bash, 9009 no PowerShell). O aviso diz onde o gancho procurou, não que o Python falta.
+**O que é:** em `f912da6`, o gancho só procurava no `.venv` da raiz, no da pasta principal e no
+PATH. O Python do instalador oficial e o `py.exe` estavam fora do PATH (os caminhos estão nos
+`refs`). No PATH, só os atalhos da Microsoft Store, que imprimem "Python não foi encontrado" e
+saem com erro (49 no Git Bash, 9009 no PowerShell). O aviso diz onde o gancho procurou, não que o Python falta.
 
 Desde a fase 0 (2026-11-12), o gancho também procura na linha `python` do `golem.local.toml` e nos
 lugares do instalador do Windows, e a skill `diagnostico` grava essa linha. O sinal abaixo continua
