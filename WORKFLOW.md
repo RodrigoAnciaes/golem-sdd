@@ -165,6 +165,7 @@ fica em "Depois (não planejado)".
 | `changelog` | antes de fechar a fase |
 | `auditar-specs` | de tempos em tempos: a distância entre o que as specs dizem e o que o código faz. Só relata; corrigir é decisão do usuário |
 | `iniciar-conversa` | no começo de toda sessão: confere o git e o registro da gerente e abre só o que a tarefa de hoje exige |
+| `diagnostico` | quando o gancho avisa que não achou o Python: pergunta se há Python e onde, procura nos lugares de costume e grava o caminho no `golem.local.toml` |
 | `sessao-gerente` | faz de uma conversa a gerente (GER), quando há várias frentes em paralelo (`docs/operacao-das-conversas.md`) |
 
 A lista completa das skills está em `.claude/skills/`.

@@ -2,8 +2,9 @@
 
 Rascunho de 2026-11-12. As citações `arquivo:linha` se referem ao commit `c880a17`, o kit antes
 deste plano. O commit `ccca28b`, do crédito, pôs uma linha no topo de vários arquivos e uma seção
-no README. As linhas citadas desses arquivos que vêm depois da inserção andaram uma: o
-`gancho.sh:99` é hoje o 100, e o `README.md:228`, o 229; o `README.md:74` e o `:83` não mudaram.
+no README. As linhas citadas desses arquivos que vêm depois da inserção andaram uma: em `f912da6`,
+o `gancho.sh:99` era o 100, e o `README.md:228`, o 229; o `README.md:74` e o `:83` não mudaram.
+A fase 0 mudou de novo o `gancho.sh` e o `README.md`: no head dela, as linhas são outras.
 
 É um plano: ele não muda o kit sozinho. Cada decisão volta ao autor do kit num cartão, uma de cada
 vez, e as que já foram tomadas estão na seção 8, com as palavras dele.
@@ -45,7 +46,7 @@ foi **medido**, não estimado (seção 1.2).
 | Peça | Tamanho | Tokens (estim.) |
 |---|---|---|
 | `AGENTS.md` (o `CLAUDE.md` o importa inteiro) | 12.987 bytes | ~3,4 mil |
-| descrições das 12 skills (só o `description` entra antes de a skill ser chamada) | 4.520 bytes | ~1,2 mil |
+| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes) | 4.520 bytes | ~1,2 mil |
 | **total fixo** | | **~4,6 mil** |
 
 **O que entra quando se usa:**
@@ -257,7 +258,7 @@ procurar"). Ele mora num arquivo à parte porque é desta máquina: um caminho c
 `C:\Users\<nome>\...` está errado em qualquer outra e expõe o nome do usuário. O `gancho_teto`
 custa pouco (o gancho injeta no máximo ~600 tokens por ação), mas é o que controla quanto contexto
 o gancho injeta, um dos itens do critério "customizável", e é uma linha. O gancho continua
-rodando antes de comandos em todas as receitas: as três lições do kit disparam por comando, e quem
+rodando antes de comandos em todas as receitas: as lições do kit disparam por comando, e quem
 roda os comandos do `validation.md` (a conversa, e o validador quando ele existe) precisa delas.
 
 **Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`
@@ -335,7 +336,7 @@ justamente quando não acha o Python.
 simples fazem uma string literal, sem escape. O `gancho.sh` lê com `read -r`, que não trata a
 barra invertida (conferido no Git Bash em 2026-11-12: com `-r`, o caminho chega inteiro; sem ele,
 as barras somem). Um caminho com aspa simples dentro não cabe nesse formato: a skill o recusa e
-pede outro (a conferir).
+pede outro (na skill, `SKILL.md:52` e `:94-95`; não exercitado na fase 0).
 
 **A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, a receita `completo` roda
 7 subagentes (3 revisores, 3 validadores e o guardião). A `economico` roda 1: um revisor no Sonnet
@@ -360,16 +361,22 @@ isso numa linha, e a escolha é dele.
 - (fase 1) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: ou se sobe o mínimo, ou o
   arquivo usa só `chave = valor`, que se lê com meia dúzia de linhas;
 - (fase 1) se o formato de agente do Codex aceita modelo por agente;
-- (fase 0) como o `golem.local.toml` chega a um worktree: ele fica fora do git, como o `.venv`,
-  então o `gancho.sh` o procura também na pasta principal do repositório, do mesmo jeito que já
-  procura o `.venv` (`gancho.sh`, `achar_venv` e o `--git-common-dir`);
-- (fase 0) o aviso da linha `python` que não roda, quando outro Python é achado: ou nenhum aviso
-  (o gancho segue com o Python achado), ou um aviso que não interrompe e deixa a lição seguir. E,
-  se o aviso de falha for listar os lugares onde procurou, como pôr caminho com barra invertida no
-  JSON do aviso, que hoje só aceita texto fixo (`gancho.sh`, o comentário do `avisar`);
-- (fase 0) no `sh` do Git Bash, o `%ProgramFiles%` do Windows chega como `$PROGRAMFILES`, em
-  maiúsculas (`$ProgramFiles` sai vazio); o `$LOCALAPPDATA` chega com esse nome (conferido em
-  2026-11-12).
+- (fase 0, resolvido) como o `golem.local.toml` chega a um worktree: o `gancho.sh` o procura
+  também na pasta principal, pelo `--git-common-dir`, como o `.venv` (`ler_linha_python`);
+- (fase 0, resolvido) o aviso da linha `python` que não roda, quando outro Python é achado: fica
+  em silêncio, e o gancho segue com o Python achado. O aviso de falha lista os lugares em texto
+  fixo, sem caminho;
+- (fase 0, resolvido) no `sh` do Git Bash, o `%ProgramFiles%` do Windows chega como
+  `$PROGRAMFILES`, em maiúsculas, e o `$LOCALAPPDATA` com esse nome (conferido em 2026-11-12). O
+  Windows reescreve o `PROGRAMFILES` de todo processo criado fora do `sh` (lição
+  `o-windows-muda-o-que-o-sh-recebe-do-python`);
+- (fase 6, a paridade do Codex) se a entrada de gancho do Codex traz `session_id`. Sem ele, o
+  aviso de falha sai em toda ação, como antes da fase 0;
+- (fase 1) se o `systemMessage` do gancho de um subagente aparece ao usuário. A fase 0 não
+  depende disso: só a conversa principal põe o `systemMessage`;
+- (fase 4, o plugin) por que uma sessão do app desktop aberta num worktree criado pelo app roda o
+  `gancho.sh` da pasta principal, e não o do worktree. A hipótese é o `CLAUDE_PROJECT_DIR`, que
+  `.claude/settings.json:10` e `:21` usam. Visto na fase 0, a conferir.
 
 ---
 
@@ -535,7 +542,7 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
-| **0. O gancho acha o Python** | a pergunta do Python com botões ("Você tem Python? Onde?"), numa versão mínima da skill de diagnóstico (em texto onde não houver botões); o `golem.local.toml` com a linha `python` (que entra no `.gitignore`), procurado também na pasta principal; o `gancho.sh` com a ordem nova (a linha `python`, o `.venv`, o PATH, os lugares do instalador oficial); o aviso de falha que sai uma vez, diz onde procurou, cita a lição e manda rodar o diagnóstico; e, quando nada é achado, o comando de instalação | 2 (o Python e o aviso) | P–M | numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; respondendo "Sim, e sei onde" com um caminho fora dos lugares de costume, a skill o grava e o gancho entrega a lição; com um `.venv` presente e a linha `python` apontando para outro Python, o gancho usa o da linha (a ordem); num worktree, o gancho acha o `golem.local.toml` da pasta principal; `git check-ignore golem.local.toml` confirma que ele fica fora do git; com a linha `python` apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e o aviso de falha aparece uma vez por sessão, não a cada ação, citando a lição pelo id |
+| **0. O gancho acha o Python** (feita: validada em 2026-11-13, branch `fase-0-python`, spec em `specs/2026-11-12-fase-0-python/`) | a pergunta do Python com botões ("Você tem Python? Onde?"), numa versão mínima da skill de diagnóstico (em texto onde não houver botões); o `golem.local.toml` com a linha `python` (que entra no `.gitignore`), procurado também na pasta principal; o `gancho.sh` com a ordem nova (a linha `python`, o `.venv`, o PATH, os lugares do instalador oficial); o aviso de falha que sai uma vez, diz onde procurou, cita a lição e manda rodar o diagnóstico; e, quando nada é achado, o comando de instalação | 2 (o Python e o aviso) | P–M | numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; respondendo "Sim, e sei onde" com um caminho fora dos lugares de costume, a skill o grava e o gancho entrega a lição; com um `.venv` presente e a linha `python` apontando para outro Python, o gancho usa o da linha (a ordem); num worktree, o gancho acha o `golem.local.toml` da pasta principal; `git check-ignore golem.local.toml` confirma que ele fica fora do git; com a linha `python` apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e o aviso de falha aparece uma vez por sessão, não a cada ação, citando a lição pelo id |
 | **1. Configuração e receita econômica** | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões), que reaproveita a pergunta do Python da fase 0, e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2 (o modo sem Python), 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo e roda um revisor só, no Sonnet; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
 | **2. Roblox mínimo** | os modelos de tech-stack e de comandos para Rojo, os gatilhos, duas lições de exemplo e os testes pelo Studio MCP | 4 | M | num place Rojo de exemplo, uma fase pequena vai da spec ao validado, com o resumo dos testes lido no console |
 | **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |

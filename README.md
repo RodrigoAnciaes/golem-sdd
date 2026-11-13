@@ -71,9 +71,11 @@ O detalhe de cada um está em `docs/operacao-das-conversas.md`.
 
 ## Requisitos
 
-- **Python 3.8 ou mais novo**, chamado como `python3`, `python` ou `py -3`, **ou** um `.venv` na
-  raiz do projeto (o gancho procura o `.venv` primeiro). Só a biblioteca padrão: o kit não instala
-  nada.
+- **Python 3.8 ou mais novo.** Só a biblioteca padrão: o kit não instala nada. O gancho procura,
+  nesta ordem: a linha `python = '<caminho>'` do `golem.local.toml` (fora do git, gravada pela
+  skill `diagnostico`), o `.venv` da raiz e o da pasta principal, `python3`, `python` e `py -3` no
+  PATH e, no Windows, os lugares do instalador oficial (`%LOCALAPPDATA%\Programs\Python` e
+  `%PROGRAMFILES%`). Se o aviso disser que não achou, peça o diagnóstico do Golem.
 - **`sh`**, para o gancho. No Linux e no macOS ele já existe; no Windows, vem com o
   [Git for Windows](https://gitforwindows.org/).
 - **git**.
@@ -103,7 +105,8 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
 
 2. **Junte ao `.gitattributes` e ao `.gitignore` do projeto as linhas do kit** (crie os arquivos se
    não existirem). A do `.gitattributes` mantém o gancho com fim de linha LF, sem o qual o `sh`
-   quebra; as do `.gitignore` tiram do git o log do gancho e o registro da gerente.
+   quebra; as do `.gitignore` tiram do git o log do gancho, o registro da gerente e o
+   `golem.local.toml`, que guarda o caminho do Python desta máquina.
 
 3. **Ponha os arquivos no git, antes de gerar o índice.** A régua só vê as lições que o git
    conhece:
@@ -128,8 +131,8 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
    ```
 
    O `--conferir` tem de terminar com `ok       .claude/indice/licoes.yaml`, e a última linha do
-   índice tem de ser `total:` com um número **maior que zero** (com as três lições de exemplo,
-   `total: 3`). Se o `--gerar` recusar dizendo que nenhuma lição está no git, faltou o passo 3.
+   índice tem de ser `total:` com um número **maior que zero** (com as cinco lições de exemplo,
+   `total: 5`). Se o `--gerar` recusar dizendo que nenhuma lição está no git, faltou o passo 3.
    Daqui para a frente, sempre que o `--gerar` mudar o índice, faça `git add .claude/indice`: o
    `--conferir` avisa (sem falhar) quando o índice da pasta difere do que está no stage.
 

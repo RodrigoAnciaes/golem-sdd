@@ -380,18 +380,38 @@ def _quebrado(py: Path) -> None:
 
 
 def _path_sem_python(tmp_path: Path) -> dict:
-    """O PATH com `python3`, `python` e `py` quebrados na frente: só o caminho testado salva."""
+    """O PATH com `python3`, `python` e `py` quebrados na frente: só o caminho testado salva.
+
+    Os lugares do instalador do Windows (`LOCALAPPDATA`, `PROGRAMFILES`) apontam para pastas
+    vazias, senão o lançador acharia o Python real da máquina; e a pasta temporária (`TMPDIR`), onde
+    ficam as marcas do aviso, é do teste. O `PROGRAMFILES` só vale pelo `_comando_do_lancador`.
+    """
     bin_ = tmp_path / "bin-quebrado"
     for nome in ("python3", "python", "py"):
         _quebrado(bin_ / nome)
-    return {**AMBIENTE, "PATH": str(bin_) + os.pathsep + os.environ.get("PATH", "")}
+    vazias = tmp_path / "lugares-vazios"
+    for nome in ("localappdata", "programfiles", "tmp"):
+        (vazias / nome).mkdir(parents=True, exist_ok=True)
+    return {**AMBIENTE, "PATH": str(bin_) + os.pathsep + os.environ.get("PATH", ""),
+            "LOCALAPPDATA": str(vazias / "localappdata"),
+            "PROGRAMFILES": str(vazias / "programfiles"), "TMPDIR": str(vazias / "tmp")}
+
+
+def _comando_do_lancador(sh: str, lancador: Path, ambiente: dict) -> list:
+    """O comando que roda o lançador com o `PROGRAMFILES` do `ambiente`, ou sem ele, se o
+    `ambiente` não o tiver. No Windows, o sistema reescreve o `PROGRAMFILES` de todo processo novo,
+    qualquer que seja o ambiente dado; só um `sh` o troca para o `sh` que ele chama."""
+    if "PROGRAMFILES" in ambiente:
+        return [sh, "-c", 'PROGRAMFILES="$2"; export PROGRAMFILES; exec sh "$1"', "sh",
+                str(lancador), ambiente["PROGRAMFILES"]]
+    return [sh, "-c", 'unset PROGRAMFILES; exec sh "$1"', "sh", str(lancador)]
 
 
 def _rodar_lancador(sh: str, lancador: Path, sessao: Path, ambiente: dict, cwd=None) -> dict:
     payload = json.dumps({"session_id": "s", "scratchpad_dir": str(sessao),
                           "tool_input": {"command": "pytest -q"}})
-    r = subprocess.run([sh, str(lancador)], input=payload, capture_output=True, text=True,
-                       encoding="utf-8", env=ambiente, cwd=cwd)
+    r = subprocess.run(_comando_do_lancador(sh, lancador, ambiente), input=payload,
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente, cwd=cwd)
     assert r.returncode == 0, r.stderr[:300]
     return json.loads(r.stdout)
 
@@ -451,6 +471,341 @@ def test_lancador_no_worktree_acha_o_venv_da_pasta_principal(acervo, sessao, tmp
                             _path_sem_python(tmp_path), cwd=wt)
     assert "systemMessage" not in saida, saida.get("systemMessage")
     assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["so-no-pytest"]
+
+
+# ------------------------------------------- a linha `python` e os lugares do instalador (fase 0)
+
+
+def _golem_local(pasta: Path, caminho, crlf: bool = False) -> None:
+    """Um `golem.local.toml` com a linha `python`, entre aspas simples, como a skill grava."""
+    fim = "\r\n" if crlf else "\n"
+    texto = f"# gravado pela skill diagnostico{fim}python = '{caminho}'  # comentário{fim}"
+    (pasta / "golem.local.toml").write_bytes(texto.encode("utf-8"))
+
+
+def _entrega_sem_aviso(saida: dict) -> None:
+    assert "systemMessage" not in saida, saida.get("systemMessage")
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["so-no-pytest"]
+
+
+def test_lancador_usa_a_linha_python(acervo, sessao, tmp_path):
+    """Sem `.venv` e com o PATH quebrado, só a linha `python` do golem.local.toml salva."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    _golem_local(acervo.raiz, py)
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path)))
+
+
+def test_lancador_prefere_a_linha_python_ao_venv(acervo, sessao, tmp_path):
+    """Com um `.venv` bom e a linha `python`, a linha vence: o `.venv` nem é chamado."""
+    sh = _sh()
+    executavel = Path(sys.executable).as_posix()
+    marcas = {nome: tmp_path / f"chamou-{nome}" for nome in ("linha", "venv")}
+    for nome, py in (("linha", tmp_path / "python-da-linha" / "python"),
+                     ("venv", acervo.raiz / ".venv" / "bin" / "python")):
+        py.parent.mkdir(parents=True, exist_ok=True)
+        py.write_text(f'#!/bin/sh\n: > "{marcas[nome].as_posix()}"\nexec "{executavel}" "$@"\n',
+                      encoding="utf-8", newline="\n")
+        os.chmod(py, 0o755)
+        if nome == "linha":
+            _golem_local(acervo.raiz, py)
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path)))
+    assert marcas["linha"].is_file(), "o Python da linha python não foi chamado"
+    assert not marcas["venv"].exists(), "o .venv foi chamado: a linha python não veio primeiro"
+
+
+def test_lancador_no_worktree_acha_o_golem_local_da_pasta_principal(acervo, sessao, tmp_path):
+    """O golem.local.toml é ignorado pelo git e não viaja ao worktree: vale o da pasta principal."""
+    sh = _sh()
+    git = shutil.which("git")
+    if not git:
+        pytest.skip("sem git no PATH")
+    principal = acervo.raiz
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    _golem_local(principal, py)
+    shutil.copy2(RAIZ_DO_KIT / ".gitattributes", principal / ".gitattributes")
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    wt = tmp_path / "worktree-da-fase"
+    identidade = ["-c", "user.name=teste", "-c", "user.email=teste@exemplo.invalid"]
+    for args in (["init", "-q"], ["add", ".gitattributes", ".claude", "docs"],
+                 [*identidade, "commit", "-q", "-m", "base"],
+                 ["worktree", "add", "-q", str(wt)]):
+        subprocess.run([git, *args], cwd=principal, check=True, capture_output=True)
+    assert not (wt / "golem.local.toml").exists() and not (wt / ".venv").exists()
+    _entrega_sem_aviso(_rodar_lancador(sh, wt / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path), cwd=wt))
+
+
+def test_lancador_le_a_linha_com_crlf_e_comentario(acervo, sessao, tmp_path):
+    """O arquivo salvo em CRLF (o Bloco de Notas) e com comentário depois da aspa ainda vale."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    _golem_local(acervo.raiz, py, crlf=True)
+    assert b"\r\n" in (acervo.raiz / "golem.local.toml").read_bytes()
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path)))
+
+
+def test_lancador_le_a_ultima_linha_sem_fim_de_linha(acervo, sessao, tmp_path):
+    """A linha `python` no fim do arquivo, sem o fim de linha (o Bloco de Notas salva assim)."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    (acervo.raiz / "golem.local.toml").write_bytes(f"python = '{py}'".encode("utf-8"))
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       _path_sem_python(tmp_path)))
+
+
+def test_lancador_recusa_a_linha_com_uma_aspa_so(acervo, sessao, tmp_path):
+    """Sem a aspa de fechar, a linha não vale (R1), mesmo apontando para um Python bom: o aviso
+    sai, e sem a frase da linha `python`, que é só para a linha com as duas aspas."""
+    sh = _sh()
+    py = tmp_path / "python-da-linha" / "python"
+    _repassador(py)
+    (acervo.raiz / "golem.local.toml").write_bytes(f"python = '{py}\n".encode("utf-8"))
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    saida = _rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                            _path_sem_python(tmp_path))
+    assert "nenhum Python 3.8+ encontrado" in saida.get("systemMessage", ""), saida
+    assert "aponta para algo que não roda" not in saida.get("systemMessage", ""), saida
+
+
+def test_lancador_pula_a_linha_python_que_nao_roda(acervo, sessao, tmp_path):
+    """A linha aponta para um caminho que não existe: o lançador segue, em silêncio, até o PATH."""
+    sh = _sh()
+    _golem_local(acervo.raiz, tmp_path / "nao-existe" / "python.exe")
+    bin_ = tmp_path / "bin-bom"
+    _repassador(bin_ / "python3")
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    ambiente = _path_sem_python(tmp_path)
+    ambiente["PATH"] = str(bin_) + os.pathsep + ambiente["PATH"]
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       ambiente))
+
+
+def test_lancador_acha_o_python_em_localappdata(acervo, sessao, tmp_path):
+    """O instalador oficial põe o Python em `%LOCALAPPDATA%\\Programs\\Python\\Python3XY`, fora do
+    PATH: o lançador o acha lá."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    _repassador(Path(ambiente["LOCALAPPDATA"]) / "Programs" / "Python" / "Python312" / "python.exe")
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       ambiente))
+
+
+def test_lancador_acha_o_py_do_launcher_com_menos_3(acervo, sessao, tmp_path):
+    """Só o `Launcher\\py.exe`, que repassa apenas se receber `-3` primeiro."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    py = Path(ambiente["LOCALAPPDATA"]) / "Programs" / "Python" / "Launcher" / "py.exe"
+    py.parent.mkdir(parents=True)
+    executavel = Path(sys.executable).as_posix()
+    py.write_text(f'#!/bin/sh\n[ "$1" = "-3" ] || exit 9\nshift\nexec "{executavel}" "$@"\n',
+                  encoding="utf-8", newline="\n")
+    os.chmod(py, 0o755)
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       ambiente))
+
+
+def test_lancador_acha_o_python_em_programfiles(acervo, sessao, tmp_path):
+    """O instalador "para todos os usuários" põe o Python em `%PROGRAMFILES%\\Python3XY`."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    _repassador(Path(ambiente["PROGRAMFILES"]) / "Python312" / "python.exe")
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh", sessao,
+                                       ambiente))
+
+
+def test_lancador_sem_lugares_de_costume_avisa_sem_erro_de_sh(acervo, sessao, tmp_path):
+    """`LOCALAPPDATA` vazio e `PROGRAMFILES` ausente (o Linux, o macOS): o aviso sai, e o stderr só
+    traz a linha do próprio aviso, nenhum erro do `sh`."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    ambiente["LOCALAPPDATA"] = ""
+    del ambiente["PROGRAMFILES"]
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    payload = json.dumps({"session_id": "s", "scratchpad_dir": str(sessao),
+                          "tool_input": {"command": "pytest -q"}})
+    r = subprocess.run(_comando_do_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh",
+                                            ambiente), input=payload,
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente)
+    assert r.returncode == 0, r.stderr[:300]
+    assert "nenhum Python" in json.loads(r.stdout)["systemMessage"]
+    estranhas = [l for l in r.stderr.splitlines() if l and not l.startswith("gancho das lições:")]
+    assert estranhas == [], estranhas
+
+
+# ------------------------------------------------- o aviso uma vez por sessão, sem Python (fase 0)
+
+
+def _sem_python(sh: str, acervo, ambiente: dict, payload):
+    """Roda o lançador sem nenhum Python achável. Devolve o JSON da saída, ou None se ele saiu
+    calado. `payload` é um dict ou o texto exato do stdin."""
+    entrada = payload if isinstance(payload, str) else json.dumps(payload)
+    r = subprocess.run(_comando_do_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh",
+                                            ambiente), input=entrada,
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente)
+    assert r.returncode == 0, r.stderr[:300]
+    return json.loads(r.stdout) if r.stdout.strip() else None
+
+
+def _contexto(saida: dict) -> str:
+    return saida["hookSpecificOutput"]["additionalContext"]
+
+
+def test_aviso_sai_uma_vez_na_conversa_principal(acervo, tmp_path):
+    """Duas ações da conversa principal: a primeira avisa os dois, a segunda sai calada; o log
+    recebe as duas."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    acao = {"session_id": "s1", "tool_input": {"command": "ls"}}
+    primeira = _sem_python(sh, acervo, ambiente, acao)
+    assert "systemMessage" in primeira and "falhou" in _contexto(primeira)
+    assert _sem_python(sh, acervo, ambiente, acao) is None
+    log = (acervo.raiz / ".claude" / "gancho-falhas.log").read_text(encoding="utf-8")
+    assert log.count("nenhum Python") == 2, log
+
+
+def test_aviso_ao_subagente_sem_repetir_ao_usuario(acervo, tmp_path):
+    """Depois da conversa principal, um subagente novo recebe o aviso no contexto dele, e o
+    usuário não o vê de novo."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    assert _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}}) is not None
+    sub = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "agent_id": "a1", "tool_input": {}})
+    assert "systemMessage" not in sub, sub.get("systemMessage")
+    assert "falhou" in _contexto(sub)
+    assert _sem_python(sh, acervo, ambiente,
+                       {"session_id": "s1", "agent_id": "a1", "tool_input": {}}) is None
+
+
+def test_aviso_sem_session_id_sai_em_toda_acao(acervo, tmp_path):
+    """Sem `session_id` não há como marcar a sessão: o aviso sai em toda ação, como antes."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    for _ in range(2):
+        saida = _sem_python(sh, acervo, ambiente, {"tool_input": {"command": "ls"}})
+        assert "systemMessage" in saida and "falhou" in _contexto(saida)
+    assert list(Path(ambiente["TMPDIR"]).iterdir()) == []
+
+
+def test_aviso_cita_a_linha_python_que_nao_roda(acervo, tmp_path):
+    """A linha `python` aponta para um caminho que não existe, e nada mais roda: o aviso diz que é
+    a linha."""
+    sh = _sh()
+    _golem_local(acervo.raiz, tmp_path / "nao-existe" / "python.exe")
+    saida = _sem_python(sh, acervo, _path_sem_python(tmp_path), {"tool_input": {}})
+    assert "linha python do golem.local.toml aponta" in saida["systemMessage"]
+    assert "linha python do golem.local.toml aponta" in _contexto(saida)
+
+
+def test_aviso_cita_a_licao_e_o_diagnostico(acervo, tmp_path):
+    """O aviso diz onde procurou, cita a lição pelo id e manda pedir o diagnóstico."""
+    sh = _sh()
+    saida = _sem_python(sh, acervo, _path_sem_python(tmp_path), {"tool_input": {}})
+    for campo in (saida["systemMessage"], _contexto(saida)):
+        assert "sem-python-no-path-nao-e-maquina-sem-python" in campo
+        assert "diagnóstico do Golem" in campo
+        assert "instalador do Windows" in campo and "golem.local.toml" in campo
+    assert "aponta" not in saida["systemMessage"], "sem linha python, a frase dela não entra"
+
+
+def test_aviso_com_ids_hostis_nao_escapa_da_pasta(acervo, tmp_path):
+    """Um `session_id` ou `agent_id` que não casa com `[A-Za-z0-9_-]{1,128}` vale como ausente:
+    nenhum arquivo nasce do id, e o aviso sai como sem id.
+
+    Os ids com `..` e barra mostram que nada sai da pasta; quem prova a validação são o de 129
+    caracteres e o com ponto, que sem ela virariam marca."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    hostis = ["../../fora", "a/b", "a\\\\b", "x" * 129, "s.1"]
+    antes = set(tmp_path.rglob("*"))
+
+    def novos():
+        return {p for p in set(tmp_path.rglob("*")) - antes
+                if p.is_file() and p.name != "gancho-falhas.log"}
+
+    for hostil in hostis:
+        texto = '{"session_id":"%s","tool_input":{}}' % hostil
+        for _ in range(2):
+            saida = _sem_python(sh, acervo, ambiente, texto)
+            assert "systemMessage" in saida and "falhou" in _contexto(saida), hostil
+    assert novos() == set(), novos()
+    # O `agent_id` hostil também não vira nome de arquivo: o agente vale como `principal`.
+    for hostil in hostis:
+        _sem_python(sh, acervo, ambiente,
+                    '{"session_id":"s1","agent_id":"%s","tool_input":{}}' % hostil)
+    assert sorted(p.name for p in novos()) == ["golem-aviso.s1", "golem-aviso.s1.principal"]
+    assert all(p.parent == Path(ambiente["TMPDIR"]) for p in novos()), novos()
+
+
+def test_aviso_le_o_json_com_espacos(acervo, tmp_path):
+    """`"session_id" : "s1"`, com espaços em volta dos dois-pontos, ainda é lido; e um texto da
+    ferramenta que traz o nome de um id (como valor, ou entre aspas escapadas) não engana."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    texto = '{"tool_input": {"command": "ls"}, "session_id" : "s1"}'
+    assert _sem_python(sh, acervo, ambiente, texto) is not None
+    assert _sem_python(sh, acervo, ambiente, texto) is None
+    # Uma ação da conversa principal (sem `agent_id`) cujo texto traz o nome dos ids: se um deles
+    # fosse lido do texto, ela viraria um "subagente" e o usuário perderia o aviso.
+    principal = ('{"tool_input": {"pattern": "agent_id", "path": "src",'
+                 ' "command": "echo \\"session_id\\":\\"zz\\""}, "session_id" : "s2"}')
+    json.loads(principal)
+    saida = _sem_python(sh, acervo, ambiente, principal)
+    assert "systemMessage" in saida and "falhou" in _contexto(saida), saida
+    sub = principal[:-1] + ', "agent_id" : "a1"}'
+    json.loads(sub)
+    saida = _sem_python(sh, acervo, ambiente, sub)
+    assert "systemMessage" not in saida and "falhou" in _contexto(saida), saida
+    assert _sem_python(sh, acervo, ambiente, sub) is None
+    assert sorted(p.name for p in Path(ambiente["TMPDIR"]).iterdir()) == [
+        "golem-aviso.s1", "golem-aviso.s1.principal",
+        "golem-aviso.s2", "golem-aviso.s2.a1", "golem-aviso.s2.principal"]
+
+
+def test_aviso_ao_usuario_mesmo_se_o_subagente_falhar_primeiro(acervo, tmp_path):
+    """O subagente falha antes da conversa principal: ele não gasta o aviso do usuário."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    sub = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "agent_id": "a1", "tool_input": {}})
+    assert "systemMessage" not in sub and "falhou" in _contexto(sub)
+    principal = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}})
+    assert "systemMessage" in principal and "falhou" in _contexto(principal)
+
+
+def test_aviso_sem_pasta_temporaria_gravavel_avisa_em_toda_acao(acervo, tmp_path):
+    """A marca não pôde ser criada (a pasta temporária não existe): conta como nova, e o aviso sai
+    em vez de calar a sessão inteira."""
+    sh = _sh()
+    ambiente = _path_sem_python(tmp_path)
+    ambiente["TMPDIR"] = str(tmp_path / "nao-existe")
+    for _ in range(2):
+        saida = _sem_python(sh, acervo, ambiente, {"session_id": "s1", "tool_input": {}})
+        assert "systemMessage" in saida and "falhou" in _contexto(saida)
 
 
 def test_o_comando_exato_do_settings_json_entrega(acervo, tmp_path):
