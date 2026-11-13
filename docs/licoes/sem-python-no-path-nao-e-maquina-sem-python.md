@@ -12,7 +12,7 @@ refs:
   - ".claude/skills/diagnostico/SKILL.md (pergunta onde está o Python e grava a linha python)"
   - "instalador oficial do Python no Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe e %LOCALAPPDATA%\\Programs\\Python\\Launcher\\py.exe"
 gatilhos:
-  - '\b(where(\.exe)?|which|type|command\s+-v|get-command)\s+(python3?|py)\b'
+  - '\b(where(\.exe)?|which|type|command\s+-v|get-command)\s+(python3?|py|claude)\b'
   - '(^|/)gancho-falhas\.log\b'
   - '\bwinget\s+install\b.*\bpython'
 ---
@@ -31,6 +31,10 @@ Desde a fase 0 (2026-11-12), o gancho também procura na linha `python` do `gole
 lugares do instalador do Windows, e a skill `diagnostico` grava essa linha. O sinal abaixo continua
 valendo para o Python que fica fora até desses lugares.
 
+Em 2026-11-13, o mesmo erro se repetiu com outro programa. O agente escreveu que o CLI `claude`
+"não está instalado", porque ele não estava no PATH. O revisor achou o `claude.exe` que o app
+desktop traz numa pasta própria, dentro do `%LOCALAPPDATA%` (o item 4 abaixo).
+
 **Como perceber da próxima vez:**
 1. Diante de "nenhum Python encontrado", leia a lista de onde o gancho procurou e escreva "não há
    Python **no PATH** nem num `.venv` daqui", nunca "a máquina não tem Python".
@@ -40,3 +44,6 @@ valendo para o Python que fica fora até desses lugares.
 3. Se outras conversas ou outros projetos rodam Python na mesma máquina (um `.venv` de outro
    repositório, por exemplo), o Python existe: o que falta é o caminho até ele. Peça ao usuário o
    diagnóstico do Golem, que pergunta onde ele está.
+4. Vale para qualquer programa: "não está no PATH" não é "não está instalado". Antes de afirmar
+   que falta, procure na pasta do app que o traz. O `claude.exe` do app desktop fica em
+   `%LOCALAPPDATA%\Claude-Data\<id>\claude-code\<versão>\<hash>\`.

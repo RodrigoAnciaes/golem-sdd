@@ -38,10 +38,19 @@ Nesta máquina, em que o Python está fora do PATH (só os atalhos da loja no PA
    mostra a lição.
 4. Pedir o diagnóstico de novo, responder "Sim, e sei onde" e colar o caminho de um Python de um
    `.venv` de outro projeto. Esperado: a skill testa, grava e o teste final mostra a lição.
-5. Este passo exige o terminal, porque o app desktop não muda a variável por sessão. No Git Bash,
-   na raiz do worktree, abrir o Claude Code com `LOCALAPPDATA="$(mktemp -d)" claude`, pedir o
-   diagnóstico e responder "Sim, mas não sei onde". Esperado: a skill diz que não achou nenhum
-   Python e dá o comando de instalação do `winget`, com o id conferido no G3.
+5. O caminho sem Python. Num `sh` do Git Bash, rodar a busca do passo 4 do
+   `.claude/skills/diagnostico/SKILL.md`, copiada dela, com `LOCALAPPDATA` e `PROGRAMFILES` em
+   pastas vazias e `PATH=/usr/bin:/mingw64/bin`. Esperado: o `command -v` e o `ls` não listam
+   nada. Para "Sim, mas não sei onde" sem nada achado, a skill manda ao passo 6, que dá o comando
+   de instalação do `winget`, com o id conferido no G3, para o usuário rodar.
+   - Por que não numa sessão: na de 2026-11-13, o agente notou o `LOCALAPPDATA` trocado e achou
+     o Python real (por quê, a conferir: o nome da pasta entregava o teste; lição
+     `trocar-o-localappdata-nao-esconde-o-python-do-agente`). Uma
+     sessão aberta assim serve só como observação do fluxo da skill. Ela se abre pelo PowerShell,
+     com o `claude.exe` do app, e não pelo Git Bash.
+   - Ajustado em 2026-11-13, com o ok do usuário ("Sim, ajuste"). O critério antigo abria o
+     Claude Code com `LOCALAPPDATA="$(mktemp -d)" claude` e esperava a mensagem de nada achado
+     na sessão.
 
 ## Casos de borda
 

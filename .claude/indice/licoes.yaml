@@ -20,7 +20,7 @@ licoes:
     tipo: "erro-de-diagnostico"
     data: "2026-11-12"
     gatilho: "no Windows, o gancho avisou 'nenhum Python 3.8+ encontrado' em toda ação, e o agente concluiu que a máquina não tinha Python"
-    gatilhos: ["\\b(where(\\.exe)?|which|type|command\\s+-v|get-command)\\s+(python3?|py)\\b", "(^|/)gancho-falhas\\.log\\b", "\\bwinget\\s+install\\b.*\\bpython"]
+    gatilhos: ["\\b(where(\\.exe)?|which|type|command\\s+-v|get-command)\\s+(python3?|py|claude)\\b", "(^|/)gancho-falhas\\.log\\b", "\\bwinget\\s+install\\b.*\\bpython"]
     arquivo: docs/licoes/sem-python-no-path-nao-e-maquina-sem-python.md
   suite-verde-so-vale-com-a-linha-de-resumo:
     area: "processo"
@@ -29,4 +29,11 @@ licoes:
     gatilho: "rodar a suíte com o -q do arquivo de configuração somado ao -q da linha de comando, ou num ambiente sem a variável ou o dado que alguns testes exigem"
     gatilhos: ["\\bpytest\\b", "\\bnpm\\s+(run\\s+)?test\\b", "\\bmake\\s+test", "(^|/)(pytest\\.ini|pyproject\\.toml|setup\\.cfg|tox\\.ini)$"]
     arquivo: docs/licoes/suite-verde-so-vale-com-a-linha-de-resumo.md
-total: 4
+  trocar-o-localappdata-nao-esconde-o-python-do-agente:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-13"
+    gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
+    gatilhos: ["\\bLOCALAPPDATA=\\S", "\\$env:LOCALAPPDATA\\s*=", "\\bwinpty\\b"]
+    arquivo: docs/licoes/trocar-o-localappdata-nao-esconde-o-python-do-agente.md
+total: 5

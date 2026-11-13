@@ -107,10 +107,53 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
   - sem a linha `license:` da skill nova: `1 failed, 1 passed`;
   - o diff do `licoes_relevantes.py` desde `f912da6`: vazio;
   - o `git grep` de caminho pessoal: sem resultado.
-- [ ] o passo a passo manual nesta máquina (Python fora do PATH): o passo 1 passou (a lição
-  `sem-python-no-path-nao-e-maquina-sem-python` chega, sem `systemMessage`). Os passos 2 a 5
-  pedem uma sessão nova do Claude Code no worktree e as respostas do usuário; o 3 e o 4 gravam o
-  `golem.local.toml` na pasta principal de verdade.
+- [x] o passo a passo manual nesta máquina (Python fora do PATH), com o passo 5 no critério
+  ajustado em 2026-11-13: a busca vazia num `sh`. O usuário aprovou o ajuste ("Sim, ajuste")
+  sabendo que, com ele, o item ia a `[x]`. O passo 6 da skill, o `winget`, não foi visto numa
+  sessão, e o critério ajustado não o exige; o que a skill faria está em `SKILL.md:53` e
+  `:96-102`.
+  - passo 1: passou (a lição `sem-python-no-path-nao-e-maquina-sem-python` chega, sem
+    `systemMessage`);
+  - passos 2 a 4: passaram, segundo o relato do usuário, que os rodou numa sessão nova do app
+    desktop em 2026-11-12 ("Foi bem sucedido em todos"). Do passo 4, o agente conferiu a
+    gravação: o `golem.local.toml` da pasta principal tinha, então, a linha `python` apontando
+    para o `.venv` de outro projeto, sob o comentário que a skill grava;
+  - passo 2, o limite: a sessão do agente roda o `gancho.sh` da pasta principal, e não o do
+    worktree. O aviso dela tem o texto antigo, e o log que cresce é o da pasta principal. O
+    `.claude/settings.json:10` e `:21` rodam, em resumo, o `gancho.sh` de
+    `${CLAUDE_PROJECT_DIR}` ou, sem ele, o da raiz do git.
+    A sessão do passo 2 o usuário abriu escolhendo a pasta do worktree como pasta do projeto
+    ("Abri a pasta do worktree", 2026-11-13). Deduz-se, por essa resposta e pelo
+    `settings.json`, que o gancho que rodou nela foi o da fase. Por que a sessão do agente roda
+    o outro fica a conferir: a hipótese é o `CLAUDE_PROJECT_DIR`, que ali seria a pasta
+    principal;
+  - passo 5, em duas partes (ver a tabela abaixo):
+    - a busca: o agente rodou a do passo 4 da skill, copiada dela, num `sh` com o `LOCALAPPDATA`
+      e o `PROGRAMFILES` em pastas vazias e `PATH=/usr/bin:/mingw64/bin`. Resultado:
+      `command -v saiu com 1` e `ls saiu com 2`, nenhum candidato. Para "Sim, mas não sei onde"
+      sem nada achado, a skill manda ao passo 6 (`SKILL.md:53`), que dá
+      `winget install -e --id Python.Python.3.14 --scope user` para o usuário rodar
+      (`SKILL.md:96-102`);
+    - a sessão nova, segundo a saída que o usuário colou: ele a abriu no PowerShell, em
+      2026-11-13, com uma linha que guarda o `LOCALAPPDATA`, põe nele uma pasta nova em `%TEMP%`,
+      roda o `claude.exe` do app e devolve o valor no fim. No Git Bash, o `claude.exe` caiu no
+      modo `--print`, e com o `winpty` também não abriu ("aquele terminal do Claude Code eu abri
+      pelo PowerShell e não pelo Git Bash. Aquele seu comando não funcionou. Mas o do PowerShell
+      sim", 2026-11-13). A skill mostrou a
+      linha `python` gravada e fez a pergunta; o usuário respondeu "Sim, mas não sei onde". A
+      skill também acusou que o `golem.local.toml` da pasta principal não estava ignorado (a
+      pasta principal está na `main`, sem a linha da fase) e propôs a linha; o usuário respondeu
+      "Sim, acrescente", e o `.gitignore` da pasta principal ficou com `+golem.local.toml`, sem
+      commit (ver o estado para a retomada). Depois, a sessão
+      notou que o `LOCALAPPDATA` era uma pasta de teste e procurou no caminho real. Achou o
+      Python 3.12.4 instalado e o de um `.venv`, descartou os atalhos da Store e gravou o
+      instalado, que o usuário escolheu. O "nada achado" não apareceu, e o `winget` não foi
+      oferecido. Por que a sessão notou o teste fica a conferir: o nome da pasta, `golem-vazio-...`,
+      o entregava. Nesta sessão, o agente achou o Python mesmo com o `LOCALAPPDATA`
+      trocado; o caminho do `winget` só se vê de verdade numa máquina sem Python;
+    - conferido pelo agente depois da sessão: o `golem.local.toml` da pasta principal tem a
+      linha `python` do Python instalado, e o gancho do worktree, rodado com `where python`, entrega a lição
+      `sem-python-no-path-nao-e-maquina-sem-python`.
 - [x] spec e código reconciliados: as mudanças estão na tabela abaixo.
 
 ## Alterações de escopo durante a fase
@@ -125,7 +168,8 @@ caminho completo por escolha: a skill nova é o que o usuário vê.
 | 2026-11-12 | G3: a skill `diagnostico` confere se o `golem.local.toml` está no `.gitignore` e, se não estiver, propõe a linha, que só entra com o ok do usuário. O R4 não pedia isso. | Um projeto que instalou o kit antes da fase 0 tem o `.gitignore` sem essa linha, e o arquivo traz o nome do usuário no caminho (regra 5). Nesta máquina, a pasta principal está nesse caso até o merge. | agente, para o autor do kit confirmar ou tirar |
 | 2026-11-12 | G3: os `refs` da lição `sem-python-no-path-nao-e-maquina-sem-python` citam funções, e não linhas, contra a regra da skill `licao` ("`refs` com linha"). | Pedido do R6: esta fase muda os números de linha do `gancho.sh`. O ref histórico diz o commit (`f912da6`). | spec aprovada (R6) |
 | 2026-11-12 | G3: a skill grava sempre o `sys.executable` do Python que rodou, também para o `py.exe`. | O gancho só aceita um arquivo que existe; um nome solto (`python3`) ou um caminho relativo passaria no teste e seria recusado depois. | agente (achado do revisor do G3) |
+| 2026-11-13 | G4: o passo 5 manual roda em duas partes: a busca da skill, pelo agente, num `sh` com as pastas do instalador vazias e o PATH sem Python; e a sessão nova, aberta pelo usuário com o `claude.exe` que o app traz, pelo PowerShell. O "nada achado" do `validation.md` só se vê na primeira. | O CLI `claude` não está no PATH (o agente primeiro escreveu "não está instalado", e o revisor achou o `claude.exe` do app). No Git Bash, ele cai no modo `--print`, com ou sem o `winpty`; pelo PowerShell, abre. Na sessão nova, o agente notou o `LOCALAPPDATA` de teste e achou o Python real (por quê, a conferir: o nome da pasta entregava o teste). | usuário, em 2026-11-13: "Você roda", e depois "Rodo pelo Git Bash" (que acabou sendo o PowerShell); o critério do `validation.md` ajustado com "Sim, ajuste" |
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). G4: o automatizado passou; faltam os passos manuais 2 a 5, com o usuário, e depois a skill `validar-fase` (o guardião, o registro no `docs/plano-produto.md` e o PR).
+Spec aprovada em 2026-11-12, com um commit por grupo na branch da fase. G1, G2 e G3 feitos (revisor sem bloqueio, validador valida). G4: o automatizado passou. Dos passos manuais, o 1 passou; o 2 a 4 passaram, segundo o relato do usuário (o 2 numa sessão aberta na pasta do worktree); o 5 rodou em duas partes: a busca, pelo agente, não acha nada; a sessão nova, aberta pelo usuário no PowerShell, furou o teste, achou o Python real e o gravou. O critério do passo 5 foi ajustado à busca vazia (`validation.md`, com o ok do usuário), e o item está `[x]`. Na pasta principal (`main`), o `.gitignore` tem `+golem.local.toml` sem commit, posto pela sessão do passo 5; antes do `git pull` que traz o merge desta fase, essa mudança local precisa ser desfeita, porque o merge traz a mesma linha. Depois, a skill `validar-fase`: o guardião, o registro no `docs/plano-produto.md` e o PR.
