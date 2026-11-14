@@ -6,8 +6,8 @@ tipo: premissa-falsa
 custo: "três tentativas do usuário de abrir a sessão de teste, e o resultado esperado não apareceu"
 gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
 refs:
-  - ".claude/skills/diagnostico/SKILL.md:70-77 (a busca, que lê o $LOCALAPPDATA)"
-  - ".claude/skills/diagnostico/SKILL.md:97-103 (o winget, quando nada é achado)"
+  - ".claude/skills/diagnostico/SKILL.md:65-72 (a busca, que lê o $LOCALAPPDATA)"
+  - ".claude/skills/diagnostico/SKILL.md:92-98 (o winget, quando nada é achado)"
 gatilhos:
   - '\bLOCALAPPDATA=\S'
   - '\$env:LOCALAPPDATA\s*='

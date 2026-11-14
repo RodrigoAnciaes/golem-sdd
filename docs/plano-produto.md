@@ -358,9 +358,11 @@ prova independentes; os comandos do `validation.md` continuam rodando. A skill d
 isso numa linha, e a escolha é dele.
 
 **Detalhes a conferir na fase** (a fase de cada item entre parênteses):
-- (fase 1) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: ou se sobe o mínimo, ou o
-  arquivo usa só `chave = valor`, que se lê com meia dúzia de linhas;
-- (fase 1) se o formato de agente do Codex aceita modelo por agente;
+- (fase 1, resolvido) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: o `golem.toml`
+  usa só `chave = valor`, lido por um leitor próprio, e o mínimo continua 3.8 (seção 8, decisão 7);
+- (fase 6, a paridade do Codex) se o formato de agente do Codex aceita modelo por agente. O
+  `instalar_codex.py` leva só o `name` e o `description` do frontmatter, e os nomes de modelo do
+  Codex são outros. Movido da fase 1 em 2026-11-13;
 - (fase 0, resolvido) como o `golem.local.toml` chega a um worktree: o `gancho.sh` o procura
   também na pasta principal, pelo `--git-common-dir`, como o `.venv` (`ler_linha_python`);
 - (fase 0, resolvido) o aviso da linha `python` que não roda, quando outro Python é achado: fica
@@ -372,8 +374,15 @@ isso numa linha, e a escolha é dele.
   `o-windows-muda-o-que-o-sh-recebe-do-python`);
 - (fase 6, a paridade do Codex) se a entrada de gancho do Codex traz `session_id`. Sem ele, o
   aviso de falha sai em toda ação, como antes da fase 0;
-- (fase 1) se o `systemMessage` do gancho de um subagente aparece ao usuário. A fase 0 não
-  depende disso: só a conversa principal põe o `systemMessage`;
+- (fase 4, o diagnóstico completo) se o `systemMessage` do gancho de um subagente aparece ao
+  usuário. A fase 0 não depende disso: só a conversa principal põe o `systemMessage`. A fase 1
+  também não: o `gancho = "desligado"` sai calado. Movido da fase 1 em 2026-11-13;
+- (fase 4, o plugin) o que o kit entrega das lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
+  `trocar-o-localappdata-nao-esconde-o-python-do-agente`, que ficam em `docs/licoes/` por ora
+  (seção 8, decisão 6);
+- (fase 4) o "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente`, que
+  rodam a régua: a fase 1 o faz só na `implementar-fase` e na `licao` (seção 8, decisão 7), e a
+  seção 5(b) o pede em todas;
 - (fase 4, o plugin) por que uma sessão do app desktop aberta num worktree criado pelo app roda o
   `gancho.sh` da pasta principal, e não o do worktree. A hipótese é o `CLAUDE_PROJECT_DIR`, que
   `.claude/settings.json:10` e `:21` usam. Visto na fase 0, a conferir.
@@ -609,6 +618,25 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
    (`gancho = "desligado"`) em nenhuma das fases. Ele fica na 1, porque o `gancho = "desligado"` é
    uma linha do `golem.toml` e o modo mexe nas skills (buscar as lições em momentos fixos). Na fase
    0, quando nada é achado, a pergunta oferece só o comando de instalação.
+6. **O que sobrou da fase 0, em 2026-11-13.** A conversa gerente (GER) trouxe quatro
+   recomendações. As palavras dele: "Sim, as quatro". As quatro, em dois itens:
+   - as lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
+     `trocar-o-localappdata-nao-esconde-o-python-do-agente` ficam em `docs/licoes/` por ora; a fase
+     4 (o plugin) decide o que o kit entrega (ver "Detalhes a conferir na fase", seção 3);
+   - da skill `diagnostico`, fica a conferência do `.gitignore` e sai o aviso da linha `python`
+     própria do worktree. Uma linha `python` escrita à mão num worktree passa a vencer a da pasta
+     principal sem aviso: a skill nunca grava ali. Aplicado na fase 1.
+7. **A spec da fase 1, em 2026-11-13.** Ele escolheu a opção recomendada nas quatro perguntas da
+   entrevista (`specs/2026-11-13-fase-1-configuracao/requirements.md`, "Decisões"):
+   - **"Econômica no kit":** depois da fase 1, o repositório do kit roda na receita `economico`,
+     porque o `AGENTS.md` dele é o que o usuário copia até a fase 4. As fases 2 em diante do kit
+     rodam com um revisor só, no Sonnet, uma vez por fase;
+   - **"Leitor próprio, 3.8+":** o `golem.toml` aceita só `chave = valor` e comentários, e o
+     mínimo continua o Python 3.8;
+   - **"Mínimo"** para o modo sem Python: só a `implementar-fase` e a `licao` mudam na fase 1; o
+     resto vai para a fase 4;
+   - **"Receita + duas etapas":** a skill de configurar pergunta a receita, o revisor e o parar a
+     cada parte.
 
 **Em aberto, uma de cada vez:**
 1. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes

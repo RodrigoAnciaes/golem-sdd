@@ -7,17 +7,17 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G1 — As decisões de 2026-11-13 (R1)
 
-- [ ] `.claude/skills/diagnostico/SKILL.md`: tirar o aviso da linha `python` própria do worktree
+- [x] `.claude/skills/diagnostico/SKILL.md`: tirar o aviso da linha `python` própria do worktree
   (o "Lê" e o "Escreve", `:9-12`; a variável `raiz`, `:24`; o `grep` da raiz, `:26`; o item
   `:33-34`). A conferência do `.gitignore` e a `:31` ficam.
-- [ ] `docs/plano-produto.md`, seção 8: as duas decisões de 2026-11-13, com as palavras ("Sim, as
+- [x] `docs/plano-produto.md`, seção 8: as duas decisões de 2026-11-13, com as palavras ("Sim, as
   quatro"), e as quatro respostas desta entrevista (o kit na `economico`, o leitor próprio, o modo
   sem Python mínimo, a `configurar` com a receita e duas etapas).
-- [ ] `docs/plano-produto.md`, "Detalhes a conferir": o item das duas lições (fase 4); o do
+- [x] `docs/plano-produto.md`, "Detalhes a conferir": o item das duas lições (fase 4); o do
   "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente` (fase 4); o do
   `tomllib`, resolvido (leitor próprio); o do modelo no Codex, movido para a fase 6; o do
   `systemMessage` de subagente, movido para a fase 4.
-- [ ] O instalador do Codex, rodado numa cópia: `--conferir` ok.
+- [x] O instalador do Codex, rodado numa cópia: `--conferir` ok.
 
 **Revisão:** revisor (caminho rápido).
 
@@ -126,6 +126,7 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-13 | G1: os `refs` das lições `sem-python-no-path-nao-e-maquina-sem-python` e `trocar-o-localappdata-nao-esconde-o-python-do-agente` passam a citar as linhas novas da `diagnostico` (`:33-42 e :78-91`, `:65-72`, `:92-98`). | A skill perdeu 5 linhas antes do passo 2, e as citações apontavam para o trecho errado (quem muda, varre). O G5 muda o passo 6 de novo e varre outra vez. | agente (achado do revisor do G1) |
 
 ## Estado para a retomada
 
