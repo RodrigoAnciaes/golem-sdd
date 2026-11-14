@@ -86,8 +86,8 @@ def sessao(tmp_path) -> Path:
 class Acervo:
     """Uma árvore mínima: o gancho, a régua e SÓ as lições que o teste escreve.
 
-    Com o acervo de verdade, o teto de 4 e as lições de exemplo interfeririam no que o teste quer
-    provar ("não entregou" passaria por falta de vaga, e não pelo gatilho).
+    Com o acervo de verdade, o teto do gancho e as lições de exemplo interfeririam no que o teste
+    quer provar ("não entregou" passaria por falta de vaga, e não pelo gatilho).
     """
 
     def __init__(self, raiz: Path):
@@ -98,6 +98,8 @@ class Acervo:
         shutil.copy2(GANCHO, raiz / ".claude" / "hooks" / "licoes_relevantes.py")
         shutil.copy2(RAIZ / ".claude" / "hooks" / "gancho.sh", raiz / ".claude" / "hooks" / "gancho.sh")
         shutil.copy2(REGUA, raiz / ".claude" / "regua.py")
+        # O teto do gancho vem do golem.toml, pelo golem.py (sem golem.toml, 2, o da economico).
+        shutil.copy2(RAIZ / ".claude" / "golem.py", raiz / ".claude" / "golem.py")
         self.indice = raiz / ".claude" / "indice" / "licoes.yaml"
         self.script = raiz / ".claude" / "hooks" / "licoes_relevantes.py"
 

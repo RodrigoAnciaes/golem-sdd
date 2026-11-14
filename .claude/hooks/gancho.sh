@@ -8,6 +8,7 @@
 #
 # O que faz:
 #   1. se localiza pelo próprio caminho: a raiz do projeto é `../..` daqui (nunca depende do cwd);
+#      com `gancho = "desligado"` no golem.toml da raiz (o modo sem Python), sai calado aqui;
 #   2. procura um Python, nesta ordem, e só aceita o candidato que RODA um Python 3.8+ de verdade
 #      (senão passa ao próximo):
 #        a. a linha `python = '<caminho>'` do `golem.local.toml` (fora do git) da raiz ou, se a
@@ -45,6 +46,33 @@ if [ ! -f "$aqui/licoes_relevantes.py" ]; then
         aqui="$raiz/.claude/hooks"
     fi
 fi
+
+# O modo sem Python: `gancho = "desligado"` (ou entre aspas simples) no golem.toml da raiz desliga
+# o gancho antes de procurar o Python, calado, sem aviso nem log. É lido aqui, em sh, para valer
+# numa máquina sem Python. Vale a ÚLTIMA linha `gancho`, como no `.claude/golem.py`; a chave só
+# vale seguida de espaços opcionais e `=` (o `gancho_teto` não conta). O `\r` de um arquivo em
+# CRLF e um comentário depois do valor são tolerados.
+cr=$(printf '\r')
+valor_gancho=""
+if [ -f "$raiz/golem.toml" ]; then
+    while read -r linha || [ -n "$linha" ]; do
+        case $linha in
+            gancho*=*) ;;
+            *) continue ;;
+        esac
+        meio=${linha#gancho}
+        meio=${meio%%=*}
+        case $meio in
+            *[!' 	']*) continue ;;
+        esac
+        valor_gancho=${linha#*=}
+        valor_gancho=${valor_gancho#"${valor_gancho%%[! 	]*}"}
+    done < "$raiz/golem.toml"
+fi
+case $valor_gancho in
+    '"desligado"' | '"desligado"'[' 	#'"$cr"]* | "'desligado'" | "'desligado'"[' 	#'"$cr"]*)
+        exit 0 ;;
+esac
 
 # Quem recebe o aviso: `ao_usuario` (o `systemMessage`) e `ao_agente` (o `additionalContext`), 1
 # ou 0. Só o caminho "nenhum Python" os muda, para avisar uma vez por sessão; o log sempre recebe.

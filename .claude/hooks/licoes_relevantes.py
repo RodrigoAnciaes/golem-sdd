@@ -24,8 +24,8 @@ Como escolhe:
 2. **Lição sem `gatilhos:` vale pela área** (`POR_CAMINHO` e `POR_COMANDO`, abaixo).
 3. A que casou por gatilho vem antes das que vieram só pela área, dentro do mesmo teto.
 4. **Cada lição entra uma vez por agente, por sessão.** Sem isso, a mesma lista se repete a
-   cada ação da mesma área, e o agente para de ler. O teto (`TETO`) vale sobre o que é NOVO:
-   a ação seguinte na mesma área entrega as próximas, até esgotar.
+   cada ação da mesma área, e o agente para de ler. O teto (`teto_do_gancho`) vale sobre o que
+   é NOVO: a ação seguinte na mesma área entrega as próximas, até esgotar.
 5. O sinal sai **inteiro**. Truncar entrega meia verdade, e o agente completa de memória.
 
 Regras de área (opcional): se existir `docs/regras-de-area.md`, cada bloco
@@ -44,6 +44,7 @@ num clone recém-feito.
 Para adaptar ao seu projeto: edite `POR_CAMINHO` e `POR_COMANDO`. As áreas usadas aqui têm de
 estar em `AREAS_VALIDAS` do `.claude/regua.py` (há um teste que confere).
 """
+import importlib.util
 import json
 import os
 import re
@@ -57,7 +58,20 @@ RAIZ = Path(__file__).resolve().parents[2]
 LICOES = RAIZ / "docs" / "licoes"
 INDICE = RAIZ / ".claude" / "indice" / "licoes.yaml"
 REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
-TETO = 4  # no máximo 4 lições NOVAS por injeção: acima disso vira ruído e ninguém lê
+
+
+def teto_do_gancho() -> int:
+    """Quantas lições NOVAS por injeção: acima disso vira ruído e ninguém lê.
+
+    Vem do `golem.toml` da raiz (a linha `gancho_teto`, ou o da receita), pelo `.claude/golem.py`.
+    Sem `golem.toml`, ou com ele com erro, o da receita padrão. Sem o `golem.py` (a `.claude/` não
+    foi copiada inteira), o script falha, e o `gancho.sh` avisa.
+    """
+    sys.dont_write_bytecode = True  # nada de .claude/__pycache__/ no projeto a cada ação
+    spec = importlib.util.spec_from_file_location("golem", RAIZ / ".claude" / "golem.py")
+    golem = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(golem)
+    return golem.teto_do_gancho(RAIZ)
 
 # Caminho do arquivo -> área (o caminho, com `/`, CONTÉM o trecho). Exemplos: ajuste ao seu
 # projeto. A ordem não importa; um caminho pode acender mais de uma área.
@@ -481,6 +495,9 @@ def main():
     if not licoes and not regras:
         return
 
+    # O teto antes de qualquer marca: se o golem.py faltar, o script cai aqui, sem ter marcado como
+    # entregue uma regra que não chegou.
+    teto = teto_do_gancho()
     marca = pasta_de_marca(dados)
     vistas = ja_entregues(marca)
 
@@ -494,7 +511,7 @@ def main():
     for licao in licoes:
         if licao[0] in vistas:
             continue
-        if len(entregar) >= TETO:
+        if len(entregar) >= teto:
             break
         examinadas += 1
         if reivindicar(marca, licao[0]):

@@ -56,14 +56,14 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G3 — O gancho obedece (R5, R9)
 
-- [ ] `.claude/hooks/gancho.sh`: ler a linha `gancho` do `golem.toml` da raiz, antes de procurar o
+- [x] `.claude/hooks/gancho.sh`: ler a linha `gancho` do `golem.toml` da raiz, antes de procurar o
   Python, no padrão do `ler_linha_python`, valendo a última linha; com `desligado`, sair calado.
-- [ ] `.claude/hooks/licoes_relevantes.py`: o teto pelo leitor do `golem.py`, com o da `economico`
+- [x] `.claude/hooks/licoes_relevantes.py`: o teto pelo leitor do `golem.py`, com o da `economico`
   quando falta o `golem.toml` ou quando ele tem erro. Sem caminho de reserva para a falta do
   `golem.py` (R5).
-- [ ] `.claude/tests/conftest.py`: o `Acervo` copia o `golem.py`. Os dois testes que contam com o
+- [x] `.claude/tests/conftest.py`: o `Acervo` copia o `golem.py`. Os dois testes que contam com o
   teto 4 (`test_gancho.py:68` e `:91`) põem `gancho_teto = 4` na cópia.
-- [ ] Testes novos em `.claude/tests/test_gancho.py`:
+- [x] Testes novos em `.claude/tests/test_gancho.py`:
   1. `test_lancador_com_gancho_desligado_sai_calado_sem_python` — o PATH sem Python: código 0, sem
      saída, sem linha no `gancho-falhas.log`;
   2. `test_lancador_com_gancho_desligado_nao_roda_o_python` — um repassador que grava um
@@ -126,6 +126,8 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-13 | G3: o `licoes_relevantes.py` lê o teto antes de reivindicar as regras de área, e não grava `.claude/__pycache__/` ao carregar o `golem.py` (`sys.dont_write_bytecode`). | Sem o `golem.py`, a falha vinha depois de marcar as regras como entregues, e elas sumiam da sessão; o `exec_module` gravaria bytecode no projeto a cada ação (revisor do G3). | agente |
+| 2026-11-13 | G3: o teste 3 também roda um CRLF logo depois da aspa e um comentário colado no valor; a contagem não muda. O `docs/plano-produto.md:35` (seção 1, "o kit hoje") diz que o teto vem do `golem.toml` desde a fase 1. | Os ramos `#` e `` do `case` não eram exercitados (o mutante sem eles passava; agora faz o teste falhar); a frase do `TETO = 4` ficou falsa (revisor do G3). | agente |
 | 2026-11-13 | G2: o título "## Como o Golem trabalha aqui" fica dentro das marcas, gerado pelo `aplicar`; no `AGENTS.md` do kit, só as duas marcas entraram à mão. | Sem as marcas, o bloco acrescentado no fim precisa do próprio título; assim há um caminho só. | agente (achado menor do revisor do G2) |
 | 2026-11-13 | G2: o teste 4 mede o tamanho de todo bloco possível, em CRLF (o pior dava 1.210 bytes; o comentário do bloco encurtou, e o pior ficou em 1.166); o teste 12 também prova que, com as marcas incompletas, nada é escrito. A contagem não muda. | O R4 pede até 1.200 bytes, e o teste só media as três receitas (revisor e validador do G2); a escrita antes de conferir as marcas sobrevivia à mutação (validador do G2). | agente |
 | 2026-11-13 | G2: no bloco, o `perguntar` diz "e só rode com o sim" na nota final, o `inherit` vira "o da conversa" e o gancho desligado diz o que procurar em `docs/licoes/`. | O texto do bloco é instrução ao agente (G4), e o `grep -ril` sem termo não dizia o que buscar (revisor do G2). | agente |
