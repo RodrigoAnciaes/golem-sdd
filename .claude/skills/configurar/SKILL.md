@@ -27,8 +27,13 @@ Se o arquivo existe, mostre-o. As linhas das chaves que esta skill não pergunta
 
 ## 2. Perguntar
 
-Faça as três perguntas numa chamada só, com botões (no Claude Code, a ferramenta de pergunta). Onde
-não houver botões, faça em texto numerado. A recomendada vem primeiro.
+Pergunte com botões (no Claude Code, a ferramenta de pergunta), em duas chamadas: primeiro a
+receita, sozinha; depois as outras duas, já sabendo a receita. Onde não houver botões, faça em texto
+numerado. Cada opção tem um rótulo curto ("Sempre") e o resto na descrição. A recomendada vem
+primeiro.
+
+**Nunca ofereça "o da receita"**: quem configura pela primeira vez não sabe o que a receita faz.
+Diga o valor por extenso e de qual receita ele vem, pela tabela do guia.
 
 1. **"Como o Golem deve trabalhar neste projeto?"**
    - `economico` (recomendado): um revisor, no Sonnet, uma vez por fase; para ao fim de cada parte
@@ -37,29 +42,37 @@ não houver botões, faça em texto numerado. A recomendada vem primeiro.
      de cada parte para o seu ok;
    - `completo`: revisor e validador, no Opus, a cada parte, mais o guardião antes do merge (até 7
      conversas extras numa fase de 3 partes); segue sem parar.
-2. **"O revisor, uma conversa extra que lê o que foi feito:"**
-   - o da receita (recomendado); se o `golem.toml` já tem uma linha `revisor`, esta opção vira
-     "manter o atual (`<valor>`)";
-   - sempre;
-   - perguntar na hora (com o custo);
-   - nunca.
-3. **"Parar ao fim de cada parte para você aprovar?"**
-   - o da receita (recomendado); com uma linha `parar_a_cada_parte` no arquivo, "manter o atual";
-   - sim;
-   - não.
+2. **"O revisor, uma conversa extra que lê o que foi feito:"** as três opções, com a da receita
+   escolhida primeiro e marcada como recomendada. Na `economico`, por exemplo:
+   - "Sempre": uma vez por fase, no Sonnet (recomendado: é o que a `economico` faz);
+   - "Perguntar na hora": antes de rodar, pergunta com botões (abre 1 conversa extra se você
+     aceitar);
+   - "Nunca": o revisor não roda.
 
-Se o resultado ficar sem revisor, sem validador e sem guardião (a `so-eu`, ou a `economico` com o
-revisor `nunca`), diga numa linha: "Sem revisão, ninguém além desta conversa lê o que foi feito; os
-comandos do `validation.md` continuam rodando." Se ficar sem revisor, mas com o validador ou o
-guardião, diga que o revisor sai e quais deles continuam. A escolha é do usuário.
+   Na `completo`, o "Sempre" é "a cada parte, no Opus", e o "Nunca" diz quais do validador e do
+   guardião continuam, pelo `golem.toml` que vai sair; na `so-eu`, a recomendada é o "Nunca".
+3. **"Parar ao fim de cada parte para você aprovar?"** do mesmo jeito: "Sim", para e espera o seu
+   ok (recomendado: é o que a `economico` faz), e "Não", segue sem parar; na `completo`, a
+   recomendada é o "Não".
+
+Se o `golem.toml` já tem uma linha `revisor` ou `parar_a_cada_parte`, marque "(o atual)" na opção
+de mesmo valor. Não há opção "manter": o valor atual já é uma das opções.
+
+Logo depois da segunda chamada, antes de mostrar o arquivo, diga numa linha o que fica sem revisão:
+- sem revisor, sem validador e sem guardião (a `so-eu`, ou a `economico` com o revisor `nunca`):
+  "Sem revisão, ninguém além desta conversa lê o que foi feito; os comandos do `validation.md`
+  continuam rodando.";
+- sem revisor, mas com o validador ou o guardião: que o revisor sai e quais deles continuam.
+
+A escolha é do usuário.
 
 ## 3. Escrever o `golem.toml`
 
-Escreva a `receita` e só as linhas que diferem dela: o `revisor`, se a resposta não for "o da
-receita" e for diferente do valor da receita; o `parar_a_cada_parte` (`sempre` para sim, `nunca` para
-não), pela mesma regra. Uma linha `revisor` ou `parar_a_cada_parte` que já existia sai quando a
-resposta é "o da receita"; com "manter o atual", ela fica. Mantenha as linhas das outras chaves
-e os comentários que já existiam. A tabela das receitas está no guia.
+Escreva a `receita` e só as linhas que diferem dela: o `revisor`, se a resposta for diferente do
+valor da receita; o `parar_a_cada_parte` (`sempre` para sim, `nunca` para não), pela mesma regra.
+Uma linha `revisor` ou `parar_a_cada_parte` que já existia sai quando a resposta é o valor da
+receita. Mantenha as linhas das outras chaves e os comentários que já existiam. A tabela das
+receitas está no guia.
 
 ```toml
 # golem.toml: como o Golem trabalha neste projeto.

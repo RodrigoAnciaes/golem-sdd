@@ -119,6 +119,32 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 - [ ] Rodar o `validation.md` inteiro, com a saída colada.
 - [ ] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
+  - Verificação 1, primeira rodada (2026-11-13, kit em `1397a98`): a parada a cada grupo
+    funcionou, mas a chamada do revisor deu "Agent type 'revisor' not found", e a sessão usou um
+    `general-purpose` no Sonnet; a busca de lições abortou (`grep -i -e -e`). Os dois defeitos
+    estão corrigidos (tabela abaixo, G6).
+  - Verificação 1, segunda rodada (2026-11-13, kit em `f195050`, sessão nova aberta pelo autor do
+    kit): **passou**. O agente parou ao fim do G1, do G2 e do G3, esperando o ok. Depois do commit do
+    G2 (o último grupo de implementação), rodou um subagente só, `agentType: revisor`, sobre a fase
+    inteira: as 6 respostas dele são `claude-sonnet-5-5` (a única linha com Opus que o `grep` do `validation.md` conta é a
+    definição da ferramenta `advisor`, e não uma resposta). Nenhum validador, nenhum guardião. Nenhum
+    aviso do gancho (o texto "Gancho das lições falhou" só aparece na descrição da `diagnostico`) e
+    nenhum `grep.exe.stackdump`. Lido da transcrição da sessão e do `meta.json` do subagente. O
+    Sonnet continua a conferir no plano Pro (R3).
+  - Verificação 2 (2026-11-14, `revisor = "perguntar"`, sessão nova aberta pelo autor do kit):
+    **passou**. Ao fim do G2, a caixa de próximo passo perguntou "Rodo o revisor (sonnet) no diff
+    da fase antes da verificação?", com os botões "Sim, rode o revisor" e "Não, pule", e o texto
+    logo acima disse o custo ("abre 1 conversa extra"). O autor do kit respondeu "Não, pule", e a
+    sessão não tem pasta `subagents`: nenhum revisor rodou. Lido da transcrição.
+  - Verificação 3 (2026-11-14, sem `golem.toml`, sessão nova aberta pelo autor do kit): **passou**
+    nos critérios do `validation.md`. Com `completo`, revisor `nunca` e parar "Sim", o `golem.toml`
+    saiu com `receita = "completo"`, `revisor = "nunca"` e `parar_a_cada_parte = "sempre"` (mais os
+    comentários do cabeçalho e de cada linha); a skill rodou o `aplicar`, mostrou a saída e disse
+    "A configuração nova vale numa conversa nova"; o bloco é o da `completo` com o revisor `nunca`
+    e o parar `sempre`; os dois agentes ficaram em `model: opus`. A frase da skill (`SKILL.md`, passo 2: "o revisor
+    sai e quais deles continuam") não saiu como frase, mas a tabela final mostrou o revisor "nunca" e o
+    validador e o guardião ligados. O autor do kit apontou que a opção "o da receita" não diz nada
+    a quem não conhece as receitas (tabela abaixo).
 - [ ] O guardião sobre o diff do PR (`git diff 1f9f827`), num subagente novo.
 - [ ] Spec e código reconciliados: as mudanças na tabela abaixo.
 - [x] As correções da verificação manual 1 e do guardião (2026-11-13): o frontmatter do
@@ -134,6 +160,8 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-14 | G6: a `configurar` diz a linha do que fica sem revisão logo depois da segunda chamada, antes de mostrar o arquivo; o "Nunca" da `completo` diz que o validador e o guardião continuam; o "Manter o atual" saiu, e a opção de mesmo valor ganha "(o atual)"; cada opção tem um rótulo curto, e o resto vai na descrição. | Na verificação 3, a frase só ficou no raciocínio do agente, e não no texto mostrado; o "Nunca" diria "ninguém lê" na `completo` (bloqueio do revisor); o "Manter o atual" repetia o problema do "o da receita" e não tinha efeito próprio (regra 10). | agente (achados do revisor) |
+| 2026-11-14 | G6: a `configurar` pergunta a receita sozinha e, depois, o revisor e o parar a cada parte com o valor da receita escolhida dito por extenso (o rótulo "Sempre" e, na descrição, "uma vez por fase, no Sonnet (recomendado: é o que a `economico` faz)"); a opção "o da receita" saiu. Continuam três perguntas, agora em duas chamadas. | As palavras do autor do kit, depois da verificação 3: "Eu rodei a 3, mas tem um feedback que você, nas opções, coloca o da receita. Só que o usuário novo não sabe o que é o da receita." | usuário (o problema), agente (o formato), 2026-11-14 |
 | 2026-11-13 | G6: o frontmatter do `revisor.md` voltou a ser YAML válido, e um teste novo confere o frontmatter de todos os agentes e skills; a contagem vai de 122 para 123. | Na verificação manual 1, a sessão de teste respondeu "Agent type 'revisor' not found": a descrição do G4 tinha "AGENTS.md: por grupo", e o Claude Code descartou o agente calado. Nem a suíte, nem os revisores, nem o guardião viram (lição `frontmatter-invalido-some-com-o-agente-sem-aviso`). | agente (achado da verificação manual 1) |
 | 2026-11-13 | G6: a busca das lições da `implementar-fase` usa a busca do agente ou `grep -ilE 'a\|b'`, nunca `-i` com dois `-e`. | O grep 3.0 do Git for Windows aborta nesse caso (os `grep.exe.stackdump` da fase vinham disso, e não do acento); a sessão de teste perdeu a busca (lição `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`). | agente (achado da verificação manual 1) |
 | 2026-11-13 | G6: no modo sem Python, a `diagnostico` pula o passo 7 e, com a `configurar`, troca à mão só a linha do gancho no bloco do `AGENTS.md`, pelo texto que o `aplicar` gera (um teste confere que o texto da skill é o do `golem.py`). | O passo 7 diria "o Python rodou" com o gancho desligado, que sai vazio (bloqueio do guardião); e o bloco seguiria dizendo "ligado" a cada turno, sem o R7 chegar à máquina sem Python (guardião). | agente |
