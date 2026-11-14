@@ -103,15 +103,15 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G5 — A skill `configurar`, o guia e a varredura (R8, R11)
 
-- [ ] `.claude/skills/configurar/SKILL.md`, com as três perguntas, o `golem.toml` com as linhas
+- [x] `.claude/skills/configurar/SKILL.md`, com as três perguntas, o `golem.toml` com as linhas
   que diferem da receita e as das chaves que ela não pergunta, a busca do Python, o caminho sem Python e o `aplicar`.
-- [ ] `.claude/skills/diagnostico/SKILL.md`, passo 6: oferecer também o modo sem Python.
-- [ ] `docs/guia-configuracao.md`, de uma página.
-- [ ] Teste novo: `test_o_guia_traz_as_receitas_do_golem_py`, em `.claude/tests/test_golem.py` (a
+- [x] `.claude/skills/diagnostico/SKILL.md`, passo 6: oferecer também o modo sem Python.
+- [x] `docs/guia-configuracao.md`, de uma página.
+- [x] Teste novo: `test_o_guia_traz_as_receitas_do_golem_py`, em `.claude/tests/test_golem.py` (a
   tabela do guia bate com as receitas do `golem.py`).
-- [ ] A varredura do R11: `iniciar-sdd`, `WORKFLOW.md`, `test_credito.py`, `README.md` e a seção 3
+- [x] A varredura do R11: `iniciar-sdd`, `WORKFLOW.md`, `test_credito.py`, `README.md` e a seção 3
   do `docs/plano-produto.md`.
-- [ ] O instalador do Codex, rodado numa cópia, leva a skill nova (`--conferir` ok).
+- [x] O instalador do Codex, rodado numa cópia, leva a skill nova (`--conferir` ok).
 
 **Revisão:** revisor + validador.
 
@@ -126,6 +126,10 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-13 | G5: a `diagnostico`, com o sim ao modo sem Python, escreve ela mesma a linha `gancho = "desligado"` no `golem.toml` da raiz (o R8 só pedia a oferta); quando a pergunta vem pela `configurar`, é esta que oferece, uma vez só. | Sem isso, o sim mandava o usuário a outra skill, que repetiria as três perguntas (revisor do G5). | agente |
+| 2026-11-13 | G5: o aviso da `configurar` sai pelo resultado: "sem revisão" só com revisor, validador e guardião em `nunca`; sem revisor mas com os outros, diz quais continuam. O guia diz que o parar a cada parte custa um turno a mais por parte. | As duas frases, como estavam, eram falsas para a `completo` com revisor `nunca` e para o custo do turno que relê o contexto (bloqueios do revisor do G5). O R8 dizia "fica sem a leitura independente" para o revisor `nunca`, o que vale só sem os outros dois. | agente |
+| 2026-11-13 | G5: o teste do guia confere também a ordem das colunas e as chaves de todas as receitas; a contagem não muda. | O validador do G5 deu "não valida": o cabeçalho com as receitas trocadas e uma chave só numa receita passavam (M3 e M4). Com a correção, os dois mutantes fazem o teste falhar. | agente |
+| 2026-11-13 | G5: os `refs` das duas lições que citam a `diagnostico` andaram uma linha (o "Escreve" ganhou uma). | Quem muda, varre. | agente |
 | 2026-11-13 | G4: a varredura do R6 alcançou também a `iniciar-sdd`, a `sessao-gerente` (e `references/projeto-modelo.md`), o `templates/fase/plan.md`, o `templates/pull_request_template.md` ("não roda (o bloco)"), a linha GUA do `docs/operacao-das-conversas.md:28` e o `docs/plano-produto.md:34` e `:37` ("desde a fase 1"). | Diziam o fluxo de antes (revisor e validador a cada grupo; guardião opcional com uma conversa só). A linha GUA era o bloqueio do revisor do G4. | agente (quem muda, varre) |
 | 2026-11-13 | G4: o que o `git grep` do R6 ainda acha e fica: as frases condicionais novas; o `golem.py` e os testes do bloco; o "fim de turno" do fecho (`README.md:66`, `docs/operacao-das-conversas.md:140`); a CI "a cada grupo" da `implementar-fase`; e o diagnóstico e o desenho datados do `docs/plano-produto.md`. | Falam de outra coisa, ou são condicionais, ou são registro datado (revisor e validador do G4). | agente |
 | 2026-11-13 | G4: a regra 11 diz "não passe outro modelo na chamada, salvo se a spec da fase pedir outro"; a revisão por fase roda ao fim do último grupo de implementação, antes do de verificação; sem o bloco, roda-se o `aplicar`, e sem Python vale a `economico`; a `licao` pula a régua só sem Python. | Achados do revisor do G4: a frase sem a ressalva contradizia o R10 desta fase; o "último grupo" era ambíguo; um `AGENTS.md` sem o bloco não tinha regra; gancho desligado não prova falta de Python. | agente |

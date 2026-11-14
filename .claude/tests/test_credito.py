@@ -16,9 +16,9 @@ URL = "https://github.com/RodrigoAnciaes/golem-sdd"
 LINHA = f"Golem SDD · © 2026 {NOME} · licença MIT (.claude/LICENSE) · {URL}"
 LICENSE_DA_SKILL = f'license: "MIT. © 2026 {NOME}. Golem SDD, {URL} (texto em .claude/LICENSE)"'
 
-SKILLS = ["adr", "auditar-specs", "changelog", "constituicao", "diagnostico", "implementar-fase",
-          "iniciar-conversa", "iniciar-sdd", "licao", "replanejar-roadmap", "sessao-gerente",
-          "spec-de-fase", "validar-fase"]
+SKILLS = ["adr", "auditar-specs", "changelog", "configurar", "constituicao", "diagnostico",
+          "implementar-fase", "iniciar-conversa", "iniciar-sdd", "licao", "replanejar-roadmap",
+          "sessao-gerente", "spec-de-fase", "validar-fase"]
 ARQUIVOS_DO_KIT = (
     [(f".claude/skills/{s}/SKILL.md", LICENSE_DA_SKILL) for s in SKILLS]
     + [(f".claude/agents/{a}.md", f"<!-- {LINHA} -->") for a in ("revisor", "validador")]

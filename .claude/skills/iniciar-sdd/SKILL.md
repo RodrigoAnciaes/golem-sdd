@@ -84,7 +84,7 @@ porque nenhuma lição está no git, faltou o `git add`.
 
 Skills esperadas: `constituicao`, `spec-de-fase`, `implementar-fase`, `validar-fase`,
 `replanejar-roadmap`, `auditar-specs`, `adr`, `changelog`, `licao`, `iniciar-conversa`,
-`diagnostico`, `sessao-gerente` e esta. Reporte as que faltam.
+`diagnostico`, `configurar`, `sessao-gerente` e esta. Reporte as que faltam.
 
 ### 4. Reprodutibilidade
 

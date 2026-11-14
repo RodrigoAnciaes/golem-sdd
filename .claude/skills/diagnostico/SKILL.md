@@ -8,7 +8,8 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 **Lê:** o `golem.local.toml` da pasta principal do repositório, se existir.
 **Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal e, com o ok do
-usuário, a linha `golem.local.toml` no `.gitignore`, se faltar. Não instala nada.
+usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, e, com o sim ao modo sem Python, a
+linha `gancho = "desligado"` no `golem.toml` da raiz da sessão (que viaja no git). Não instala nada.
 **Decide:** nada sozinha. Pergunta antes de procurar, e grava o que achou só depois do ok do
 usuário. Esta é a versão mínima: o resto do diagnóstico (o `sh`, o git, o índice) fica para depois.
 
@@ -104,6 +105,13 @@ winget install -e --id Python.Python.3.14 --scope user
   (`brew install python`, `sudo apt install python3`).
 
 Depois da instalação, volte ao passo 4.
+
+Se o usuário não quiser instalar agora, ofereça o **modo sem Python**: a linha
+`gancho = "desligado"` no `golem.toml` da raiz desliga o gancho e o aviso, e as lições passam a
+ser buscadas à mão em `docs/licoes/`. Com o sim, ponha a linha `gancho = "desligado"` no
+`golem.toml` da raiz (crie o arquivo se não existir), mostrando a mudança antes; o resto da
+configuração fica como está (`docs/guia-configuracao.md`). Quando esta pergunta vem pela skill
+`configurar`, é ela quem oferece o modo sem Python.
 
 ## 7. Testar o gancho
 

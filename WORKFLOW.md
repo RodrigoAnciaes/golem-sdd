@@ -171,6 +171,7 @@ fica em "Depois (não planejado)".
 | `auditar-specs` | de tempos em tempos: a distância entre o que as specs dizem e o que o código faz. Só relata; corrigir é decisão do usuário |
 | `iniciar-conversa` | no começo de toda sessão: confere o git e o registro da gerente e abre só o que a tarefa de hoje exige |
 | `diagnostico` | quando o gancho avisa que não achou o Python: pergunta se há Python e onde, procura nos lugares de costume e grava o caminho no `golem.local.toml` |
+| `configurar` | para escolher a receita (`so-eu`, `economico`, `completo`), o revisor e o parar a cada parte: escreve o `golem.toml` e roda o `aplicar` (`docs/guia-configuracao.md`) |
 | `sessao-gerente` | faz de uma conversa a gerente (GER), quando há várias frentes em paralelo (`docs/operacao-das-conversas.md`) |
 
 A lista completa das skills está em `.claude/skills/`.

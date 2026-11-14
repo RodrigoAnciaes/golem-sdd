@@ -46,7 +46,7 @@ foi **medido**, não estimado (seção 1.2).
 | Peça | Tamanho | Tokens (estim.) |
 |---|---|---|
 | `AGENTS.md` (o `CLAUDE.md` o importa inteiro) | 12.987 bytes | ~3,4 mil |
-| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes) | 4.520 bytes | ~1,2 mil |
+| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes, e da fase 1, que acrescenta a `configurar`, com 386) | 4.520 bytes | ~1,2 mil |
 | **total fixo** | | **~4,6 mil** |
 
 **O que entra quando se usa:**
@@ -263,13 +263,19 @@ roda os comandos do `validation.md` (a conversa, e o validador quando ele existe
 
 **Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`
 (`python .claude/golem.py aplicar`, no molde do `instalar_codex.py`) junta a receita e as linhas
-do usuário e gera três coisas:
-1. o `model:` e o `effort:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita;
-2. no `.claude/settings.json`, a chamada do gancho com o teto (o `licoes_relevantes.py` passa a
-   ler o teto de uma variável, em vez do `TETO = 4` fixo) ou sem o gancho;
-3. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 1, 10
-   e 11 passam a citar. Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração
-   sem abrir arquivo novo, e sabe em que momento perguntar.
+do usuário e gera duas coisas:
+1. o `model:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita (o `effort:` fica
+   para a fase 5);
+2. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 10 e
+   11 passam a citar.
+
+O gancho não passa pelo `aplicar`: o `licoes_relevantes.py` lê o teto do `golem.toml` pelo
+`golem.py`, em vez do `TETO = 4` fixo, e o `gancho.sh` lê a linha `gancho` (abaixo). Assim, o
+`settings.json` não muda. A fase 1 trocou por isso o plano de gerar ali a chamada do gancho
+(`specs/2026-11-13-fase-1-configuracao/requirements.md`, R4 e R5).
+
+Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração sem abrir arquivo novo, e
+sabe em que momento perguntar.
 
 A skill de configurar escreve o `golem.toml` e roda o `aplicar` por ele. Mudou a configuração,
 abre-se uma conversa nova. Com o plugin da fase 4, a skill vira `/golem:configurar`.

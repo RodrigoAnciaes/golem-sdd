@@ -199,3 +199,21 @@ def test_o_agents_md_e_os_agentes_batem_com_o_golem_toml():
     divergentes = [p.relative_to(RAIZ).as_posix() for p, (texto, _) in golem.esperado(RAIZ).items()
                    if golem._ler(p)[0] != texto]
     assert not divergentes, f"rode `python3 .claude/golem.py aplicar`: {divergentes}"
+
+
+def test_o_guia_traz_as_receitas_do_golem_py():
+    """A tabela das receitas do docs/guia-configuracao.md é a do golem.py, célula por célula."""
+    texto = (RAIZ / "docs" / "guia-configuracao.md").read_text(encoding="utf-8")
+    linhas = [l for l in texto.splitlines() if l.startswith("| `")]
+    tabela = {}
+    for linha in linhas:
+        celulas = [c.strip().strip("`") for c in linha.strip("|").split("|")]
+        tabela[celulas[0]] = celulas[1:]
+    receitas = list(golem.RECEITAS)
+    chaves = set().union(*(golem.RECEITAS[r] for r in receitas))
+    esperado = {chave: [str(golem.RECEITAS[r].get(chave)) for r in receitas] for chave in chaves}
+    assert tabela == esperado
+    # As colunas, na ordem do golem.py: a tabela é lida nessa ordem.
+    cabecalho = next(l for l in texto.splitlines() if l.startswith("| Chave |"))
+    posicoes = [cabecalho.find(f"`{r}`") for r in receitas]
+    assert -1 not in posicoes and posicoes == sorted(posicoes), cabecalho

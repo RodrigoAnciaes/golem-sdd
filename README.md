@@ -95,7 +95,7 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
    - a pasta `.claude/` inteira (skills, agentes, gancho, régua, `settings.json`, testes, o índice
      das lições, que **já vem pronto** no kit, e o `LICENSE` do kit, que fica junto: é a condição
      da licença, veja "Licença e crédito");
-   - a pasta `docs/` (a operação das conversas e as lições de exemplo);
+   - a pasta `docs/` (a operação das conversas, o guia de configuração e as lições de exemplo);
    - o `AGENTS.md`, o `WORKFLOW.md` e o `CLAUDE.md` (ele importa o `AGENTS.md` para o Claude
      Code; quem usa só o Codex não precisa dele).
 
@@ -147,6 +147,11 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
 
 6. **Abra uma sessão nova** do agente na pasta do projeto: skill e gancho novos só aparecem em
    sessão nova. Com o Codex, faça antes a seção seguinte.
+
+7. **Opcional: configure o Golem.** Sem `golem.toml`, vale a receita `economico`: um revisor por
+   fase, e a implementação para a cada parte para o seu ok. Para mudar, peça "configurar o Golem"
+   (skill `configurar`) e responda aos botões. As receitas e o que cada uma custa estão em
+   `docs/guia-configuracao.md`. A configuração nova vale numa sessão nova.
 
 O commit desses arquivos é seu: faça quando quiser, junto com o que mais estiver pendente.
 
@@ -244,12 +249,15 @@ conversa para a gerente e o LIBERADO de volta. O método funciona igual; só o c
 | `AGENTS.md` | as regras permanentes do projeto, lidas em toda sessão |
 | `CLAUDE.md` | o Claude Code lê este arquivo sozinho, e ele importa o `AGENTS.md` (`@AGENTS.md`); o Codex não usa |
 | `WORKFLOW.md` | o fluxo, etapa por etapa |
+| `golem.toml` | (opcional, a skill `configurar` cria) a receita e as linhas que mudam como o Golem trabalha; sem ele, vale a `economico` |
+| `docs/guia-configuracao.md` | as receitas, o que cada linha do `golem.toml` faz e o que custa |
 | `docs/operacao-das-conversas.md` | os papéis das conversas, quem decide o quê, o fecho, o merge e as travas |
 | `docs/licoes/` | as lições: o formato no `README.md` e uma lição por arquivo |
 | `docs/regras-de-area.md` | (opcional, você cria) regras que só valem para quem mexe numa área; o gancho as entrega junto com as lições. Formato no topo do `.claude/hooks/licoes_relevantes.py` |
 | `.claude/skills/` | as skills do fluxo, uma pasta por skill |
 | `.claude/agents/` | os subagentes `revisor` e `validador` |
 | `.claude/hooks/` | o gancho que entrega as lições antes de uma ação |
+| `.claude/golem.py` | o `aplicar`: junta a receita e o `golem.toml` e escreve o bloco "Como o Golem trabalha aqui" do `AGENTS.md` e o `model:` dos agentes |
 | `.claude/regua.py` | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`) |
 | `.claude/indice/licoes.yaml` | o índice das lições, gerado pela régua; nunca se edita à mão |
 | `.claude/settings.json` | liga o gancho no Claude Code |
