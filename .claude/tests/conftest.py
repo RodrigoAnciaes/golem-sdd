@@ -145,9 +145,11 @@ def acervo(tmp_path) -> Acervo:
 
 @pytest.fixture
 def copia_do_kit(tmp_path) -> Path:
-    """Uma cópia do kit inteiro (o `.claude/` e as lições de exemplo), para sabotar à vontade."""
+    """Uma cópia do kit inteiro (o `.claude/`, as lições de exemplo e o `AGENTS.md`), para
+    sabotar à vontade."""
     destino = tmp_path / "kit"
     shutil.copytree(RAIZ / ".claude", destino / ".claude",
                     ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache", "tests"))
     shutil.copytree(RAIZ / "docs" / "licoes", destino / "docs" / "licoes")
+    shutil.copy2(RAIZ / "AGENTS.md", destino / "AGENTS.md")
     return destino

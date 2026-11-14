@@ -23,6 +23,7 @@ ARQUIVOS_DO_KIT = (
     [(f".claude/skills/{s}/SKILL.md", LICENSE_DA_SKILL) for s in SKILLS]
     + [(f".claude/agents/{a}.md", f"<!-- {LINHA} -->") for a in ("revisor", "validador")]
     + [(caminho, f"# {LINHA}") for caminho in (
+        ".claude/golem.py",
         ".claude/hooks/gancho.sh",
         ".claude/hooks/licoes_relevantes.py",
         ".claude/instalar_codex.py",
@@ -31,6 +32,7 @@ ARQUIVOS_DO_KIT = (
         ".claude/tests/test_codex.py",
         ".claude/tests/test_credito.py",
         ".claude/tests/test_gancho.py",
+        ".claude/tests/test_golem.py",
         ".claude/tests/test_regua.py",
     )]
 )

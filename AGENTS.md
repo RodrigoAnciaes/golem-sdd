@@ -61,6 +61,24 @@ Nunca um número escrito à mão em prosa, que envelhece sem avisar. >>
 
 ---
 
+<!-- golem:inicio -->
+## Como o Golem trabalha aqui
+
+<!-- Gerado pelo `.claude/golem.py aplicar`. Não edite à mão: peça "configurar o Golem". -->
+
+Receita `economico`; o guia é `docs/guia-configuracao.md`.
+
+- **Revisor:** sempre, uma vez por fase, ao fim do último grupo: o `revisor` lê o diff da fase inteira. Modelo `sonnet`.
+- **Validador:** nunca.
+- **Guardião:** nunca.
+- **Os comandos do `validation.md`:** sempre, pela própria conversa, com a linha de resumo lida.
+- **Parar a cada parte:** sempre: ao fim de cada grupo, mostre o diff e uma linha do que mudou, e espere o ok.
+- **Conversas:** uma; os papéis de `docs/operacao-das-conversas.md` são opcionais.
+- **Gancho das lições:** ligado, até 2 lições novas por ação.
+<!-- golem:fim -->
+
+---
+
 ## Convenções
 
 - Commits e PRs em << português >>. Merge por << squash | merge commit >>.
