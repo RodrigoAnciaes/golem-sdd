@@ -342,7 +342,7 @@ justamente quando não acha o Python.
 simples fazem uma string literal, sem escape. O `gancho.sh` lê com `read -r`, que não trata a
 barra invertida (conferido no Git Bash em 2026-11-12: com `-r`, o caminho chega inteiro; sem ele,
 as barras somem). Um caminho com aspa simples dentro não cabe nesse formato: a skill o recusa e
-pede outro (na skill, `SKILL.md:52` e `:94-95`; não exercitado na fase 0).
+pede outro (na skill, `SKILL.md:49` e `:91-92`; não exercitado na fase 0).
 
 **A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, a receita `completo` roda
 7 subagentes (3 revisores, 3 validadores e o guardião). A `economico` roda 1: um revisor no Sonnet
@@ -385,7 +385,9 @@ isso numa linha, e a escolha é dele.
   também não: o `gancho = "desligado"` sai calado. Movido da fase 1 em 2026-11-13;
 - (fase 4, o plugin) o que o kit entrega das lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
   `trocar-o-localappdata-nao-esconde-o-python-do-agente`, que ficam em `docs/licoes/` por ora
-  (seção 8, decisão 6);
+  (seção 8, decisão 6), e das duas que a fase 1 acrescentou pelo mesmo caminho,
+  `frontmatter-invalido-some-com-o-agente-sem-aviso` e
+  `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`;
 - (fase 4) o "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente`, que
   rodam a régua: a fase 1 o faz só na `implementar-fase` e na `licao` (seção 8, decisão 7), e a
   seção 5(b) o pede em todas;

@@ -65,6 +65,11 @@ def test_linha_vale_mais_que_a_receita(tmp_path):
     assert c["revisor"] == "perguntar" and c["validador"] == "sempre" and c["gancho_teto"] == 4
     assert "Com `perguntar`, pergunte com botões" in golem.bloco(c)
     assert "Com `perguntar`" not in golem.bloco(golem.configuracao(tmp_path / "vazia"))
+    # Sem Python, a skill diagnostico manda trocar à mão a linha do gancho pela que o aplicar gera.
+    desligado = golem.bloco({**c, "gancho": "desligado"})
+    linha = next(l for l in desligado.splitlines() if l.startswith("- **Gancho das lições:**"))
+    skill = (RAIZ / ".claude" / "skills" / "diagnostico" / "SKILL.md").read_text(encoding="utf-8")
+    assert linha in skill.splitlines(), linha
     # Todo bloco possível cabe no teto do R4, contado em CRLF, como o `wc -c` do validation.md o
     # conta no Windows. O teto 10 é o de dois dígitos.
     maior = 0

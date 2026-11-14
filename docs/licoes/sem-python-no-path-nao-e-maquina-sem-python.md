@@ -9,7 +9,7 @@ refs:
   - ".claude/hooks/gancho.sh, achar_venv e achar_no_path (em f912da6, os únicos lugares de procura: o .venv da raiz, o da pasta principal e o PATH)"
   - ".claude/hooks/gancho.sh, o aviso 'nenhum Python 3.8+ encontrado'"
   - ".claude/hooks/gancho.sh, ler_linha_python e achar_no_instalador (o conserto da fase 0)"
-  - ".claude/skills/diagnostico/SKILL.md:34-43 e :79-92 (pergunta onde está o Python e grava a linha python)"
+  - ".claude/skills/diagnostico/SKILL.md:35-44 e :80-93 (pergunta onde está o Python e grava a linha python)"
   - "instalador oficial do Python no Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe e %LOCALAPPDATA%\\Programs\\Python\\Launcher\\py.exe"
 gatilhos:
   - '\b(where(\.exe)?|which|type|command\s+-v|get-command)\s+(python3?|py|claude)\b'

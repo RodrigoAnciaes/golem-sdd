@@ -8,7 +8,8 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 **Lê:** o `golem.toml` da raiz, se existir, e a linha `python` do `golem.local.toml`.
 **Escreve:** o `golem.toml` da raiz. Pelo `aplicar`, escreve também o bloco "Como o Golem trabalha
-aqui" do `AGENTS.md` e o `model:` dos agentes `revisor` e `validador`.
+aqui" do `AGENTS.md` e o `model:` dos agentes `revisor` e `validador`. Sem Python, com o modo sem
+Python aceito, troca à mão só a linha do gancho nesse bloco.
 **Decide:** nada sozinha. Pergunta, mostra o arquivo e só grava depois do ok. O commit é do
 usuário.
 
@@ -96,7 +97,9 @@ do modo sem Python do passo 6 (ela vem aqui, uma vez só). Se ainda não houver 
   anterior até o `aplicar` rodar numa máquina com Python;
 - ofereça o modo sem Python, com botões ("Desligar o gancho das lições?", sim ou não). Com o sim,
   ponha `gancho = "desligado"` no `golem.toml`. Isso vale já, sem Python: o gancho para de avisar a
-  cada ação, e as lições passam a ser buscadas à mão em `docs/licoes/`.
+  cada ação, e as lições passam a ser buscadas à mão em `docs/licoes/`. Troque também, à mão, no
+  bloco do `AGENTS.md`, só a linha do gancho pela que o `aplicar` gera (o texto está no passo 6 da
+  skill `diagnostico`): sem isso, o bloco continua dizendo "ligado" a cada turno.
 
 ## 5. Aplicar
 

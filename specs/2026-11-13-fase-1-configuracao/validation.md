@@ -6,10 +6,10 @@ da raiz do worktree, no Git Bash.
 
 ## Verificações automatizadas
 
-- [ ] `"$PY" -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs` → **`122 passed`**,
-  sem falhas nem pulados: os 96 de antes e os 26 novos do `plan.md` (17 no G2, contando os 3 casos
-  do teste parametrizado, 8 no G3 e 1 no G5). Se um teste mudar de forma na fase, a contagem nova
-  entra aqui e na tabela de alterações do `plan.md`.
+- [ ] `"$PY" -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs` → **`123 passed`**,
+  sem falhas nem pulados: os 96 de antes e os 27 novos do `plan.md` (17 no G2, contando os 3 casos
+  do teste parametrizado, 8 no G3, 1 no G5 e 1 no G6, o do frontmatter). Se um teste mudar de
+  forma na fase, a contagem nova entra aqui e na tabela de alterações do `plan.md`.
 - [ ] Os testes novos, cada um pelo nó, passam. Exemplo:
   `"$PY" -m pytest ".claude/tests/test_golem.py::test_sem_golem_toml_vale_a_economico" -o addopts= -q -p no:cacheprovider`
   → `1 passed`. Os nomes estão no `plan.md`, G2, G3 e G5.

@@ -145,7 +145,7 @@ def _modelo(valor: str) -> str:
 def bloco(c: dict) -> str:
     """O bloco "Como o Golem trabalha aqui", com as marcas, em LF."""
     por_fase = c["revisor_quando"] == "por_fase"
-    quando = "uma vez por fase, ao fim do último grupo" if por_fase else "a cada grupo"
+    quando = "uma vez por fase, antes da verificação" if por_fase else "a cada grupo"
     diff = "o diff da fase inteira" if por_fase else "o diff do grupo"
     linhas = [
         INICIO,

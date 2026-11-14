@@ -8,6 +8,20 @@ licoes:
     gatilho: "conferência e ação na mesma chamada de ferramenta (encadeadas com && ou ;) ou em chamadas paralelas da mesma mensagem"
     gatilhos: ["\\bgh\\s+pr\\s+merge\\b", "\\bgit\\s+(push|merge)\\b", "\\bgit\\s+ls-remote\\b.*(&&|;)"]
     arquivo: docs/licoes/conferir-e-agir-em-chamadas-separadas.md
+  frontmatter-invalido-some-com-o-agente-sem-aviso:
+    area: "processo"
+    tipo: "armadilha"
+    data: "2026-11-13"
+    gatilho: "a fase 1 reescreveu a description do revisor.md com um ': ' no meio, e numa sessão nova o agente revisor não existia mais"
+    gatilhos: ["\\.claude/agents/[^/]+\\.md$", "/SKILL\\.md$"]
+    arquivo: docs/licoes/frontmatter-invalido-some-com-o-agente-sem-aviso.md
+  o-grep-do-git-for-windows-aborta-com-i-e-varios-e:
+    area: "processo"
+    tipo: "erro-de-diagnostico"
+    data: "2026-11-13"
+    gatilho: "a implementar-fase passou a mandar buscar lições com grep -il, e uma sessão rodou grep -il -e python -e teste"
+    gatilhos: ["(?<!git )\\bgrep\\b[^|;&\\n]*\\s-e\\s[^|;&\\n]*\\s-e\\s", "stackdump"]
+    arquivo: docs/licoes/o-grep-do-git-for-windows-aborta-com-i-e-varios-e.md
   o-windows-muda-o-que-o-sh-recebe-do-python:
     area: "processo"
     tipo: "armadilha"
@@ -36,4 +50,4 @@ licoes:
     gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
     gatilhos: ["\\bLOCALAPPDATA=\\S", "\\$env:LOCALAPPDATA\\s*=", "\\bwinpty\\b"]
     arquivo: docs/licoes/trocar-o-localappdata-nao-esconde-o-python-do-agente.md
-total: 5
+total: 7

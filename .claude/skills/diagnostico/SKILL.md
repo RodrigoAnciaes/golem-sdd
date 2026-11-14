@@ -9,7 +9,8 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 **Lê:** o `golem.local.toml` da pasta principal do repositório, se existir.
 **Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal e, com o ok do
 usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, e, com o sim ao modo sem Python, a
-linha `gancho = "desligado"` no `golem.toml` da raiz da sessão (que viaja no git). Não instala nada.
+linha `gancho = "desligado"` no `golem.toml` da raiz da sessão (que viaja no git) e a linha do
+gancho no bloco "Como o Golem trabalha aqui" do `AGENTS.md`. Não instala nada.
 **Decide:** nada sozinha. Pergunta antes de procurar, e grava o que achou só depois do ok do
 usuário. Esta é a versão mínima: o resto do diagnóstico (o `sh`, o git, o índice) fica para depois.
 
@@ -110,8 +111,18 @@ Se o usuário não quiser instalar agora, ofereça o **modo sem Python**: a linh
 `gancho = "desligado"` no `golem.toml` da raiz desliga o gancho e o aviso, e as lições passam a
 ser buscadas à mão em `docs/licoes/`. Com o sim, ponha a linha `gancho = "desligado"` no
 `golem.toml` da raiz (crie o arquivo se não existir), mostrando a mudança antes; o resto da
-configuração fica como está (`docs/guia-configuracao.md`). Quando esta pergunta vem pela skill
-`configurar`, é ela quem oferece o modo sem Python.
+configuração fica como está (`docs/guia-configuracao.md`). Sem Python, o `aplicar` não roda: troque
+à mão, no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, só a linha do gancho por esta, que é
+a que o `aplicar` gera:
+
+```markdown
+- **Gancho das lições:** desligado: antes de editar um arquivo ou rodar um comando, procure em `docs/licoes/` as lições que citam o nome dele.
+```
+
+Com o modo sem Python, **pule o passo 7**: o gancho desligado sai vazio sem procurar o Python, e
+a saída vazia não diz nada sobre ele. Diga ao usuário que as lições ficam para buscar à mão em
+`docs/licoes/`. Quando esta pergunta vem pela skill `configurar`, é ela quem oferece o modo sem
+Python.
 
 ## 7. Testar o gancho
 

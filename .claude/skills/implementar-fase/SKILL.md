@@ -21,8 +21,10 @@ outro sistema ou outra equipe.
    `specs/tech-stack.md`.
 3. Leia o arquivo apontado em "padrões a seguir" no `requirements.md`. Copie o padrão de lá em vez
    de inventar um novo.
-4. Busque as lições da área que vai tocar direto em `docs/licoes/` (por exemplo,
-   `grep -il <termo> docs/licoes/*.md`, com o nome do arquivo, do comando ou da ferramenta), aqui e
+4. Busque as lições da área que vai tocar direto em `docs/licoes/`, com o nome do arquivo, do
+   comando ou da ferramenta: pela busca do próprio agente (no Claude Code, a ferramenta Grep) ou,
+   no shell, `grep -ilE 'termo1|termo2' docs/licoes/*.md`. Nunca `-i` com dois `-e`: o grep do Git
+   for Windows aborta (lição `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`). Busque aqui e
    de novo antes de rodar os testes. Vale com ou sem gancho: sem Python, o gancho pode estar
    desligado e o índice envelhece. Armadilha registrada não se paga duas vezes.
 5. Leia o bloco "Como o Golem trabalha aqui" do `AGENTS.md`: ele diz que revisão roda, quando, e
@@ -54,10 +56,11 @@ outro sistema ou outra equipe.
 - **Sem o parar a cada parte, fim de grupo não é fim de turno.** Com o plano aprovado, diga numa
   linha curta, sem fecho, o que mudou, e comece o próximo grupo no mesmo turno. O turno só termina
   num bloqueio real (um PEDIDO à conversa gerente, a GER; uma decisão ou um gasto do usuário; a
-  espera da CI; o "Pare e pergunte quando" abaixo) ou com o plano feito. Esperar o revisor do grupo em segundo plano também
-  termina o turno, com `Espera: nada — revisor do grupo N`; quando o veredito chega, aplique-o, faça
-  o commit do grupo (se o usuário pediu commits) e siga sem perguntar. Fechar com `Espera: nada` e
-  grupos pela frente, sem revisor em curso, é o sinal do erro.
+  espera da CI; o "Pare e pergunte quando" abaixo) ou com o plano feito. Esperar o revisor do
+  grupo em segundo plano também termina o turno, com `Espera: nada — revisor do grupo N`; quando
+  o veredito chega, aplique-o, faça o commit do grupo (se o usuário pediu commits) e siga sem
+  perguntar. Fechar com `Espera: nada` e grupos pela frente, sem revisor em curso, é o sinal do
+  erro.
 - **Fim de grupo também não é PR pronto.** Com grupo pela frente, o PR fica em rascunho.
 - **Só toque no que a fase pede.** Achou problema fora do escopo? Na primeira que servir: urgente,
   à GER; armadilha que cumpre um dos quatro motivos da regra 7, lição na hora (skill `licao`); afeta

@@ -267,7 +267,8 @@ na saída do `git log` ou do `gh`.
 
 ### O caminho rápido
 
-PR só de documentação ou só de testes leva **um revisor**, sem validador e sem guardião. O revisor
+PR só de documentação ou só de testes leva **um revisor**, se o bloco "Como o Golem trabalha aqui"
+(`AGENTS.md`) o põe para rodar, sem validador e sem guardião. O revisor
 confere fato por fato contra a fonte (`arquivo:linha`), não só a forma. Se ganhar código, ou se o
 revisor apontar algo importante, volta ao caminho completo. PRs da mesma entrega em sequência
 somam: não se fatia uma mudança grande para caber no caminho rápido.

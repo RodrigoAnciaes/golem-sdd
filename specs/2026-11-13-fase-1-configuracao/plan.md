@@ -121,11 +121,24 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 - [ ] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
 - [ ] O guardião sobre o diff do PR (`git diff 1f9f827`), num subagente novo.
 - [ ] Spec e código reconciliados: as mudanças na tabela abaixo.
+- [x] As correções da verificação manual 1 e do guardião (2026-11-13): o frontmatter do
+  `revisor.md` volta a ser YAML válido; o teste novo
+  `test_o_frontmatter_dos_agentes_e_das_skills_e_yaml_valido` (`.claude/tests/test_codex.py`);
+  a busca das lições sem `-i` com dois `-e`; a `diagnostico` pula o passo 7 no modo sem Python e,
+  com a `configurar`, troca à mão a linha do gancho no bloco; o caminho rápido condicional na
+  `operacao-das-conversas` e no `WORKFLOW`; o bloco diz "antes da verificação"; e as lições
+  `frontmatter-invalido-some-com-o-agente-sem-aviso` e
+  `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`.
 
 ## Alterações de escopo durante a fase
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-13 | G6: o frontmatter do `revisor.md` voltou a ser YAML válido, e um teste novo confere o frontmatter de todos os agentes e skills; a contagem vai de 122 para 123. | Na verificação manual 1, a sessão de teste respondeu "Agent type 'revisor' not found": a descrição do G4 tinha "AGENTS.md: por grupo", e o Claude Code descartou o agente calado. Nem a suíte, nem os revisores, nem o guardião viram (lição `frontmatter-invalido-some-com-o-agente-sem-aviso`). | agente (achado da verificação manual 1) |
+| 2026-11-13 | G6: a busca das lições da `implementar-fase` usa a busca do agente ou `grep -ilE 'a\|b'`, nunca `-i` com dois `-e`. | O grep 3.0 do Git for Windows aborta nesse caso (os `grep.exe.stackdump` da fase vinham disso, e não do acento); a sessão de teste perdeu a busca (lição `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`). | agente (achado da verificação manual 1) |
+| 2026-11-13 | G6: no modo sem Python, a `diagnostico` pula o passo 7 e, com a `configurar`, troca à mão só a linha do gancho no bloco do `AGENTS.md`, pelo texto que o `aplicar` gera (um teste confere que o texto da skill é o do `golem.py`). | O passo 7 diria "o Python rodou" com o gancho desligado, que sai vazio (bloqueio do guardião); e o bloco seguiria dizendo "ligado" a cada turno, sem o R7 chegar à máquina sem Python (guardião). | agente |
+| 2026-11-13 | G6: o bloco diz "uma vez por fase, antes da verificação", e não "ao fim do último grupo"; o caminho rápido da `operacao-das-conversas` e do `WORKFLOW` vale "se o revisor roda". | O bloco, que entra em todo turno, ficava ambíguo com o grupo de verificação; a forma curta não passa do teto de 1.200 bytes (o pior bloco media 1.186 em CRLF, e não 1.166 como registrado antes). A `operacao` contradizia a regra 11 na `so-eu` (guardião). | agente |
+| 2026-11-13 | G6: na linha `gancho = "desligado" extra`, o `sh` desliga e o `golem.py` acusa erro. Fica assim. | O R5 manda o `sh` ignorar o resto da linha; o `aplicar` acusa o erro ao usuário (guardião, menor). | agente |
 | 2026-11-13 | G5: a `diagnostico`, com o sim ao modo sem Python, escreve ela mesma a linha `gancho = "desligado"` no `golem.toml` da raiz (o R8 só pedia a oferta); quando a pergunta vem pela `configurar`, é esta que oferece, uma vez só. | Sem isso, o sim mandava o usuário a outra skill, que repetiria as três perguntas (revisor do G5). | agente |
 | 2026-11-13 | G5: o aviso da `configurar` sai pelo resultado: "sem revisão" só com revisor, validador e guardião em `nunca`; sem revisor mas com os outros, diz quais continuam. O guia diz que o parar a cada parte custa um turno a mais por parte. | As duas frases, como estavam, eram falsas para a `completo` com revisor `nunca` e para o custo do turno que relê o contexto (bloqueios do revisor do G5). O R8 dizia "fica sem a leitura independente" para o revisor `nunca`, o que vale só sem os outros dois. | agente |
 | 2026-11-13 | G5: o teste do guia confere também a ordem das colunas e as chaves de todas as receitas; a contagem não muda. | O validador do G5 deu "não valida": o cabeçalho com as receitas trocadas e uma chave só numa receita passavam (M3 e M4). Com a correção, os dois mutantes fazem o teste falhar. | agente |
@@ -145,6 +158,9 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-13 ("Aprovo"), com um commit por grupo na branch da fase. Revisor da spec
-(caminho rápido, duas rodadas): "sem bloqueio", com os achados aplicados. Próximo passo: o G1,
-quando o autor do kit pedir a implementação.
+Spec aprovada em 2026-11-13 ("Aprovo"), com um commit por grupo na branch da fase. G1 a G5
+commitados, cada um com revisor e validador. G6: a prova automatizada passou em `1397a98`; a
+verificação manual 1 achou o `revisor` fora do ar (frontmatter inválido) e o `grep` que aborta;
+o guardião deu "com bloqueio" (o passo 7 da `diagnostico` no modo sem Python). As correções
+estão no commit das correções do G6; falta repetir a verificação manual 1 e fazer as 2, 3 e 4,
+no projeto de teste do autor do kit.

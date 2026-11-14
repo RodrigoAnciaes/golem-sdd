@@ -131,8 +131,8 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
    ```
 
    O `--conferir` tem de terminar com `ok       .claude/indice/licoes.yaml`, e a última linha do
-   índice tem de ser `total:` com um número **maior que zero** (com as cinco lições de exemplo,
-   `total: 5`). Se o `--gerar` recusar dizendo que nenhuma lição está no git, faltou o passo 3.
+   índice tem de ser `total:` com um número **maior que zero**: o de arquivos em `docs/licoes/`,
+   fora o `README.md`. Se o `--gerar` recusar dizendo que nenhuma lição está no git, faltou o passo 3.
    Daqui para a frente, sempre que o `--gerar` mudar o índice, faça `git add .claude/indice`: o
    `--conferir` avisa (sem falhar) quando o índice da pasta difere do que está no stage.
 

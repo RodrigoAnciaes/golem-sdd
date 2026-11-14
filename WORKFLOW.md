@@ -118,7 +118,7 @@ Quem roda, quando e em que modelo está no bloco "Como o Golem trabalha aqui" do
 sai do `golem.toml` (`docs/guia-configuracao.md`). Na receita `economico`, o padrão, é um revisor
 só, uma vez por fase; na `completo`, os dois a cada grupo, mais o guardião. Os dois só leem e
 nunca editam. **Caminho rápido:** grupo ou PR só de documentação ou só de testes leva só o
-revisor, que confere fato por fato contra a fonte (regra 11).
+revisor, se ele roda, que confere fato por fato contra a fonte (regra 11).
 
 **O guardião**, quando o bloco o pede: antes do merge do PR com código, o mesmo agente
 `revisor`, rodado sobre o **diff inteiro do PR**, numa conversa nova (ou num subagente novo, sem o

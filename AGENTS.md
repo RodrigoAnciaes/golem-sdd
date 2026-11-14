@@ -68,7 +68,7 @@ Nunca um número escrito à mão em prosa, que envelhece sem avisar. >>
 
 Receita `economico`; o guia é `docs/guia-configuracao.md`.
 
-- **Revisor:** sempre, uma vez por fase, ao fim do último grupo: o `revisor` lê o diff da fase inteira. Modelo `sonnet`.
+- **Revisor:** sempre, uma vez por fase, antes da verificação: o `revisor` lê o diff da fase inteira. Modelo `sonnet`.
 - **Validador:** nunca.
 - **Guardião:** nunca.
 - **Os comandos do `validation.md`:** sempre, pela própria conversa, com a linha de resumo lida.
@@ -103,8 +103,9 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   mão. O bloco "Como o Golem trabalha aqui" e o `model:` dos agentes saem do `golem.toml` pelo
   `python3 .claude/golem.py aplicar` (ou pela skill `configurar`). No Windows, `python` ou `py -3`
   no lugar de `python3`, aqui e em todo o kit. As cópias para o Codex (`.agents/skills/`, `.codex/`)
-  também são geradas: mudou uma skill ou um agente em `.claude/`, rode `python3 .claude/instalar_codex.py` e faça o commit das cópias junto
-  (`--conferir` acusa a divergência).
+  também são geradas: mudou uma skill ou um agente em `.claude/`, rode
+  `python3 .claude/instalar_codex.py` e faça o commit das cópias junto (`--conferir` acusa a
+  divergência).
 - << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>
 
 ---
