@@ -76,7 +76,9 @@ estabelecidos em vez de inventar novos.
   do usuário (com as palavras dele e a data) e o teto de gasto, se houver. Modelo em
   `templates/fase/requirements.md`, quando o projeto o tiver
 - **`plan.md`**: grupos numerados de tarefas, cada grupo implementável e revisável sozinho; o
-  último grupo é sempre verificação. Inclua a tabela vazia "Alterações de escopo durante a fase"
+  último grupo é sempre verificação. Com o "parar a cada parte" do bloco "Como o Golem trabalha
+  aqui" (`AGENTS.md`), cada grupo tem o tamanho de um arquivo ou de uma função: é o passo que o
+  usuário aprova. Inclua a tabela vazia "Alterações de escopo durante a fase"
 - **`validation.md`**: conforme `references/validacao.md`
 
 **Fato que sustenta decisão vem com fonte.** Cada afirmação sobre o código ou o ambiente leva

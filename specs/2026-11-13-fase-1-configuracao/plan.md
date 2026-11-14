@@ -85,19 +85,19 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G4 — As regras e as skills obedecem (R6, R7)
 
-- [ ] `AGENTS.md`: as regras 10 e 11, citando o bloco.
-- [ ] `.claude/skills/implementar-fase/SKILL.md`: o fechamento de grupo, o parar a cada parte, o
+- [x] `AGENTS.md`: as regras 10 e 11, citando o bloco.
+- [x] `.claude/skills/implementar-fase/SKILL.md`: o fechamento de grupo, o parar a cada parte, o
   revisor por fase, o `perguntar` e a busca das lições em `docs/licoes/` (R7).
-- [ ] `.claude/skills/validar-fase/SKILL.md`: a revisão do fechamento conforme o bloco.
-- [ ] `.claude/skills/spec-de-fase/SKILL.md`: os grupos pequenos com o parar a cada parte.
-- [ ] `.claude/skills/licao/SKILL.md`: a régua pulada sem Python (R7).
-- [ ] `docs/operacao-das-conversas.md:156-159`, a description da `implementar-fase` e as descrições
+- [x] `.claude/skills/validar-fase/SKILL.md`: a revisão do fechamento conforme o bloco.
+- [x] `.claude/skills/spec-de-fase/SKILL.md`: os grupos pequenos com o parar a cada parte.
+- [x] `.claude/skills/licao/SKILL.md`: a régua pulada sem Python (R7).
+- [x] `docs/operacao-das-conversas.md:156-159`, a description da `implementar-fase` e as descrições
   do `.claude/agents/revisor.md` e do `validador.md`.
-- [ ] A varredura do R6: `README.md` (`:42`, `:45`), `WORKFLOW.md` (`:9`, `:79`, `:84`, `:88`,
+- [x] A varredura do R6: `README.md` (`:42`, `:45`), `WORKFLOW.md` (`:9`, `:79`, `:84`, `:88`,
   `:106`, `:110-121`, `:138`), a linha "O que é **gerado**" do `AGENTS.md`, o
   `docs/plano-produto.md:244` e a docstring do `conftest.py:89`. Depois, o `git grep` do R6 roda de
   novo, e o que ele achar ou se corrige ou se justifica na tabela de alterações.
-- [ ] O `aplicar` rodado de novo, porque os agentes mudaram: a segunda rodada não muda nada.
+- [x] O `aplicar` rodado de novo, porque os agentes mudaram: a segunda rodada não muda nada.
 
 **Revisão:** revisor + validador.
 
@@ -126,8 +126,13 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-13 | G4: a varredura do R6 alcançou também a `iniciar-sdd`, a `sessao-gerente` (e `references/projeto-modelo.md`), o `templates/fase/plan.md`, o `templates/pull_request_template.md` ("não roda (o bloco)"), a linha GUA do `docs/operacao-das-conversas.md:28` e o `docs/plano-produto.md:34` e `:37` ("desde a fase 1"). | Diziam o fluxo de antes (revisor e validador a cada grupo; guardião opcional com uma conversa só). A linha GUA era o bloqueio do revisor do G4. | agente (quem muda, varre) |
+| 2026-11-13 | G4: o que o `git grep` do R6 ainda acha e fica: as frases condicionais novas; o `golem.py` e os testes do bloco; o "fim de turno" do fecho (`README.md:66`, `docs/operacao-das-conversas.md:140`); a CI "a cada grupo" da `implementar-fase`; e o diagnóstico e o desenho datados do `docs/plano-produto.md`. | Falam de outra coisa, ou são condicionais, ou são registro datado (revisor e validador do G4). | agente |
+| 2026-11-13 | G4: a regra 11 diz "não passe outro modelo na chamada, salvo se a spec da fase pedir outro"; a revisão por fase roda ao fim do último grupo de implementação, antes do de verificação; sem o bloco, roda-se o `aplicar`, e sem Python vale a `economico`; a `licao` pula a régua só sem Python. | Achados do revisor do G4: a frase sem a ressalva contradizia o R10 desta fase; o "último grupo" era ambíguo; um `AGENTS.md` sem o bloco não tinha regra; gancho desligado não prova falta de Python. | agente |
+| 2026-11-13 | G4: nenhum teste protege o texto das regras e das skills (a mutação de voltar a regra 11 passa na suíte). | São instruções ao agente; o comportamento se prova nas verificações manuais 1 e 2 do G6 (validador do G4). | agente (limite registrado) |
 | 2026-11-13 | G3: o `licoes_relevantes.py` lê o teto antes de reivindicar as regras de área, e não grava `.claude/__pycache__/` ao carregar o `golem.py` (`sys.dont_write_bytecode`). | Sem o `golem.py`, a falha vinha depois de marcar as regras como entregues, e elas sumiam da sessão; o `exec_module` gravaria bytecode no projeto a cada ação (revisor do G3). | agente |
-| 2026-11-13 | G3: o teste 3 também roda um CRLF logo depois da aspa e um comentário colado no valor; a contagem não muda. O `docs/plano-produto.md:35` (seção 1, "o kit hoje") diz que o teto vem do `golem.toml` desde a fase 1. | Os ramos `#` e `` do `case` não eram exercitados (o mutante sem eles passava; agora faz o teste falhar); a frase do `TETO = 4` ficou falsa (revisor do G3). | agente |
+| 2026-11-13 | G3: o teste 3 também roda um CRLF logo depois da aspa e um comentário colado no valor; a contagem não muda. O `docs/plano-produto.md:35` (seção 1, "o kit hoje") diz que o teto vem do `golem.toml` desde a fase 1. | Os ramos `#` e `
+` do `case` não eram exercitados (o mutante sem eles passava; agora faz o teste falhar); a frase do `TETO = 4` ficou falsa (revisor do G3). | agente |
 | 2026-11-13 | G2: o título "## Como o Golem trabalha aqui" fica dentro das marcas, gerado pelo `aplicar`; no `AGENTS.md` do kit, só as duas marcas entraram à mão. | Sem as marcas, o bloco acrescentado no fim precisa do próprio título; assim há um caminho só. | agente (achado menor do revisor do G2) |
 | 2026-11-13 | G2: o teste 4 mede o tamanho de todo bloco possível, em CRLF (o pior dava 1.210 bytes; o comentário do bloco encurtou, e o pior ficou em 1.166); o teste 12 também prova que, com as marcas incompletas, nada é escrito. A contagem não muda. | O R4 pede até 1.200 bytes, e o teste só media as três receitas (revisor e validador do G2); a escrita antes de conferir as marcas sobrevivia à mutação (validador do G2). | agente |
 | 2026-11-13 | G2: no bloco, o `perguntar` diz "e só rode com o sim" na nota final, o `inherit` vira "o da conversa" e o gancho desligado diz o que procurar em `docs/licoes/`. | O texto do bloco é instrução ao agente (G4), e o `grep -ril` sem termo não dizia o que buscar (revisor do G2). | agente |

@@ -6,8 +6,8 @@ escopo ou o que sai para fora é do usuário (regra 10 do `AGENTS.md`).
 
 ```
 preparar → constituição → spec da fase → implementar por grupos → validar a fase → replanejar
-                               ▲            (revisor + validador         │
-                               └──────────── a cada grupo)  ◄────────────┘
+                               ▲            (revisor e validador,        │
+                               └──────────── conforme a receita) ◄───────┘
 ```
 
 ---
@@ -76,16 +76,18 @@ aprovação (regra 3). Modelos na pasta `templates/fase/` do kit, que não preci
 | **Skill** | `implementar-fase` ("implementar a fase") |
 | **Entra** | a spec aprovada, na branch da fase |
 | **Sai** | o código de cada grupo, as tarefas marcadas no `plan.md` e a spec atualizada quando a realidade a contradiz |
-| **O usuário decide** | só quando a skill para (abaixo); o resto ela leva até o fim sem pedir licença entre os grupos |
+| **O usuário decide** | o ok ao fim de cada grupo, com o "parar a cada parte" do bloco "Como o Golem trabalha aqui" (`AGENTS.md`); e quando a skill para (abaixo). Sem ele, a skill leva até o fim sem pedir licença entre os grupos |
 
 Um grupo por vez, na ordem. Cada grupo fecha com:
 
 1. a suíte das pastas tocadas, com a **linha de resumo lida** (regra 8);
-2. o veredito do **revisor** e do **validador** (etapa 4);
+2. o veredito do **revisor** e do **validador**, quando o bloco os pede por grupo (etapa 4);
 3. o commit do grupo na branch da fase, **se o usuário pediu commits** ao aprovar o plano (regra 6);
-4. as tarefas marcadas no `plan.md` e uma linha curta do que mudou.
+4. as tarefas marcadas no `plan.md` e uma linha curta do que mudou;
+5. no último grupo de implementação, a revisão por fase, se o bloco a pede.
 
-Fim de grupo não é fim de turno: com o próximo grupo liberado, a conversa segue no mesmo turno.
+Com o parar a cada parte, o grupo termina mostrando o diff e esperando o ok. Sem ele, fim de grupo
+não é fim de turno: com o próximo grupo liberado, a conversa segue no mesmo turno.
 
 **A skill para e pergunta quando:**
 
@@ -103,22 +105,25 @@ motivos da regra 7), aviso à gerente ou um item na caixa de achados
 
 ---
 
-## 4. Revisar e validar (a cada grupo)
+## 4. Revisar e validar (conforme a receita)
 
 | | |
 |---|---|
 | **Agentes** | `revisor` e `validador`, abertos pela própria conversa, independentes entre si (no Claude Code, `.claude/agents/`; no Codex, `.codex/agents/`) |
-| **Entra** | o diff do grupo, a spec da fase e o `AGENTS.md` |
+| **Entra** | o diff do grupo (ou o da fase inteira, com a revisão por fase), a spec da fase e o `AGENTS.md` |
 | **Sai** | revisor: achados com `arquivo:linha` e gravidade, e "sem bloqueio" ou "com bloqueio"; validador: a prova por execução real e por mutação, e "valida" ou "não valida" |
-| **O usuário decide** | nada, no caso normal: a conversa aplica os achados e segue; o usuário entra quando a conversa discorda de um bloqueio ou quando o achado muda o escopo |
+| **O usuário decide** | com `perguntar`, se a etapa roda; fora isso, nada no caso normal: a conversa aplica os achados e segue; o usuário entra quando a conversa discorda de um bloqueio ou quando o achado muda o escopo |
 
-Os dois só leem e nunca editam. **Caminho rápido:** grupo ou PR só de documentação ou só de testes
-leva só o revisor, que confere fato por fato contra a fonte (regra 11).
+Quem roda, quando e em que modelo está no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, que
+sai do `golem.toml` (`docs/guia-configuracao.md`). Na receita `economico`, o padrão, é um revisor
+só, uma vez por fase; na `completo`, os dois a cada grupo, mais o guardião. Os dois só leem e
+nunca editam. **Caminho rápido:** grupo ou PR só de documentação ou só de testes leva só o
+revisor, que confere fato por fato contra a fonte (regra 11).
 
-**O guardião.** PR com código passa também pelo guardião antes do merge: é o mesmo agente
+**O guardião**, quando o bloco o pede: antes do merge do PR com código, o mesmo agente
 `revisor`, rodado sobre o **diff inteiro do PR**, numa conversa nova (ou num subagente novo, sem o
 contexto de quem escreveu), depois da revisão por grupo. Ele vê o efeito somado dos grupos, que
-nenhuma revisão de grupo viu. Com uma conversa só, o guardião é opcional.
+nenhuma revisão de grupo viu.
 
 ---
 
@@ -135,8 +140,8 @@ nenhuma revisão de grupo viu. Com uma conversa só, o guardião é opcional.
 - Item que não pôde ser exercitado vira `[~]` com o motivo. Nunca `[x]` por analogia.
 - Divergência entre spec e código: se veio para ficar, atualiza a spec; se foi engano, corrige o
   código.
-- A ordem do fechamento: a revisão lê o diff primeiro (no PR com código, também o guardião); a
-  prova (a suíte ou o CI) roda **uma vez**, no head final. O merge segue "Merge" em
+- A ordem do fechamento: a revisão que o bloco pede lê o diff primeiro (e o guardião, se ele
+  roda); a prova (a suíte ou o CI) roda **uma vez**, no head final. O merge segue "Merge" em
   `docs/operacao-das-conversas.md`: conferir head e base numa chamada, mergear em outra.
 - Nunca merge com validação incompleta, mesmo que "falte pouco".
 

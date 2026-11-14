@@ -33,8 +33,8 @@ foi **medido**, não estimado (seção 1.2).
 |---|---|---|
 | **Spec com entrevista** | antes de escrever, uma rodada de perguntas sobre escopo, decisões e contexto; depois `requirements.md`, `plan.md` e `validation.md`, aprovados pelo usuário. Há também um formato curto para fase pequena | `spec-de-fase`, `references/entrevista.md`, regra 1 do `AGENTS.md` |
 | **Lições que voltam** | cada armadilha vira um arquivo em `docs/licoes/`. Um gancho roda antes de cada edição e de cada comando (`.claude/settings.json:6` e `:17`) e injeta o "Como perceber" das lições daquela ação. Entrega no máximo 4 lições novas por ação (`TETO = 4`, `.claude/hooks/licoes_relevantes.py:60` em `c880a17`; desde a fase 1, o teto vem do `golem.toml`), cada uma uma vez por agente, por sessão | `.claude/hooks/` |
-| **Índice em que se busca** | `.claude/indice/licoes.yaml`, gerado pela régua a partir do frontmatter das lições e conferido por ela (`--conferir`). É o único índice. A `iniciar-conversa` o busca por `grep` (`iniciar-conversa/SKILL.md:71-72`); a `implementar-fase` manda procurar nele sem dizer como (`implementar-fase/SKILL.md:23`) | `.claude/regua.py` |
-| **Revisor e validador** | dois subagentes que só leem. O revisor confere o diff contra a spec e as regras; o validador roda os critérios e faz mutação numa cópia descartável. Os dois rodam **a cada grupo** do plano (regra 11, `AGENTS.md:176`) | `.claude/agents/` |
+| **Índice em que se busca** | `.claude/indice/licoes.yaml`, gerado pela régua a partir do frontmatter das lições e conferido por ela (`--conferir`). É o único índice. A `iniciar-conversa` o busca por `grep` (`iniciar-conversa/SKILL.md:71-72`); a `implementar-fase` manda procurar nele sem dizer como (`implementar-fase/SKILL.md:23`; desde a fase 1, ela busca direto em `docs/licoes/`) | `.claude/regua.py` |
+| **Revisor e validador** | dois subagentes que só leem. O revisor confere o diff contra a spec e as regras; o validador roda os critérios e faz mutação numa cópia descartável. Os dois rodam **a cada grupo** do plano (regra 11, `AGENTS.md:176`; desde a fase 1, conforme o bloco "Como o Golem trabalha aqui") | `.claude/agents/` |
 | **Guardião** | o revisor de novo, sobre o diff inteiro do PR | regra 11 |
 | **Papéis de conversa** | gerente (GER), estratégia (EST), método (MET), guardião e frentes, com PEDIDO → LIBERADO, níveis de autonomia, o fecho de quatro linhas e o cartão de decisão | `docs/operacao-das-conversas.md`, `sessao-gerente` |
 | **Codex** | um instalador gera as cópias que o Codex lê (`.agents/skills/`, `.codex/`) a partir de `.claude/` | `.claude/instalar_codex.py` |
@@ -241,7 +241,7 @@ receita = "economico"            # so-eu | economico | completo
 # parar_a_cada_parte = "sempre"    # sempre | nunca
 # conversas        = "uma"         # uma | papeis
 # gancho           = "ligado"      # ligado | desligado (máquina sem Python)
-# gancho_teto      = 2             # lições novas por ação (hoje fixo em 4)
+# gancho_teto      = 2             # lições novas por ação (antes da fase 1, fixo em 4)
 ```
 
 ```toml

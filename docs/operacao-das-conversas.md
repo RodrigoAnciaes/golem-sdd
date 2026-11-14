@@ -25,7 +25,7 @@ aqui.** Quando as duas divergirem, este documento manda, e quem notar corrige a 
 | **GER** | a gerente | coordena as conversas; responde ao PEDIDO com LIBERADO (merge, recurso compartilhado, conversa nova); confere head e base antes de merge; mantém o [registro vivo](#o-registro-vivo-da-gerente-gerentemd), o `GERENTE.md` | discutir ideia ou rumo (isso é da EST); escrever código de entrega |
 | **EST** | a estratégia | discute prioridade e produto com o usuário; registra as decisões dele, com a pergunta e as palavras; avisa a GER de cada decisão | operar, liberar merge |
 | **MET** | o método | cuida de como as conversas trabalham: o `AGENTS.md`, este documento, as skills, os agentes, os ganchos, as lições e a memória; observa o comportamento das conversas e, quando uma regra produz efeito ruim, propõe a correção ao usuário | prioridade e produto (EST); operação e merge (GER); mudar as configurações do usuário (ela propõe, ele aplica) |
-| **GUA** | o guardião: o agente `revisor` numa conversa nova (ou num subagente novo, sem o contexto de quem escreveu) | a revisão final de todo PR com código, depois da revisão por grupo e antes do merge: lê o **diff inteiro do PR** contra a spec e as regras. Com uma conversa só, é opcional | revisar PR só de documentação ou só de testes (basta o revisor, no caminho rápido) |
+| **GUA** | o guardião: o agente `revisor` numa conversa nova (ou num subagente novo, sem o contexto de quem escreveu) | a revisão final do PR com código, quando o bloco "Como o Golem trabalha aqui" do `AGENTS.md` a pede, depois da revisão por grupo e antes do merge: lê o **diff inteiro do PR** contra a spec e as regras | revisar PR só de documentação ou só de testes (basta o revisor, no caminho rápido) |
 | frentes | uma conversa por entrega | executam uma fase ou uma correção, no próprio worktree, pelo fluxo do `WORKFLOW.md` | coordenar outra frente direto: o que afeta outra conversa passa pela GER |
 
 **O fluxo das decisões.** O usuário decide na EST, na MET ou na conversa que executa. A EST
@@ -153,8 +153,10 @@ fim de turno termina, nesta ordem, com quatro itens:
 **O fecho curto.** Quando nada espera pelo usuário (a Espera não começa por `usuário`), o Resumo
 tem até 3 linhas e o "O que você faz agora" sai; o Worktree e a Espera ficam.
 
-**Uma mensagem por marco, não por passo.** Fim de grupo não é fim de turno: com o próximo passo
-liberado, o status vai numa linha curta e a conversa segue. O turno termina num bloqueio real (um
+**Uma mensagem por marco, não por passo.** Fim de grupo não é fim de turno, salvo com o "parar a
+cada parte" do bloco "Como o Golem trabalha aqui" (`AGENTS.md`), em que o grupo termina esperando o
+ok do usuário. Sem ele, com o próximo passo liberado, o status vai numa linha curta e a conversa
+segue. O turno termina num bloqueio real (um
 PEDIDO, uma decisão do usuário, a espera do CI ou do revisor) ou com a tarefa feita. `Espera: nada`
 com trabalho liberado pela frente é o sinal do erro.
 

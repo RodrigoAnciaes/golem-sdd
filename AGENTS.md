@@ -100,9 +100,10 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   o nome antigo nos documentos e nos agentes (`.claude/agents/`) e corrija no mesmo commit. Caminho
   errado num agente não dá erro: ele lê nada e responde com a mesma confiança.
 - O que é **gerado** (o índice da régua) se refaz com `python3 .claude/regua.py --gerar`, nunca à
-  mão. No Windows, `python` ou `py -3` no lugar de `python3`, aqui e em todo o kit. As cópias para
-  o Codex (`.agents/skills/`, `.codex/`) também são geradas: mudou uma skill ou um agente em
-  `.claude/`, rode `python3 .claude/instalar_codex.py` e faça o commit das cópias junto
+  mão. O bloco "Como o Golem trabalha aqui" e o `model:` dos agentes saem do `golem.toml` pelo
+  `python3 .claude/golem.py aplicar` (ou pela skill `configurar`). No Windows, `python` ou `py -3`
+  no lugar de `python3`, aqui e em todo o kit. As cópias para o Codex (`.agents/skills/`, `.codex/`)
+  também são geradas: mudou uma skill ou um agente em `.claude/`, rode `python3 .claude/instalar_codex.py` e faça o commit das cópias junto
   (`--conferir` acusa a divergência).
 - << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>
 
@@ -184,27 +185,33 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
     - Prefira a mudança que se desfaz sem migração. Teste proporcional ao que mudou.
     - "Não mudar nada" é resposta válida.
     - **Produto e arquitetura são do usuário; o detalhe de implementação é do agente.** Dentro de
-      uma spec aprovada, o agente segue grupo a grupo sem pedir licença. Ele pergunta quando a
-      escolha muda o que o usuário ou o cliente vê e a spec não traz, ou sai do escopo; aí propõe
-      até duas opções simples, mais "não mudar nada".
+      uma spec aprovada, o agente segue grupo a grupo sem pedir licença, salvo com o "parar a cada
+      parte" do bloco "Como o Golem trabalha aqui": aí ele para ao fim de cada grupo, mostra o
+      diff e espera o ok. Ele pergunta quando a escolha muda o que o usuário ou o cliente vê e a
+      spec não traz, ou sai do escopo; aí propõe até duas opções simples, mais "não mudar nada".
     - Antes de entregar: "o que eu posso tirar e ainda resolver o problema?". O que puder sair, sai.
     *Por quê:* agente escreve código barato e mantém código caro; cada peça a mais é peça que alguém
     vai ter de entender, mudar e apagar.
 
-11. **Revisor e validador independentes antes de marcar feito.** Toda entrega (cada grupo do plano)
-    passa pelo subagente `revisor` e pelo subagente `validador` antes de ir à branch. Delegue a
-    eles: no Claude Code, são os de `.claude/agents/`; no Codex, os de `.codex/agents/` (gerados
-    pelo instalador). Os dois só leem. O revisor dá "sem bloqueio" ou "com bloqueio"; o validador dá
-    "valida" ou "não valida". Bloqueio se corrige e volta à revisão.
-    - **Caminho rápido:** o grupo ou o PR só de documentação (os `.md`, inclusive skills, agentes
-      e lições) ou só de testes leva **um revisor só, sem validador**. O revisor confere fato por
-      fato contra a fonte, e não só a forma. Se ganhar código (inclusive script em `.claude/`), ou
-      se o revisor apontar algo importante, volta ao caminho completo. Não se fatia uma mudança
-      grande para caber no caminho rápido.
-    - **O guardião.** PR com código passa também pelo guardião antes do merge: o agente `revisor`
-      rodado sobre o **diff inteiro do PR**, numa conversa nova (ou num subagente novo, sem o
-      contexto de quem escreveu), depois da revisão por grupo. Ele vê o que a revisão grupo a grupo
-      não vê: o efeito somado. Com uma conversa só, o guardião é opcional.
+11. **Revisor e validador independentes, conforme a configuração.** O bloco "Como o Golem trabalha
+    aqui" diz se cada um roda (`sempre`, `perguntar` ou `nunca`), se por grupo ou uma vez por fase,
+    e o guardião; sem o bloco, rode o `aplicar`, e sem Python vale a `economico`. Delegue a
+    eles: no Claude Code, são os de `.claude/agents/`, e o modelo já está no frontmatter (não passe
+    outro na chamada, salvo se a spec da fase pedir outro modelo); no Codex, os de `.codex/agents/`
+    (gerados pelo instalador). Os dois só leem. O revisor dá "sem bloqueio" ou "com bloqueio"; o
+    validador dá "valida" ou "não valida". Bloqueio se corrige e volta à revisão.
+    - **Os comandos do `validation.md` rodam sempre**, pela própria conversa, com a linha de resumo
+      lida (regras 4 e 8), qualquer que seja a configuração.
+    - **Com `perguntar`**, a etapa vira uma pergunta com botões na hora em que chega, com o custo
+      ("abre 1 conversa extra"); em texto numerado onde não houver botões. Só roda com o sim.
+    - **Caminho rápido:** quando o validador rodaria, o grupo ou o PR só de documentação (os `.md`,
+      inclusive skills, agentes e lições) ou só de testes leva **só o revisor, se ele roda**. O
+      revisor confere fato por fato contra a fonte, e não só a forma. Se ganhar código (inclusive
+      script em `.claude/`), ou se o revisor apontar algo importante, volta ao caminho completo. Não
+      se fatia uma mudança grande para caber no caminho rápido.
+    - **O guardião**, quando roda: antes do merge do PR com código, o agente `revisor` sobre o
+      **diff inteiro do PR**, numa conversa nova (ou num subagente novo, sem o contexto de quem
+      escreveu). Ele vê o que a revisão grupo a grupo não vê: o efeito somado.
     - Quem revisa trata como achado: afirmação sem fonte, peça sem caso real, abstração prematura e
       escopo além do pedido.
     *Por quê:* quem escreveu lê o que quis escrever; um leitor sem esse viés acha o que o autor não

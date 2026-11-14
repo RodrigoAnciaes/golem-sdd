@@ -61,7 +61,7 @@ convenções, e as regras. As que não se negociam:
 
 - spec antes do código; uma fase por branch;
 - nenhuma dependência nova sem aprovação;
-- revisor e validador independentes antes de marcar uma tarefa feita;
+- revisor e validador independentes, conforme a configuração (o bloco "Como o Golem trabalha aqui");
 - todo fato que sustenta spec ou decisão vem com `arquivo:linha`;
 - hipótese refutada vira lição;
 - parar e perguntar quando algo exige decisão humana.

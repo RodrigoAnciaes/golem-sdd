@@ -39,10 +39,10 @@ Por que isso importa com agentes:
  ┌─► spec da fase  ──  specs/AAAA-MM-DD-nome/ requirements, plan, validation
  │      │                  (o usuário aprova antes de qualquer código)
  │      ▼
- │   implementar por grupos  ──►  revisor + validador, a cada grupo
- │      │                          (só leem; dão o veredito)
+ │   implementar por grupos  ──►  revisor e validador, conforme a receita
+ │      │                          (por grupo ou por fase; só leem)
  │      ▼
- │   validar a fase  ──  cada item do validation.md com a saída real  ──►  guardião  ──►  merge
+ │   validar a fase  ──  cada item do validation.md com a saída real  ──►  (guardião)  ──►  merge
  │      │
  └── replanejar o roadmap  ◄──┘
 

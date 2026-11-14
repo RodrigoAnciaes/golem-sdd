@@ -58,7 +58,7 @@ PEDIDO/LIBERADO, cartão de decisão, fecho) e a referência do projeto, se houv
 | **Índice gerado** | conflito em `.claude/indice/` | **nunca** à mão: fica com qualquer lado e roda `regua.py --gerar` |
 | **Ambiente de worktree** | ganchos, ambiente virtual ou dados que só existem na pasta principal | testar o comando de dentro do worktree; avisar a fase |
 | **CI** | jobs que falham em segundos, todos iguais | ler a mensagem do job: pode ser cobrança ou infraestrutura, não teste |
-| **Processo** | código antes da spec ir à `main`, merge sem revisão, tarefa `[x]` sem revisor e validador | apontar ao usuário; propor o conserto mais barato |
+| **Processo** | código antes da spec ir à `main`, merge sem revisão, tarefa `[x]` sem a revisão que a configuração pede | apontar ao usuário; propor o conserto mais barato |
 | **Calendário** | janela de observação, deploy combinado, prazo externo | lembrar perto da hora; não deixar deploy misturar causas |
 | **Conversa parada** | fase esperando o usuário há dias sem ninguém notar | depois de cada merge e a cada volta, listar quem espera o usuário |
 
@@ -126,8 +126,8 @@ coberto e a recomendação.
 
 O prompt precisa ser autocontido: número da fase **conferido livre** (roadmap e branches), formato
 de spec, regra de comunicação com a GER (com o id desta conversa), avisos de ambiente conhecidos,
-o problema com evidência, o que construir, critérios de validação por comando, revisor e validador
-independentes e "merge só pelo PEDIDO → LIBERADO". Se precisar corrigir uma proposta de conversa já
+o problema com evidência, o que construir, critérios de validação por comando, a revisão que a configuração
+do projeto pede e "merge só pelo PEDIDO → LIBERADO". Se precisar corrigir uma proposta de conversa já
 feita, crie a nova e retire a antiga.
 
 ## Resposta ao usuário
