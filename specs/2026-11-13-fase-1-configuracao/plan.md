@@ -117,9 +117,9 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G6 — Verificação
 
-- [~] Rodar o `validation.md` inteiro, com a saída colada (falta a verificação 5 e rodar de novo
-  o automatizado no head novo).
-- [~] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
+- [x] Rodar o `validation.md` inteiro, com a saída colada (de novo em 2026-11-15, no head
+  `22547bb`).
+- [x] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
   - Verificação 1, primeira rodada (2026-11-13, kit em `1397a98`): a parada a cada grupo
     funcionou, mas a chamada do revisor deu "Agent type 'revisor' not found", e a sessão usou um
     `general-purpose` no Sonnet; a busca de lições abortou (`grep -i -e -e`). Os dois defeitos
@@ -180,6 +180,16 @@ caminho completo por escolha: é ele que muda o que o agente faz.
       três valores, nas duas rodadas. O R8 só exige mostrar o arquivo que já existe.
     Nenhum critério do `validation.md` cobria os dois. O autor do kit escolheu, em 2026-11-15,
     "Corrigir agora": a correção está na tabela de alterações, e a verificação 5 a prova.
+  - Verificação 5 (2026-11-15, a `configurar` de `22547bb`, sem `golem.toml`, sessão nova aberta pelo autor
+    do kit): **passou**. Com `economico`, a descrição do "Nunca" na segunda chamada foi "O revisor
+    não roda. Sem revisão, ninguém além desta conversa lê o que foi feito; os comandos do
+    validation.md continuam rodando."; o texto da pergunta de gravar trouxe o `golem.toml` inteiro,
+    com os comentários, num bloco `toml`. Respondidos "Nunca", "Sim (Recommended)" e "Gravar e
+    aplicar": `golem.toml` com `receita = "economico"` e `revisor = "nunca"` (mais os
+    comentários); a saída do `aplicar`, `escrito  AGENTS.md` e `1 arquivo(s) mudaram. A
+    configuração nova vale numa conversa nova.`, `exit=0`; o bloco da `economico` com
+    `- **Revisor:** nunca.`; `revisor.md:5:model: sonnet` e `validador.md:5:model: opus`. Lido da
+    transcrição e do disco do projeto de teste.
   - Verificação 4 (2026-11-14, `gancho = "desligado"`, sessão nova aberta pelo autor do kit):
     **passou**. A sessão criou o `nota.txt` e rodou `echo pytest -q`; a transcrição não tem nenhum
     "Lições registradas" (com o gancho ligado, o `pytest -q` traria a
@@ -230,17 +240,17 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## Estado para a retomada
 
-Spec aprovada em 2026-11-13 ("Aprovo"), com um commit por grupo na branch da fase. G1 a G5
-feitos, com revisor e validador; o G6 também, menos a verificação 5; as correções do G6 com
-revisor e validador. O guardião deu "sem bloqueio" na terceira rodada,
+Spec aprovada em 2026-11-13 ("Aprovo"), com um commit por grupo na branch da fase. G1 a G6
+feitos; G1 a G5 e as correções do G6 com revisor e validador. O guardião deu "sem bloqueio" na terceira rodada,
 sobre a árvore de `f195050`; o `30560cc` (a `configurar` sem "o da receita"), só texto, passou pelo
 revisor, pelo caminho rápido. As verificações manuais 1, 2 e 4 passaram (a 1 na segunda rodada,
 depois das correções do G6); a 3 passou com a `configurar` de `f195050` e de novo, de ponta a
 ponta, com a de `30560cc`. Em 2026-11-15, a `configurar` mudou de novo (o aviso no botão
 "Nunca", o arquivo na pergunta de gravar), com a lição
-`o-aviso-entre-duas-perguntas-fica-no-raciocinio`, e ganhou a verificação 5, que falta. A skill
+`o-aviso-entre-duas-perguntas-fica-no-raciocinio`, e ganhou a verificação 5, que passou em 2026-11-15. A skill
 `validar-fase` rodou em 2026-11-14: o `validation.md` marcado (um `[~]`, a `configurar` numa
 máquina sem Python nenhum) e a fase registrada no `docs/plano-produto.md`. O revisor da correção de 2026-11-15
-deu "com bloqueio" (as marcas acima e uma citação de linha), já corrigido. Falta: a verificação 5;
-rodar de novo o automatizado do `validation.md` no head novo; o PR e o PEDIDO de merge à conversa gerente; o merge na `main` pede também o ok do autor do kit. Em aberto, sem
+deu "com bloqueio" (as marcas acima e uma citação de linha), já corrigido, e o terceiro deu "sem bloqueio". O automatizado do
+`validation.md` rodou de novo no head `22547bb` (o "Resultado" de 2026-11-15). Falta: o PR e o
+PEDIDO de merge à conversa gerente; o merge na `main` pede também o ok do autor do kit. Em aberto, sem
 bloquear: se o plano Pro mostra o Sonnet e o Opus (R3).

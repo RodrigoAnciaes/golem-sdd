@@ -125,8 +125,7 @@ O kit não tem `specs/tech-stack.md`. Valem o README ("Requisitos") e o `AGENTS.
 
 ## Registro
 
-- [~] `docs/plano-produto.md`: a fase 1 marcada como feita, com a data e a branch (volta a feita
-  depois da verificação 5); a seção 8 com as
+- [x] `docs/plano-produto.md`: a fase 1 marcada como feita, com a data e a branch; a seção 8 com as
   decisões do R1 e as quatro respostas da entrevista; os "Detalhes a conferir" atualizados (as
   duas lições e o "pulado sem Python" das três skills, marcados fase 4).
 - [x] As perguntas em aberto do `requirements.md` respondidas ou movidas para o plano. O modelo do
@@ -175,3 +174,25 @@ O kit não tem `specs/tech-stack.md`. Valem o README ("Requisitos") e o `AGENTS.
   árvore de `f195050`; as correções do G6 passaram também pelo validador; o `30560cc` (só a
   `configurar` e o `plan.md`) passou pelo revisor, pelo caminho rápido. Os achados e as decisões estão na tabela de alterações do
   `plan.md`.
+
+## Resultado (2026-11-15, head `22547bb`, depois da correção da `configurar`)
+
+- A suíte: `123 passed in 48.07s`, sem falhas nem pulados. O `test_golem.py`: `18 passed`; o nó
+  `test_sem_golem_toml_vale_a_economico`: `1 passed`.
+- O `golem.py aplicar` no kit: `nada mudou: o AGENTS.md e os agentes já seguem o golem.toml`, e o
+  `git status --short` vazio. O bloco: `764` bytes. O `model:`: `revisor.md:5:model: sonnet` e
+  `validador.md:5:model: opus`.
+- A régua: `ok       .claude/indice/licoes.yaml` (`total: 8`).
+- O instalador do Codex numa cópia (`git archive 22547bb`): `ok       24 arquivos do Codex batem
+  com .claude/`, e a `.agents/skills/configurar/SKILL.md` traz a frase nova do "Nunca". O
+  `test_credito.py` na cópia: `2 passed`; sem a linha `license:` da `configurar`: `1 failed, 1
+  passed`.
+- `sh -n`: rc 0; o fim de linha: `i/lf w/lf`. O Python 3.8: o `ast.parse` rc 0, o
+  `from __future__` com contagem `1`, e o `grep` das anotações no `licoes_relevantes.py` rc 1.
+- A `diagnostico`: o `git grep` acha só a `:130`, e o `check-ignore` continua na `:26`.
+- Caminho pessoal (o `git grep` do critério, na árvore inteira): rc 1, nada. O `golem.py` não mudou
+  desde `30560cc`, e os casos de borda do Resultado anterior continuam valendo.
+- As verificações manuais 1 a 5 passaram; a 5 em 2026-11-15, com a `configurar` de `22547bb`
+  (`plan.md`, G6).
+- A revisão da correção: o revisor, pelo caminho rápido, deu "com bloqueio" duas vezes (as marcas
+  `[x]` diante da verificação 5 e uma citação de linha) e "sem bloqueio" na terceira rodada.
