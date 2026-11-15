@@ -48,10 +48,11 @@ Antes de fechar, compare o que foi implementado com `requirements.md`:
 
 ## 4. Fechamento
 
-Ordem: a revisão sobre o diff primeiro (revisor e validador independentes; só o revisor no PR só de
-docs ou de testes, o caminho rápido; no PR com código, também o guardião: o `revisor` rodado sobre
-o diff inteiro do PR numa conversa ou num subagente novo, opcional com uma conversa só); a prova
-(a CI, ou a suíte rodada localmente se a CI não roda) **uma vez**, no head final.
+Ordem: a revisão sobre o diff primeiro, conforme o bloco "Como o Golem trabalha aqui" do
+`AGENTS.md` (o revisor, o validador e o guardião, cada um com `sempre`, `perguntar` ou `nunca`; o
+caminho rápido e o guardião como a regra 11 os descreve); a prova (a CI, ou a suíte rodada
+localmente se a CI não roda) **uma vez**, no head final. Com o revisor uma vez por fase, a revisão
+que a `implementar-fase` já fez sobre o diff da fase vale aqui, se nada mudou depois dela.
 
 Só com tudo acima verde, e **só se o usuário pedir** o commit:
 

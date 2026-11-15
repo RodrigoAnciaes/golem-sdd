@@ -34,8 +34,8 @@ Exemplos do que costuma entrar aqui:
   num dia.
 - Uma fase por branch `fase-N-nome`. O método de merge: `<squash | merge commit>`.
 - Quem libera o quê (nível da conversa, da GER, do usuário): ver `docs/operacao-das-conversas.md`.
-- Revisor e validador independentes antes de marcar tarefa feita; o caminho rápido (só revisor)
-  para PR só de docs ou de testes, se o projeto o adotar.
+- Revisor e validador independentes, conforme o bloco "Como o Golem trabalha aqui" do `AGENTS.md`;
+  o caminho rápido (só revisor) para PR só de docs ou de testes, se o projeto o adotar.
 - O modelo e o esforço que o projeto usa nas conversas e nos subagentes.
 - Textos a pessoas de fora do projeto passam pelo usuário; nenhuma conversa fala direto com elas.
 

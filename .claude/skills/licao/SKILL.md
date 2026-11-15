@@ -120,10 +120,16 @@ existe no repositório e **nunca chega** a quem toca a área.
 Se o comando recusar o arquivo (id fora de `[a-z0-9-]`, id diferente do nome do arquivo), o
 problema está no frontmatter, não no comando.
 
+**Sem Python nesta máquina** (nenhum Python 3.8+ que rode, conferido como na skill `diagnostico`):
+pule o `--gerar` e o `--conferir` e diga ao usuário que pulou. A lição já vale para quem a busca
+em `docs/licoes/`; o índice fica defasado até alguém rodar a régua numa máquina com Python, e esse
+alguém faz o commit do índice.
+
 ## 5. Fechar
 
 Commit em português, com a lição no corpo da mensagem **e o `licoes.yaml` regerado junto**: os dois
-no mesmo commit, senão o índice chega defasado na `main`. Se a lição nasceu de uma correção do
+no mesmo commit, senão o índice chega defasado na `main`. Sem Python, o commit leva só a lição, e a
+mensagem diz que o índice ficou para depois. Se a lição nasceu de uma correção do
 usuário, **cite a frase dele**: é o que torna o registro verificável depois.
 
 ## Restrições

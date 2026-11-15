@@ -63,6 +63,7 @@ def test_a_que_casou_por_gatilho_vem_antes_das_da_area(acervo, sessao):
     for n in range(5):
         acervo.licao(f"a-da-area-{n}", "processo")
     acervo.licao("z-do-push", "processo", [r"'\bgit\s+push\b'"])
+    (acervo.raiz / "golem.toml").write_text("gancho_teto = 4\n", encoding="utf-8")
     acervo.gerar()
     primeira = ids_de(acervo.invocar({"command": "git push origin x"}, sessao))
     assert primeira[0] == "z-do-push" and len(primeira) == 4, primeira
@@ -88,7 +89,8 @@ def test_gatilho_ve_o_texto_entre_aspas_e_a_area_nao(acervo, tmp_path):
 
 
 def test_segunda_acao_nao_repete_e_a_area_esgota(acervo, sessao):
-    """O teto de 4 vale sobre o que é NOVO: a área inteira chega, sem repetir."""
+    """O teto (aqui, 4) vale sobre o que é NOVO: a área inteira chega, sem repetir."""
+    (acervo.raiz / "golem.toml").write_text("gancho_teto = 4\n", encoding="utf-8")
     ids = [f"processo-{n:02d}" for n in range(10)]
     for ident in ids:
         acervo.licao(ident, "processo")
@@ -838,3 +840,111 @@ def test_o_comando_exato_do_settings_json_entrega(acervo, tmp_path):
             saida = json.loads(r.stdout)
             assert "systemMessage" not in saida, (entrada["matcher"], saida.get("systemMessage"))
             assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["so-no-pytest"]
+
+
+# ------------------------------------------------- o golem.toml: desligado e teto (fase 1)
+
+
+def _golem_toml(pasta: Path, texto: str, crlf: bool = False) -> None:
+    (pasta / "golem.toml").write_bytes((texto.replace("\n", "\r\n") if crlf else texto)
+                                       .encode("utf-8"))
+
+
+def _rodar_cru(sh: str, acervo, ambiente: dict) -> subprocess.CompletedProcess:
+    payload = json.dumps({"session_id": "t1", "tool_input": {"command": "pytest -q"}})
+    return subprocess.run(_comando_do_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh",
+                                               ambiente), input=payload, capture_output=True,
+                          text=True, encoding="utf-8", env=ambiente)
+
+
+def test_lancador_com_gancho_desligado_sai_calado_sem_python(acervo, tmp_path):
+    """Sem Python nenhum, `gancho = "desligado"`: nem aviso, nem log, nem erro."""
+    sh = _sh()
+    _golem_toml(acervo.raiz, '# o modo sem Python\ngancho = "desligado"\n')
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    r = _rodar_cru(sh, acervo, _path_sem_python(tmp_path))
+    assert (r.returncode, r.stdout, r.stderr) == (0, "", ""), (r.returncode, r.stdout, r.stderr)
+    assert not (acervo.raiz / ".claude" / "gancho-falhas.log").exists()
+
+
+def test_lancador_com_gancho_desligado_nao_roda_o_python(acervo, tmp_path):
+    """Com um Python bom no `.venv`, o desligado sai antes de procurá-lo: o marcador não aparece."""
+    sh = _sh()
+    marcador = tmp_path / "rodou.txt"
+    py = acervo.raiz / ".venv" / "bin" / "python"
+    py.parent.mkdir(parents=True)
+    py.write_text(f'#!/bin/sh\necho rodou >> "{marcador.as_posix()}"\n'
+                  f'exec "{Path(sys.executable).as_posix()}" "$@"\n', encoding="utf-8", newline="\n")
+    os.chmod(py, 0o755)
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    ambiente = _path_sem_python(tmp_path)
+    assert ids_de(_contexto(json.loads(_rodar_cru(sh, acervo, ambiente).stdout))) == ["so-no-pytest"]
+    assert marcador.is_file(), "o repassador não grava o marcador: o teste não prova nada"
+    marcador.unlink()
+    _golem_toml(acervo.raiz, "gancho = 'desligado'\n")
+    r = _rodar_cru(sh, acervo, ambiente)
+    assert (r.returncode, r.stdout) == (0, ""), r.stdout
+    assert not marcador.exists(), "o desligado rodou o Python"
+
+
+def test_lancador_le_o_desligado_com_aspas_simples_crlf_e_comentario(acervo, tmp_path):
+    """A última linha `gancho` vale; o `gancho_teto` que vem depois dela não conta como `gancho`."""
+    sh = _sh()
+    _golem_toml(acervo.raiz, 'gancho = "ligado"\n  gancho = \'desligado\'   # sem Python\n'
+                             "gancho_teto = 1\n", crlf=True)
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    ambiente = _path_sem_python(tmp_path)
+    r = _rodar_cru(sh, acervo, ambiente)
+    assert (r.returncode, r.stdout, r.stderr) == (0, "", ""), (r.stdout, r.stderr)
+    # O `\r` logo depois da aspa (nada antes dele) e o comentário colado no valor.
+    for texto, crlf in (('gancho = "desligado"\n', True), ("gancho = 'desligado'#x\n", False)):
+        _golem_toml(acervo.raiz, texto, crlf=crlf)
+        r = _rodar_cru(sh, acervo, ambiente)
+        assert (r.returncode, r.stdout, r.stderr) == (0, "", ""), (texto, r.stdout, r.stderr)
+
+
+def test_lancador_com_outro_valor_de_gancho_segue(acervo, tmp_path):
+    sh = _sh()
+    _repassador(acervo.raiz / ".venv" / "bin" / "python")
+    acervo.licao("so-no-pytest", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    ambiente = _path_sem_python(tmp_path)
+    for i, texto in enumerate([
+        'gancho = "ligado"\n',
+        "gancho = desligado\n",                          # sem aspas: não vale (o aplicar acusa)
+        'gancho = "desligado"\ngancho = "ligado"\n',     # a última linha vale
+    ]):
+        _golem_toml(acervo.raiz, texto)
+        sessao = tmp_path / f"sessao-{i}"
+        sessao.mkdir()
+        _entrega_sem_aviso(_rodar_lancador(sh, acervo.raiz / ".claude" / "hooks" / "gancho.sh",
+                                           sessao, ambiente))
+
+
+def _quantas_chegam(acervo, sessao, n_licoes: int = 6) -> int:
+    for n in range(n_licoes):
+        acervo.licao(f"processo-{n:02d}", "processo")
+    acervo.gerar()
+    return len(ids_de(acervo.invocar({"file_path": "specs/x.md"}, sessao)))
+
+
+def test_teto_vem_da_linha_gancho_teto(acervo, sessao):
+    _golem_toml(acervo.raiz, 'receita = "completo"\ngancho_teto = 1\n')
+    assert _quantas_chegam(acervo, sessao) == 1
+
+
+def test_teto_sem_golem_toml_e_o_da_economico(acervo, sessao):
+    assert _quantas_chegam(acervo, sessao) == 2
+
+
+def test_teto_da_receita_completo_e_4(acervo, sessao):
+    _golem_toml(acervo.raiz, 'receita = "completo"\n')
+    assert _quantas_chegam(acervo, sessao) == 4
+
+
+def test_golem_toml_com_erro_o_gancho_usa_o_teto_padrao(acervo, sessao):
+    _golem_toml(acervo.raiz, 'receita = "completo"\nrevisr = "nunca"\n')
+    assert _quantas_chegam(acervo, sessao) == 2

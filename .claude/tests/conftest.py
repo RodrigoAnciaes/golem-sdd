@@ -86,8 +86,8 @@ def sessao(tmp_path) -> Path:
 class Acervo:
     """Uma árvore mínima: o gancho, a régua e SÓ as lições que o teste escreve.
 
-    Com o acervo de verdade, o teto de 4 e as lições de exemplo interfeririam no que o teste quer
-    provar ("não entregou" passaria por falta de vaga, e não pelo gatilho).
+    Com o acervo de verdade, o teto do gancho e as lições de exemplo interfeririam no que o teste
+    quer provar ("não entregou" passaria por falta de vaga, e não pelo gatilho).
     """
 
     def __init__(self, raiz: Path):
@@ -98,6 +98,8 @@ class Acervo:
         shutil.copy2(GANCHO, raiz / ".claude" / "hooks" / "licoes_relevantes.py")
         shutil.copy2(RAIZ / ".claude" / "hooks" / "gancho.sh", raiz / ".claude" / "hooks" / "gancho.sh")
         shutil.copy2(REGUA, raiz / ".claude" / "regua.py")
+        # O teto do gancho vem do golem.toml, pelo golem.py (sem golem.toml, 2, o da economico).
+        shutil.copy2(RAIZ / ".claude" / "golem.py", raiz / ".claude" / "golem.py")
         self.indice = raiz / ".claude" / "indice" / "licoes.yaml"
         self.script = raiz / ".claude" / "hooks" / "licoes_relevantes.py"
 
@@ -145,9 +147,11 @@ def acervo(tmp_path) -> Acervo:
 
 @pytest.fixture
 def copia_do_kit(tmp_path) -> Path:
-    """Uma cópia do kit inteiro (o `.claude/` e as lições de exemplo), para sabotar à vontade."""
+    """Uma cópia do kit inteiro (o `.claude/`, as lições de exemplo e o `AGENTS.md`), para
+    sabotar à vontade."""
     destino = tmp_path / "kit"
     shutil.copytree(RAIZ / ".claude", destino / ".claude",
                     ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache", "tests"))
     shutil.copytree(RAIZ / "docs" / "licoes", destino / "docs" / "licoes")
+    shutil.copy2(RAIZ / "AGENTS.md", destino / "AGENTS.md")
     return destino

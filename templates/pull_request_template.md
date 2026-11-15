@@ -11,9 +11,9 @@ Fase: `specs/AAAA-MM-DD-<<nome>>/` (ou "sem fase", com o motivo).
 
 ## Revisão
 
-- Revisor: << sem bloqueio | com bloqueio >>
-- Validador: << valida | não valida | caminho rápido (só docs ou testes) >>
-- Guardião: << sem bloqueio | não se aplica (só docs ou testes, ou uma conversa só) >>
+- Revisor: << sem bloqueio | com bloqueio | não roda (o bloco "Como o Golem trabalha aqui": `nunca`, ou `perguntar` com o não) >>
+- Validador: << valida | não valida | caminho rápido (só docs ou testes) | não roda (o bloco) >>
+- Guardião: << sem bloqueio | não se aplica (só docs ou testes) | não roda (o bloco) >>
 
 ## Fora deste PR
 

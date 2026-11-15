@@ -2,7 +2,7 @@
 
 > Modelo. Mora em `specs/AAAA-MM-DD-nome/plan.md`. Grupos numerados, cada um implementável e
 > revisável sozinho; o último é sempre verificação. A skill `implementar-fase` executa um grupo por
-> vez, com revisor e validador ao fim de cada um.
+> vez, com a revisão que o bloco "Como o Golem trabalha aqui" do `AGENTS.md` pede.
 
 ## G1 — <nome do grupo> (R1, R2)
 
@@ -10,7 +10,7 @@
 
 > Ex.: - [ ] `src/agenda/horarios.py`: função que calcula os horários livres de um médico numa data.
 
-**Revisão:** revisor + validador | caminho rápido (só docs ou testes: só o revisor)
+**Revisão:** a do bloco (revisor e validador por grupo, ou nada aqui com a revisão por fase) | caminho rápido (só docs ou testes: só o revisor)
 
 ## G2 — <nome do grupo> (R3)
 

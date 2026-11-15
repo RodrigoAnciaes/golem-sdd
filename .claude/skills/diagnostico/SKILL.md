@@ -6,10 +6,11 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 # Diagnóstico do Golem: o Python do gancho
 
-**Lê:** o `golem.local.toml` da pasta principal do repositório e o da raiz da sessão, se existirem.
+**Lê:** o `golem.local.toml` da pasta principal do repositório, se existir.
 **Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal e, com o ok do
-usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, e a remoção da linha `python` do
-`golem.local.toml` da raiz da sessão, se um worktree tiver uma própria. Não instala nada.
+usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, e, com o sim ao modo sem Python, a
+linha `gancho = "desligado"` no `golem.toml` da raiz da sessão (que viaja no git) e a linha do
+gancho no bloco "Como o Golem trabalha aqui" do `AGENTS.md`. Não instala nada.
 **Decide:** nada sozinha. Pergunta antes de procurar, e grava o que achou só depois do ok do
 usuário. Esta é a versão mínima: o resto do diagnóstico (o `sh`, o git, o índice) fica para depois.
 
@@ -21,17 +22,13 @@ máquina não tem Python (lição `sem-python-no-path-nao-e-maquina-sem-python`)
 
 ```bash
 principal=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
-raiz=$(git rev-parse --show-toplevel)
 grep -Hn '^[[:space:]]*python[[:space:]]*=' "$principal/golem.local.toml" 2>/dev/null
-[ "$raiz" -ef "$principal" ] || grep -Hn '^[[:space:]]*python[[:space:]]*=' "$raiz/golem.local.toml" 2>/dev/null
 git -C "$principal" check-ignore -q golem.local.toml && echo ignorado || echo "NÃO ignorado"
 ```
 
 - A pasta principal é a do repositório, e não a do worktree: o `golem.local.toml` não viaja para
   os worktrees, e o gancho o procura lá **se a raiz da sessão não tiver a linha**.
 - Se já há uma linha `python` na pasta principal, mostre-a ao usuário: ela será substituída no fim.
-- Se a raiz da sessão (um worktree) tem uma linha `python` própria, avise: ela vence a da pasta
-  principal. Proponha apagá-la; só apague com o ok do usuário.
 - Se o arquivo **não** está ignorado pelo git, diga isso e proponha a linha `golem.local.toml` no
   `.gitignore` antes de gravar. O caminho é desta máquina e traz o nome do usuário.
 
@@ -109,6 +106,23 @@ winget install -e --id Python.Python.3.14 --scope user
   (`brew install python`, `sudo apt install python3`).
 
 Depois da instalação, volte ao passo 4.
+
+Se o usuário não quiser instalar agora, ofereça o **modo sem Python**: a linha
+`gancho = "desligado"` no `golem.toml` da raiz desliga o gancho e o aviso, e as lições passam a
+ser buscadas à mão em `docs/licoes/`. Com o sim, ponha a linha `gancho = "desligado"` no
+`golem.toml` da raiz (crie o arquivo se não existir), mostrando a mudança antes; o resto da
+configuração fica como está (`docs/guia-configuracao.md`). Sem Python, o `aplicar` não roda: troque
+à mão, no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, só a linha do gancho por esta, que é
+a que o `aplicar` gera:
+
+```markdown
+- **Gancho das lições:** desligado: antes de editar um arquivo ou rodar um comando, procure em `docs/licoes/` as lições que citam o nome dele.
+```
+
+Com o modo sem Python, **pule o passo 7**: o gancho desligado sai vazio sem procurar o Python, e
+a saída vazia não diz nada sobre ele. Diga ao usuário que as lições ficam para buscar à mão em
+`docs/licoes/`. Quando esta pergunta vem pela skill `configurar`, é ela quem oferece o modo sem
+Python.
 
 ## 7. Testar o gancho
 

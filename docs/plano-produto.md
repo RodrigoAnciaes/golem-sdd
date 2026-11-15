@@ -32,9 +32,9 @@ foi **medido**, não estimado (seção 1.2).
 | Peça | O que faz | Onde |
 |---|---|---|
 | **Spec com entrevista** | antes de escrever, uma rodada de perguntas sobre escopo, decisões e contexto; depois `requirements.md`, `plan.md` e `validation.md`, aprovados pelo usuário. Há também um formato curto para fase pequena | `spec-de-fase`, `references/entrevista.md`, regra 1 do `AGENTS.md` |
-| **Lições que voltam** | cada armadilha vira um arquivo em `docs/licoes/`. Um gancho roda antes de cada edição e de cada comando (`.claude/settings.json:6` e `:17`) e injeta o "Como perceber" das lições daquela ação. Entrega no máximo 4 lições novas por ação (`TETO = 4`, `.claude/hooks/licoes_relevantes.py:59`), cada uma uma vez por agente, por sessão | `.claude/hooks/` |
-| **Índice em que se busca** | `.claude/indice/licoes.yaml`, gerado pela régua a partir do frontmatter das lições e conferido por ela (`--conferir`). É o único índice. A `iniciar-conversa` o busca por `grep` (`iniciar-conversa/SKILL.md:71-72`); a `implementar-fase` manda procurar nele sem dizer como (`implementar-fase/SKILL.md:23`) | `.claude/regua.py` |
-| **Revisor e validador** | dois subagentes que só leem. O revisor confere o diff contra a spec e as regras; o validador roda os critérios e faz mutação numa cópia descartável. Os dois rodam **a cada grupo** do plano (regra 11, `AGENTS.md:176`) | `.claude/agents/` |
+| **Lições que voltam** | cada armadilha vira um arquivo em `docs/licoes/`. Um gancho roda antes de cada edição e de cada comando (`.claude/settings.json:6` e `:17`) e injeta o "Como perceber" das lições daquela ação. Entrega no máximo 4 lições novas por ação (`TETO = 4`, `.claude/hooks/licoes_relevantes.py:60` em `c880a17`; desde a fase 1, o teto vem do `golem.toml`), cada uma uma vez por agente, por sessão | `.claude/hooks/` |
+| **Índice em que se busca** | `.claude/indice/licoes.yaml`, gerado pela régua a partir do frontmatter das lições e conferido por ela (`--conferir`). É o único índice. A `iniciar-conversa` o busca por `grep` (`iniciar-conversa/SKILL.md:71-72`); a `implementar-fase` manda procurar nele sem dizer como (`implementar-fase/SKILL.md:23`; desde a fase 1, ela busca direto em `docs/licoes/`) | `.claude/regua.py` |
+| **Revisor e validador** | dois subagentes que só leem. O revisor confere o diff contra a spec e as regras; o validador roda os critérios e faz mutação numa cópia descartável. Os dois rodam **a cada grupo** do plano (regra 11, `AGENTS.md:176`; desde a fase 1, conforme o bloco "Como o Golem trabalha aqui") | `.claude/agents/` |
 | **Guardião** | o revisor de novo, sobre o diff inteiro do PR | regra 11 |
 | **Papéis de conversa** | gerente (GER), estratégia (EST), método (MET), guardião e frentes, com PEDIDO → LIBERADO, níveis de autonomia, o fecho de quatro linhas e o cartão de decisão | `docs/operacao-das-conversas.md`, `sessao-gerente` |
 | **Codex** | um instalador gera as cópias que o Codex lê (`.agents/skills/`, `.codex/`) a partir de `.claude/` | `.claude/instalar_codex.py` |
@@ -46,7 +46,7 @@ foi **medido**, não estimado (seção 1.2).
 | Peça | Tamanho | Tokens (estim.) |
 |---|---|---|
 | `AGENTS.md` (o `CLAUDE.md` o importa inteiro) | 12.987 bytes | ~3,4 mil |
-| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes) | 4.520 bytes | ~1,2 mil |
+| descrições das 12 skills (só o `description` entra antes de a skill ser chamada; medido antes da fase 0, que acrescenta a `diagnostico`, com 437 bytes, e da fase 1, que acrescenta a `configurar`, com 386) | 4.520 bytes | ~1,2 mil |
 | **total fixo** | | **~4,6 mil** |
 
 **O que entra quando se usa:**
@@ -241,7 +241,7 @@ receita = "economico"            # so-eu | economico | completo
 # parar_a_cada_parte = "sempre"    # sempre | nunca
 # conversas        = "uma"         # uma | papeis
 # gancho           = "ligado"      # ligado | desligado (máquina sem Python)
-# gancho_teto      = 2             # lições novas por ação (hoje fixo em 4)
+# gancho_teto      = 2             # lições novas por ação (antes da fase 1, fixo em 4)
 ```
 
 ```toml
@@ -263,13 +263,19 @@ roda os comandos do `validation.md` (a conversa, e o validador quando ele existe
 
 **Como a configuração chega ao agente, sem custo novo de leitura.** O `golem aplicar`
 (`python .claude/golem.py aplicar`, no molde do `instalar_codex.py`) junta a receita e as linhas
-do usuário e gera três coisas:
-1. o `model:` e o `effort:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita;
-2. no `.claude/settings.json`, a chamada do gancho com o teto (o `licoes_relevantes.py` passa a
-   ler o teto de uma variável, em vez do `TETO = 4` fixo) ou sem o gancho;
-3. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 1, 10
-   e 11 passam a citar. Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração
-   sem abrir arquivo novo, e sabe em que momento perguntar.
+do usuário e gera duas coisas:
+1. o `model:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita (o `effort:` fica
+   para a fase 5);
+2. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 10 e
+   11 passam a citar.
+
+O gancho não passa pelo `aplicar`: o `licoes_relevantes.py` lê o teto do `golem.toml` pelo
+`golem.py`, em vez do `TETO = 4` fixo, e o `gancho.sh` lê a linha `gancho` (abaixo). Assim, o
+`settings.json` não muda. A fase 1 trocou por isso o plano de gerar ali a chamada do gancho
+(`specs/2026-11-13-fase-1-configuracao/requirements.md`, R4 e R5).
+
+Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração sem abrir arquivo novo, e
+sabe em que momento perguntar.
 
 A skill de configurar escreve o `golem.toml` e roda o `aplicar` por ele. Mudou a configuração,
 abre-se uma conversa nova. Com o plugin da fase 4, a skill vira `/golem:configurar`.
@@ -336,7 +342,7 @@ justamente quando não acha o Python.
 simples fazem uma string literal, sem escape. O `gancho.sh` lê com `read -r`, que não trata a
 barra invertida (conferido no Git Bash em 2026-11-12: com `-r`, o caminho chega inteiro; sem ele,
 as barras somem). Um caminho com aspa simples dentro não cabe nesse formato: a skill o recusa e
-pede outro (na skill, `SKILL.md:52` e `:94-95`; não exercitado na fase 0).
+pede outro (na skill, `SKILL.md:49` e `:91-92`; não exercitado na fase 0).
 
 **A diferença esperada, em ordem de grandeza.** Numa fase de 3 grupos, a receita `completo` roda
 7 subagentes (3 revisores, 3 validadores e o guardião). A `economico` roda 1: um revisor no Sonnet
@@ -358,9 +364,11 @@ prova independentes; os comandos do `validation.md` continuam rodando. A skill d
 isso numa linha, e a escolha é dele.
 
 **Detalhes a conferir na fase** (a fase de cada item entre parênteses):
-- (fase 1) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: ou se sobe o mínimo, ou o
-  arquivo usa só `chave = valor`, que se lê com meia dúzia de linhas;
-- (fase 1) se o formato de agente do Codex aceita modelo por agente;
+- (fase 1, resolvido) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: o `golem.toml`
+  usa só `chave = valor`, lido por um leitor próprio, e o mínimo continua 3.8 (seção 8, decisão 7);
+- (fase 6, a paridade do Codex) se o formato de agente do Codex aceita modelo por agente. O
+  `instalar_codex.py` leva só o `name` e o `description` do frontmatter, e os nomes de modelo do
+  Codex são outros. Movido da fase 1 em 2026-11-13;
 - (fase 0, resolvido) como o `golem.local.toml` chega a um worktree: o `gancho.sh` o procura
   também na pasta principal, pelo `--git-common-dir`, como o `.venv` (`ler_linha_python`);
 - (fase 0, resolvido) o aviso da linha `python` que não roda, quando outro Python é achado: fica
@@ -372,8 +380,17 @@ isso numa linha, e a escolha é dele.
   `o-windows-muda-o-que-o-sh-recebe-do-python`);
 - (fase 6, a paridade do Codex) se a entrada de gancho do Codex traz `session_id`. Sem ele, o
   aviso de falha sai em toda ação, como antes da fase 0;
-- (fase 1) se o `systemMessage` do gancho de um subagente aparece ao usuário. A fase 0 não
-  depende disso: só a conversa principal põe o `systemMessage`;
+- (fase 4, o diagnóstico completo) se o `systemMessage` do gancho de um subagente aparece ao
+  usuário. A fase 0 não depende disso: só a conversa principal põe o `systemMessage`. A fase 1
+  também não: o `gancho = "desligado"` sai calado. Movido da fase 1 em 2026-11-13;
+- (fase 4, o plugin) o que o kit entrega das lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
+  `trocar-o-localappdata-nao-esconde-o-python-do-agente`, que ficam em `docs/licoes/` por ora
+  (seção 8, decisão 6), e das duas que a fase 1 acrescentou pelo mesmo caminho,
+  `frontmatter-invalido-some-com-o-agente-sem-aviso` e
+  `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`;
+- (fase 4) o "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente`, que
+  rodam a régua: a fase 1 o faz só na `implementar-fase` e na `licao` (seção 8, decisão 7), e a
+  seção 5(b) o pede em todas;
 - (fase 4, o plugin) por que uma sessão do app desktop aberta num worktree criado pelo app roda o
   `gancho.sh` da pasta principal, e não o do worktree. A hipótese é o `CLAUDE_PROJECT_DIR`, que
   `.claude/settings.json:10` e `:21` usam. Visto na fase 0, a conferir.
@@ -543,7 +560,7 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
 | **0. O gancho acha o Python** (feita: validada em 2026-11-13, branch `fase-0-python`, spec em `specs/2026-11-12-fase-0-python/`) | a pergunta do Python com botões ("Você tem Python? Onde?"), numa versão mínima da skill de diagnóstico (em texto onde não houver botões); o `golem.local.toml` com a linha `python` (que entra no `.gitignore`), procurado também na pasta principal; o `gancho.sh` com a ordem nova (a linha `python`, o `.venv`, o PATH, os lugares do instalador oficial); o aviso de falha que sai uma vez, diz onde procurou, cita a lição e manda rodar o diagnóstico; e, quando nada é achado, o comando de instalação | 2 (o Python e o aviso) | P–M | numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; respondendo "Sim, e sei onde" com um caminho fora dos lugares de costume, a skill o grava e o gancho entrega a lição; com um `.venv` presente e a linha `python` apontando para outro Python, o gancho usa o da linha (a ordem); num worktree, o gancho acha o `golem.local.toml` da pasta principal; `git check-ignore golem.local.toml` confirma que ele fica fora do git; com a linha `python` apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e o aviso de falha aparece uma vez por sessão, não a cada ação, citando a lição pelo id |
-| **1. Configuração e receita econômica** | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões), que reaproveita a pergunta do Python da fase 0, e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md`, o `model:` dos agentes e o gancho ligado ou não, com o teto); as regras 1, 10 e 11, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2 (o modo sem Python), 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo e roda um revisor só, no Sonnet; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
+| **1. Configuração e receita econômica** (feita: validada em 2026-11-15, branch `fase-1-configuracao`, spec em `specs/2026-11-13-fase-1-configuracao/`) | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões), que reaproveita a pergunta do Python da fase 0, e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md` e o `model:` dos agentes; o gancho lê o `golem.toml` direto, o desligado e o teto, sem passar pelo `aplicar`); as regras 10 e 11 (a 1 não mudou), a `validar-fase`, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2 (o modo sem Python), 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo e roda um revisor só, no Sonnet; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
 | **2. Roblox mínimo** | os modelos de tech-stack e de comandos para Rojo, os gatilhos, duas lições de exemplo e os testes pelo Studio MCP | 4 | M | num place Rojo de exemplo, uma fase pequena vai da spec ao validado, com o resumo dos testes lido no console |
 | **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
 | **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` completo (a fase 0 entrega só a parte do Python) e o guia do primeiro dia | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
@@ -609,6 +626,25 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
    (`gancho = "desligado"`) em nenhuma das fases. Ele fica na 1, porque o `gancho = "desligado"` é
    uma linha do `golem.toml` e o modo mexe nas skills (buscar as lições em momentos fixos). Na fase
    0, quando nada é achado, a pergunta oferece só o comando de instalação.
+6. **O que sobrou da fase 0, em 2026-11-13.** A conversa gerente (GER) trouxe quatro
+   recomendações. As palavras dele: "Sim, as quatro". As quatro, em dois itens:
+   - as lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
+     `trocar-o-localappdata-nao-esconde-o-python-do-agente` ficam em `docs/licoes/` por ora; a fase
+     4 (o plugin) decide o que o kit entrega (ver "Detalhes a conferir na fase", seção 3);
+   - da skill `diagnostico`, fica a conferência do `.gitignore` e sai o aviso da linha `python`
+     própria do worktree. Uma linha `python` escrita à mão num worktree passa a vencer a da pasta
+     principal sem aviso: a skill nunca grava ali. Aplicado na fase 1.
+7. **A spec da fase 1, em 2026-11-13.** Ele escolheu a opção recomendada nas quatro perguntas da
+   entrevista (`specs/2026-11-13-fase-1-configuracao/requirements.md`, "Decisões"):
+   - **"Econômica no kit":** depois da fase 1, o repositório do kit roda na receita `economico`,
+     porque o `AGENTS.md` dele é o que o usuário copia até a fase 4. As fases 2 em diante do kit
+     rodam com um revisor só, no Sonnet, uma vez por fase;
+   - **"Leitor próprio, 3.8+":** o `golem.toml` aceita só `chave = valor` e comentários, e o
+     mínimo continua o Python 3.8;
+   - **"Mínimo"** para o modo sem Python: só a `implementar-fase` e a `licao` mudam na fase 1; o
+     resto vai para a fase 4;
+   - **"Receita + duas etapas":** a skill de configurar pergunta a receita, o revisor e o parar a
+     cada parte.
 
 **Em aberto, uma de cada vez:**
 1. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
