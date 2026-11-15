@@ -255,3 +255,40 @@ def test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git(acervo):
     saida = json.loads(r.stdout)
     assert "systemMessage" not in saida, saida.get("systemMessage")
     assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["so-no-pytest"]
+
+
+def _problema_yaml(valor: str):
+    """Por que um valor de uma linha, sem aspas, não é texto simples no YAML (None se é)."""
+    v = valor.strip()
+    if not v:
+        return None
+    if v[0] in "\"'":
+        return None if len(v) > 1 and v[-1] == v[0] else "aspas sem fechar"
+    if v[0] in "[{*&!|>%@`" or v[:2] in ("- ", "? "):
+        return "começa com um caractere especial do YAML"
+    if ": " in v or v.endswith(":"):
+        return "': ' num valor sem aspas"
+    if " #" in v:
+        return "' #' num valor sem aspas (o resto vira comentário)"
+    return None
+
+
+def test_o_frontmatter_dos_agentes_e_das_skills_e_yaml_valido():
+    """Um frontmatter que não é YAML válido some sem aviso: o Claude Code não carrega o agente (visto
+    na fase 1, com "AGENTS.md: por grupo" na descrição do revisor; lição
+    `frontmatter-invalido-some-com-o-agente-sem-aviso`)."""
+    arquivos = sorted((RAIZ / ".claude" / "agents").glob("*.md"))
+    arquivos += sorted((RAIZ / ".claude" / "skills").glob("*/SKILL.md"))
+    problemas = []
+    for arquivo in arquivos:
+        texto = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n")
+        m = re.match(r"---\n(.*?)\n---\n", texto, re.S)
+        if not m:
+            problemas.append(f"{arquivo.relative_to(RAIZ).as_posix()}: sem frontmatter")
+            continue
+        for n, linha in enumerate(m.group(1).split("\n"), 2):
+            campo = re.match(r"^([A-Za-z_-]+):(.*)$", linha)
+            motivo = _problema_yaml(campo.group(2)) if campo else "a linha não é `chave: valor`"
+            if motivo:
+                problemas.append(f"{arquivo.relative_to(RAIZ).as_posix()}:{n}: {motivo}")
+    assert arquivos and not problemas, "\n".join(problemas)
