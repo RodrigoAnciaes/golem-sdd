@@ -47,22 +47,22 @@ Diga o valor por extenso e de qual receita ele vem, pela tabela do guia.
    - "Sempre": uma vez por fase, no Sonnet (recomendado: é o que a `economico` faz);
    - "Perguntar na hora": antes de rodar, pergunta com botões (abre 1 conversa extra se você
      aceitar);
-   - "Nunca": o revisor não roda.
+   - "Nunca": "O revisor não roda. Sem revisão, ninguém além desta conversa lê o que foi feito; os
+     comandos do `validation.md` continuam rodando."
 
-   Na `completo`, o "Sempre" é "a cada parte, no Opus", e o "Nunca" diz quais do validador e do
-   guardião continuam, pelo `golem.toml` que vai sair; na `so-eu`, a recomendada é o "Nunca".
+   A descrição do "Nunca" é o aviso do que fica sem revisão, e vai inteira no botão, não num texto
+   à parte. Ela segue o `golem.toml` que vai sair: com o validador e o guardião em `nunca` (a
+   `so-eu`, a `economico`), é a frase acima; senão (a `completo`), é "O revisor não roda;
+   continuam" e cada um dos dois que não está em `nunca`, com o quando da tabela do guia: o
+   validador "a cada parte" ou "uma vez por fase", pelo `revisor_quando`, e o guardião "antes do
+   merge"; em `perguntar`, acrescente "se você aceitar". Na `completo`, o "Sempre" é "a cada parte,
+   no Opus"; na `so-eu`, a recomendada é o "Nunca".
 3. **"Parar ao fim de cada parte para você aprovar?"** do mesmo jeito: "Sim", para e espera o seu
    ok (recomendado: é o que a `economico` faz), e "Não", segue sem parar; na `completo`, a
    recomendada é o "Não".
 
 Se o `golem.toml` já tem uma linha `revisor` ou `parar_a_cada_parte`, marque "(o atual)" na opção
 de mesmo valor. Não há opção "manter": o valor atual já é uma das opções.
-
-Logo depois da segunda chamada, antes de mostrar o arquivo, diga numa linha o que fica sem revisão:
-- sem revisor, sem validador e sem guardião (a `so-eu`, ou a `economico` com o revisor `nunca`):
-  "Sem revisão, ninguém além desta conversa lê o que foi feito; os comandos do `validation.md`
-  continuam rodando.";
-- sem revisor, mas com o validador ou o guardião: que o revisor sai e quais deles continuam.
 
 A escolha é do usuário.
 
@@ -80,7 +80,10 @@ receitas está no guia.
 receita = "economico"            # so-eu | economico | completo
 ```
 
-Mostre o arquivo inteiro e grave depois do ok.
+Peça o ok com botões ("Gravar e aplicar" ou "Não gravar"), e ponha o arquivo inteiro, com os
+comentários, dentro do texto da própria pergunta, depois da frase "Gravo este `golem.toml` e rodo o
+`golem aplicar`?". Um resumo dos valores não basta, e um texto à parte, antes da pergunta, se perde.
+Grave só depois do ok.
 
 ## 4. Achar o Python
 

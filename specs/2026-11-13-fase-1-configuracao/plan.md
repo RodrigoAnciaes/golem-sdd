@@ -117,8 +117,9 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 ## G6 — Verificação
 
-- [ ] Rodar o `validation.md` inteiro, com a saída colada.
-- [ ] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
+- [~] Rodar o `validation.md` inteiro, com a saída colada (falta a verificação 5 e rodar de novo
+  o automatizado no head novo).
+- [~] As verificações manuais, com o autor do kit (o projeto de teste e a sessão nova são dele).
   - Verificação 1, primeira rodada (2026-11-13, kit em `1397a98`): a parada a cada grupo
     funcionou, mas a chamada do revisor deu "Agent type 'revisor' not found", e a sessão usou um
     `general-purpose` no Sonnet; a busca de lições abortou (`grep -i -e -e`). Os dois defeitos
@@ -136,7 +137,8 @@ caminho completo por escolha: é ele que muda o que o agente faz.
     da fase antes da verificação?", com os botões "Sim, rode o revisor" e "Não, pule", e o texto
     logo acima disse o custo ("abre 1 conversa extra"). O autor do kit respondeu "Não, pule", e a
     sessão não tem pasta `subagents`: nenhum revisor rodou. Lido da transcrição.
-  - Verificação 3 (2026-11-14, sem `golem.toml`, sessão nova aberta pelo autor do kit): **passou**
+  - Verificação 3 (2026-11-14, kit em `f195050`, sem `golem.toml`, sessão nova aberta pelo autor
+    do kit): **passou**
     nos critérios do `validation.md`. Com `completo`, revisor `nunca` e parar "Sim", o `golem.toml`
     saiu com `receita = "completo"`, `revisor = "nunca"` e `parar_a_cada_parte = "sempre"` (mais os
     comentários do cabeçalho e de cada linha); a skill rodou o `aplicar`, mostrou a saída e disse
@@ -145,8 +147,49 @@ caminho completo por escolha: é ele que muda o que o agente faz.
     sai e quais deles continuam") não saiu como frase, mas a tabela final mostrou o revisor "nunca" e o
     validador e o guardião ligados. O autor do kit apontou que a opção "o da receita" não diz nada
     a quem não conhece as receitas (tabela abaixo).
-- [ ] O guardião sobre o diff do PR (`git diff 1f9f827`), num subagente novo.
-- [ ] Spec e código reconciliados: as mudanças na tabela abaixo.
+  - A `configurar` nova (`30560cc`), vista pelo autor do kit numa sessão nova em 2026-11-14 ("Vi
+    que parece bom"): a receita veio numa pergunta sozinha; escolhida a `completo`, a segunda
+    chamada trouxe "Sempre (Recommended)", com "A cada parte, no Opus: é o que a completo faz";
+    "Nunca", com "Continuam o validador (a cada parte, no Opus) e o guardião"; e, no parar, "Não
+    (Recommended)", com "é o que a completo faz". Ele interrompeu a segunda chamada (a
+    transcrição registra a pergunta recusada), e nenhum `golem.toml` foi gravado. Lido da
+    transcrição. Numa segunda sessão com o mesmo kit (19:13-19:15), ele respondeu "Nunca" e
+    "Sim" e, na pergunta de gravar, "Não gravar"; nada foi gravado.
+  - Verificação 3 refeita (2026-11-14, kit em `30560cc`, sem `golem.toml`, sessão nova aberta
+    pelo autor do kit): **passou** nos critérios do `validation.md`. A receita veio sozinha; com
+    `completo`, a segunda chamada trouxe "Sempre (Recommended)", "Perguntar na hora" e "Nunca",
+    com "o validador (a cada parte) e o guardião (antes do merge) continuam", e o parar com "Não
+    (Recommended)". Respondidos `nunca` e "Sim", a skill perguntou "Gravo este golem.toml
+    (receita completo, revisor nunca, parar a cada parte sempre) e rodo o golem aplicar?" e, com
+    o ok, gravou o `golem.toml` com `receita = "completo"`, `revisor = "nunca"` e
+    `parar_a_cada_parte = "sempre"` (mais os comentários). A saída do `aplicar` (no bloco da
+    ferramenta): `escrito  .claude/agents/revisor.md`, `escrito  AGENTS.md`,
+    `2 arquivo(s) mudaram. A configuração nova vale numa conversa nova.` e `exit=0`; a skill
+    resumiu essa saída ("O `aplicar` rodou sem erro (exit 0)" e a tabela dos dois arquivos) e
+    repetiu que vale numa conversa nova. No projeto de teste, depois: o bloco é o da `completo` com o revisor `nunca`, o
+    validador e o guardião `sempre` e o parar `sempre`; `revisor.md:5:model: opus` e
+    `validador.md:5:model: opus`. Lido da transcrição e do disco. Duas instruções da skill
+    não foram cumpridas:
+    - a linha do que fica sem revisão (`SKILL.md:61-65` em `30560cc`, pedida pelo R8) não veio logo depois da
+      segunda chamada: ficou de novo só no raciocínio do agente, como na rodada de `f195050`, e
+      a correção de `30560cc` ("logo depois da segunda chamada") não pegou. Na `completo`, o R8
+      saiu pela descrição do "Nunca" e voltou no fim ("O revisor sai, mas o agente `revisor`
+      continua em uso"); na `so-eu` e na `economico` com o revisor `nunca`, em que só essa linha
+      diz que os comandos do `validation.md` continuam, o R8 não foi provado;
+    - o arquivo não foi mostrado inteiro antes de gravar (`SKILL.md:83` em `30560cc`): a pergunta resumiu os
+      três valores, nas duas rodadas. O R8 só exige mostrar o arquivo que já existe.
+    Nenhum critério do `validation.md` cobria os dois. O autor do kit escolheu, em 2026-11-15,
+    "Corrigir agora": a correção está na tabela de alterações, e a verificação 5 a prova.
+  - Verificação 4 (2026-11-14, `gancho = "desligado"`, sessão nova aberta pelo autor do kit):
+    **passou**. A sessão criou o `nota.txt` e rodou `echo pytest -q`; a transcrição não tem nenhum
+    "Lições registradas" (com o gancho ligado, o `pytest -q` traria a
+    `suite-verde-so-vale-com-a-linha-de-resumo`), o texto "Gancho das lições falhou" só aparece na
+    descrição da `diagnostico`, e não há `.claude/gancho-falhas.log` nem `grep.exe.stackdump`. A
+    parte em `sh`, sem Python à vista, foi rodada pelo validador do G3 (só `rc=0`, log sem linha
+    nova); no projeto de teste, o agente rodou o gancho com a entrada do `pytest -q`: saída vazia,
+    `rc=0`, sem `gancho-falhas.log`.
+- [x] O guardião sobre o diff do PR (`git diff 1f9f827`), num subagente novo.
+- [x] Spec e código reconciliados: as mudanças na tabela abaixo.
 - [x] As correções da verificação manual 1 e do guardião (2026-11-13): o frontmatter do
   `revisor.md` volta a ser YAML válido; o teste novo
   `test_o_frontmatter_dos_agentes_e_das_skills_e_yaml_valido` (`.claude/tests/test_codex.py`);
@@ -160,6 +203,7 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-15 | G6: na `configurar`, o aviso do que fica sem revisão vai na descrição do botão "Nunca", também na `so-eu` e na `economico` ("O revisor não roda. Sem revisão, ninguém além desta conversa lê o que foi feito; os comandos do `validation.md` continuam rodando."), e a instrução solta "logo depois da segunda chamada" saiu; o `golem.toml` inteiro vai no texto da pergunta de gravar. O `validation.md` ganha a verificação manual 5, a `economico` com o revisor `nunca`. | Nas duas rodadas da verificação 3, a linha solta ficou só no raciocínio do agente, e o arquivo saiu resumido; o que estava dentro da chamada (a descrição do "Nunca" da `completo`) saiu (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`). Sem a linha, o R8 da `so-eu` e da `economico` com o revisor `nunca` não estava provado. | usuário ("Corrigir agora", 2026-11-15), agente (o formato; achado do revisor sobre o registro da verificação 3 refeita, 2026-11-14) |
 | 2026-11-14 | G6: a `configurar` diz a linha do que fica sem revisão logo depois da segunda chamada, antes de mostrar o arquivo; o "Nunca" da `completo` diz que o validador e o guardião continuam; o "Manter o atual" saiu, e a opção de mesmo valor ganha "(o atual)"; cada opção tem um rótulo curto, e o resto vai na descrição. | Na verificação 3, a frase só ficou no raciocínio do agente, e não no texto mostrado; o "Nunca" diria "ninguém lê" na `completo` (bloqueio do revisor); o "Manter o atual" repetia o problema do "o da receita" e não tinha efeito próprio (regra 10). | agente (achados do revisor) |
 | 2026-11-14 | G6: a `configurar` pergunta a receita sozinha e, depois, o revisor e o parar a cada parte com o valor da receita escolhida dito por extenso (o rótulo "Sempre" e, na descrição, "uma vez por fase, no Sonnet (recomendado: é o que a `economico` faz)"); a opção "o da receita" saiu. Continuam três perguntas, agora em duas chamadas. | As palavras do autor do kit, depois da verificação 3: "Eu rodei a 3, mas tem um feedback que você, nas opções, coloca o da receita. Só que o usuário novo não sabe o que é o da receita." | usuário (o problema), agente (o formato), 2026-11-14 |
 | 2026-11-13 | G6: o frontmatter do `revisor.md` voltou a ser YAML válido, e um teste novo confere o frontmatter de todos os agentes e skills; a contagem vai de 122 para 123. | Na verificação manual 1, a sessão de teste respondeu "Agent type 'revisor' not found": a descrição do G4 tinha "AGENTS.md: por grupo", e o Claude Code descartou o agente calado. Nem a suíte, nem os revisores, nem o guardião viram (lição `frontmatter-invalido-some-com-o-agente-sem-aviso`). | agente (achado da verificação manual 1) |
@@ -187,8 +231,16 @@ caminho completo por escolha: é ele que muda o que o agente faz.
 ## Estado para a retomada
 
 Spec aprovada em 2026-11-13 ("Aprovo"), com um commit por grupo na branch da fase. G1 a G5
-commitados, cada um com revisor e validador. G6: a prova automatizada passou em `1397a98`; a
-verificação manual 1 achou o `revisor` fora do ar (frontmatter inválido) e o `grep` que aborta;
-o guardião deu "com bloqueio" (o passo 7 da `diagnostico` no modo sem Python). As correções
-estão no commit das correções do G6; falta repetir a verificação manual 1 e fazer as 2, 3 e 4,
-no projeto de teste do autor do kit.
+feitos, com revisor e validador; o G6 também, menos a verificação 5; as correções do G6 com
+revisor e validador. O guardião deu "sem bloqueio" na terceira rodada,
+sobre a árvore de `f195050`; o `30560cc` (a `configurar` sem "o da receita"), só texto, passou pelo
+revisor, pelo caminho rápido. As verificações manuais 1, 2 e 4 passaram (a 1 na segunda rodada,
+depois das correções do G6); a 3 passou com a `configurar` de `f195050` e de novo, de ponta a
+ponta, com a de `30560cc`. Em 2026-11-15, a `configurar` mudou de novo (o aviso no botão
+"Nunca", o arquivo na pergunta de gravar), com a lição
+`o-aviso-entre-duas-perguntas-fica-no-raciocinio`, e ganhou a verificação 5, que falta. A skill
+`validar-fase` rodou em 2026-11-14: o `validation.md` marcado (um `[~]`, a `configurar` numa
+máquina sem Python nenhum) e a fase registrada no `docs/plano-produto.md`. O revisor da correção de 2026-11-15
+deu "com bloqueio" (as marcas acima e uma citação de linha), já corrigido. Falta: a verificação 5;
+rodar de novo o automatizado do `validation.md` no head novo; o PR e o PEDIDO de merge à conversa gerente; o merge na `main` pede também o ok do autor do kit. Em aberto, sem
+bloquear: se o plano Pro mostra o Sonnet e o Opus (R3).
