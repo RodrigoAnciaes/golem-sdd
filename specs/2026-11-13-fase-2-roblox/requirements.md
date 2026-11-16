@@ -7,6 +7,14 @@ fora lidos em 2026-11-13, com o link. **As páginas do Studio MCP mudaram nesse 
 (`last_updated: 2026-11-14T01:38:48Z`, em UTC, no `.md` de cada uma): a leitura que vale é a
 dessa versão, e o G1 relê antes de levar os fatos ao `docs/plano-produto.md`.
 
+**Reconferido no G1 (2026-11-15):** a `main` com a fase 1 (`83398db`) entrou na branch pelo merge
+`7671fc1`; as linhas citadas do repositório foram corrigidas para esse commit. As três páginas do
+Roblox foram republicadas (`last_updated: 2026-11-14T04:05Z`). As duas do Studio MCP, afora o
+cabeçalho, são iguais à leitura de 01:38Z (comparadas com `diff` contra a cópia baixada nesta
+conversa, fora do repositório); na do histórico de versões, as frases citadas no "Contexto"
+continuam lá. O revisor do G1 reconferiu também, na API do GitHub, os fatos do Rojo, do TestEZ, do
+Jest e do `run-in-roblox`, e a página da execução de Luau pela Open Cloud: todos batem.
+
 **Esta spec é escrita antes do merge da fase 1** e conta com o que ela entrega: o `golem.toml`, as
 receitas, o `golem aplicar` e o bloco "Como o Golem trabalha aqui" no `AGENTS.md`
 (`specs/2026-11-13-fase-1-configuracao/requirements.md`, R2 a R6, no `7435d83`). A implementação
@@ -20,7 +28,7 @@ as lições e o `AGENTS.md` ficam numa pasta com git ao lado, que o agente opera
 scripts pelo Studio MCP; o gancho entrega as lições e as regras de área nessa edição; os testes
 rodam no Studio, e o resumo é lido no console. O agente salva uma versão do place antes de cada
 fase, e volta-se atrás pelo histórico de versões do Roblox. A migração para o Rojo fica para uma
-fase própria (`docs/plano-produto.md:547`, a linha da fase 2; seção 5, `:416-505`).
+fase própria (`docs/plano-produto.md:564`, a linha da fase 2; seção 5, `:433-522`).
 
 Pensado para o primeiro usuário: programa Luau no Studio, usa pouco IA, não usa Rojo e "Não parece
 ter muita experiência com controle de versões ainda" (palavras do autor do kit, 2026-11-13).
@@ -31,21 +39,21 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - a seção 8 ganha a decisão "Sem Rojo, migrar depois", as respostas da entrevista desta spec e o
     fluxo completo desta fase como exceção à decisão 1 da fase 1, com as palavras do autor do kit e
     a data (ver "Decisões");
-  - a seção 5 (`:416-505`) passa a ter o caminho sem Rojo como o de entrada, e o Rojo como o
+  - a seção 5 (`:433-522`) passa a ter o caminho sem Rojo como o de entrada, e o Rojo como o
     destino da migração. Os fatos conferidos desta spec entram com o link (ver "Contexto"): as
     ferramentas do Studio MCP, o `execute_luau` com o modo de edição, o `save_place`, o
     `open_cloud_invoke`, o histórico de versões, o `rojo syncback` e o estado do TestEZ, do Jest
     (o `Roblox/jest-roblox` e o fork `jsdotlua/jest-lua`) e do `run-in-roblox`;
-  - a linha da fase 2 (`:547`) ganha a entrega e o "pronto" desta spec (R9). O "pronto" de hoje
+  - a linha da fase 2 (`:564`) ganha a entrega e o "pronto" desta spec (R9). O "pronto" de hoje
     ("num place Rojo de exemplo") sai;
   - o roteiro (seção 7) ganha uma linha nova, **Migração para o Rojo**, com a skill que guia a
     migração pelo `rojo syncback`, o `default.project.json`, o código no git, as áreas do
-    `POR_CAMINHO` e do `POR_COMANDO` de `:469-470` (`.luau`, `default.project.json`, `rojo`,
+    `POR_CAMINHO` e do `POR_COMANDO` de `:486-487` (`.luau`, `default.project.json`, `rojo`,
     `argon`, `selene`, `stylua`, `wally`) e a troca do executor mínimo por um framework. O
     `run-in-roblox` sai da lista: o último commit é de 2020-07-20, a v0.3.0 (ver "Contexto"). A
     ordem entre essa fase e as fases 3 a 6 fica para o autor do kit decidir; a linha entra no fim
     da tabela, marcada "ordem a decidir";
-  - as "Perguntas ao primeiro usuário" (`:553-557`): a linha "Antes da fase 2" passa a pedir se ele
+  - as "Perguntas ao primeiro usuário" (`:570-574`): a linha "Antes da fase 2" passa a pedir se ele
     toparia migrar para o Rojo um dia, como organiza os jogos (uma pasta por jogo?) e como volta a
     uma versão anterior hoje. Essas perguntas não travam a fase (ver "Perguntas em aberto").
 - **R2. As conferências no Studio**, antes do código que depende delas. Com o Studio aberto e o
@@ -80,15 +88,15 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     (`.claude/instalar_codex.py:77-84`) e usa os `MATCHERS` dele (`:39`) para o Codex, e o Codex
     fica fora desta fase.
   - **A leitura:** o `.claude/hooks/licoes_relevantes.py` lê o caminho do script do `multi_edit`
-    como caminho (hoje só `tool_input.file_path`, `:456`) e o código do `execute_luau` como
-    comando (hoje só `tool_input.command`, `:458`), pelos campos do R2. A docstring "As entradas
+    como caminho (hoje só `tool_input.file_path`, `:470`) e o código do `execute_luau` como
+    comando (hoje só `tool_input.command`, `:472`), pelos campos do R2. A docstring "As entradas
     que ele entende" (`:9-13`) ganha as duas.
-  - **As áreas:** o `POR_CAMINHO` (`:64-78`) ganha os serviços do place em que mora código, na
+  - **As áreas:** o `POR_CAMINHO` (`:78-92`) ganha os serviços do place em que mora código, na
     forma do caminho do Studio MCP (`game.ServerScriptService`, `game.ServerStorage`,
     `game.ReplicatedStorage`, `game.StarterPlayer`, `game.StarterGui`, `game.Workspace`), na área
     `codigo`. Na forma com `game.`, uma pasta comum chamada `Workspace` num caminho de arquivo não
     acende `codigo`. O `POR_COMANDO` não muda: uma lição com `gatilhos:` só chega quando um gatilho
-    casa, e não pela área (`licoes_relevantes.py:20-24`, `:260-266`); a lição do resumo dos testes
+    casa, e não pela área (`licoes_relevantes.py:20-24`, `:276-280`); a lição do resumo dos testes
     no place é a lição de exemplo do R7, com o gatilho na chamada do executor.
   - **Os testes** na suíte do ferramental, no padrão de `.claude/tests/test_gancho.py`:
     1. um `tool_input` de `multi_edit` num script de `game.ServerScriptService` entrega uma lição
@@ -130,7 +138,7 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     terminal para os testes: o bloco diz qual ferramenta do Studio MCP roda o executor, com que
     `datamodel_type`, e onde ler a linha de resumo; e diz que, **antes de começar cada fase**, o
     agente chama o `save_place` e anota no `plan.md` a hora da versão salva. Num place aberto de
-    um arquivo local (`.rbxl`), o `save_place` grava por cima do arquivo e não cria versão
+    um arquivo local, o `save_place` grava por cima do arquivo e não cria versão
     (ver "Contexto"): o agente para e pede ao usuário que salve o place no Roblox (File ⟩ Save to
     Roblox) antes da fase. A "Contagem esperada
     de testes" vive no `validation.md` da fase, como hoje (`AGENTS.md:59`);
@@ -142,7 +150,7 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     R2.6), que devolve uma tabela `{ ["nome do teste"] = função }`. O sufixo `.spec` é o do nome
     dos arquivos de teste do TestEZ e do Jest; o conteúdo não é o `describe`/`it` deles;
   - o executor acha os testes nos serviços do R3, roda cada função com `pcall` e imprime, no fim,
-    uma linha `N passed, N failed, N skipped` (o formato do TestEZ, `TextReporter.lua:80`), e uma
+    uma linha `N passed, N failed, N skipped` (o formato do TestEZ, `src/Reporters/TextReporter.lua:80`), e uma
     linha por falha com o módulo, o teste e o erro;
   - um teste se pula com o nome começando por `pular: `, e conta como `skipped`;
   - sem nenhum teste, a linha sai `0 passed, 0 failed, 0 skipped` e mais uma linha
@@ -163,7 +171,7 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - **A lista de riscos do Roblox** (pedido da conversa de estratégia, confirmado pelo autor do
     kit): `templates/roblox/regras-de-area.md`, de 5 a 8 regras no formato que o gancho entende
     (`## Regra N — Título`, a linha `areas: codigo`, o corpo; `licoes_relevantes.py:31-33`,
-    `:270-296`). Cada regra diz o risco e o porquê em uma linha, com o link da documentação do
+    `:284-310`). Cada regra diz o risco e o porquê em uma linha, com o link da documentação do
     Roblox que o sustenta, e o comportamento **"avisar e deixar"**: o agente faz o que o usuário
     pediu, e põe uma linha de aviso no resumo da parte (ou no fim do grupo), com três saídas:
     corrigir, deixar assim, me explica. Não bloqueia. O que o agente escreve por conta própria já
@@ -196,7 +204,7 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - a pasta do projeto com git ao lado do place (uma pasta por jogo, como sugestão); copiar os
     modelos do R5 e do R7 (as lições para `docs/licoes/`, a lista de riscos para
     `docs/regras-de-area.md`) e rodar `regua.py --gerar`, porque o gancho lê o índice e só cai no
-    Markdown sem ele (`licoes_relevantes.py:183-196`, `:255-258`);
+    Markdown sem ele (`licoes_relevantes.py:197-210`, `:269-272`);
   - pedir ao agente que ponha o executor; rodar os testes;
   - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase; o Ctrl+Z, só se o
     R2.7 o confirmar; e voltar à versão salva pelo histórico, com os passos do Studio e do Creator
@@ -205,16 +213,16 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - o que fica mais fraco sem Rojo (sem diff, sem mutação, sem git do código), com o caminho para
     migrar depois;
   - o que aparece quando o Studio está fechado (a ferramenta do MCP falha) e o que fazer.
-- **R9. O "pronto" da fase** (a linha `:547` reescrita): num place de exemplo, sem Rojo, com o
+- **R9. O "pronto" da fase** (a linha `:564` reescrita): num place de exemplo, sem Rojo, com o
   Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da
   fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de
   exemplo nessa edição; os testes rodam pelo executor, e a linha `N passed, N failed, N skipped` é
   lida no console; um teste quebrado de propósito aparece como `failed`; e, no fim, uma volta pelo
   histórico de versões é feita seguindo só o guia. O passo a passo está no `validation.md`,
   verificação manual 1.
-- **R10. A varredura.** A lista `ARQUIVOS_DO_KIT` do `test_credito.py` (`:25-35`) ganha o
+- **R10. A varredura.** A lista `ARQUIVOS_DO_KIT` do `test_credito.py` (`:22-38`) ganha o
   `templates/roblox/Executor.luau`, com a linha `-- Golem SDD · …` (o teste compara a linha exata
-  em qualquer linguagem, `test_credito.py:49-57`). Os outros arquivos novos (`.md` em
+  em qualquer linguagem, `test_credito.py:50-59`). Os outros arquivos novos (`.md` em
   `templates/` e `docs/`) seguem como os de hoje, que não trazem a linha; os testes novos entram
   em `test_gancho.py`, que já está na lista. O `README.md` ganha uma linha no mapa das pastas
   para `templates/roblox/` e o `docs/guia-roblox.md`. O `.codex/hooks.json` gerado pelo instalador
@@ -231,13 +239,13 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   de estratégia (EST) e vão para a fase 3. Daqui, só a lista de riscos (R7).
 - **O Codex com o Studio MCP:** o gancho do Codex continua com os `MATCHERS` de hoje; a paridade é
   da fase 6.
-- **O `iniciar-sdd` e o `comecar` perguntando "usa Rojo?"**: fase 4 (`docs/plano-produto.md:521-524`).
+- **O `iniciar-sdd` e o `comecar` perguntando "usa Rojo?"**: fase 4 (`docs/plano-produto.md:538-541`).
 - **O `run-in-roblox` e a Open Cloud:** o último commit do primeiro é de 2020-07-20. A Open Cloud,
   pelo `open_cloud_invoke` do Studio MCP, dispensa a chave de API, mas não ajuda a rodar os testes
   (o `execute_luau` já roda), e o nível "Full access" pode publicar no jogo ao vivo.
 - **Playtest automatizado** (`character_navigation`, `user_keyboard_input`, `screen_capture`): o
   que não tem teste automático continua como passo a passo de playtest no `validation.md` da fase
-  do usuário (`docs/plano-produto.md:464-465`).
+  do usuário (`docs/plano-produto.md:481-482`).
 
 ## Decisões
 
@@ -245,13 +253,19 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   spec da fase 2 (Roblox sem Rojo), com um commit por grupo na branch quando a implementação
   começar?", que também listava a exceção "Completo pelo prompt" (2026-11-13). Com ela, ficam
   aprovadas as leituras do agente listadas abaixo.
+- **A ordem de implementar.** A aprovação acima não dava a ordem de começar; a GER tinha dele, para
+  esta fase, "Sim, só a spec". As palavras dele: "Sim, faça o G1 (Recomendado)", à pergunta
+  "Fase 2: você quer que eu implemente agora?" (2026-11-15). O G1 foi escrito antes dessa ordem,
+  sem commit, e só foi commitado depois dela. Sobre o G2, que precisa do Studio, a resposta dele
+  foi "Depois" (2026-11-15): o G2 e os grupos que dependem dele (G3 a G5) esperam.
 - **"Sem Rojo, migrar depois"** (palavras do autor do kit, 2026-11-13, repassadas pela conversa
   gerente). O caminho de entrada é sem Rojo: o código fica no place, e as specs e as lições ficam
   numa pasta ao lado com git, que o agente opera. O kit não exige GitHub; git local basta. Uma
   skill guia a migração para o Rojo quando o usuário quiser ou o projeto crescer. Descartado: o
-  Rojo como caminho de entrada, que a seção 5 recomendava (`:418`), porque o primeiro usuário não
+  Rojo como caminho de entrada, que a seção 5 recomendava (`:435`), porque o primeiro usuário não
   usa Rojo.
-- **As respostas da entrevista desta spec** (2026-11-13), todas na opção recomendada:
+- **As respostas da entrevista desta spec** (2026-11-13): a opção recomendada em cinco das seis;
+  a do Studio (a 4), com texto livre:
   1. **"Sem espelho"**, confirmada depois como **"Só salvar o place"** (à pergunta que trouxe o
      "Os dois, como ideia" da conversa de estratégia e o fato de que o `save_place` grava uma
      versão): o agente salva uma versão antes de cada fase; o revisor lê os scripts pelo Studio
@@ -353,15 +367,16 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   subagente em segundo plano mantém todas as ferramentas de MCP.
 - **O gancho hoje:** o `matcher` é `Edit|Write` e `Bash|PowerShell` (`.claude/settings.json:6` e
   `:17`); o `licoes_relevantes.py` lê só `tool_input.file_path` e `tool_input.command`
-  (`:456-458`); o `POR_CAMINHO` casa por trecho contido no caminho (`:462-465`); lição com
-  gatilho só entra pelo gatilho (`:260-266`); sem índice, ele lê o Markdown (`:183-196`); as
+  (`:470-472`); o `POR_CAMINHO` casa por trecho contido no caminho (`:477-479`); lição com
+  gatilho só entra pelo gatilho (`:276-280`); sem índice, ele lê o Markdown (`:197-210`); as
   regras de área vêm de `docs/regras-de-area.md`, sem teto, uma vez por sessão (`:31-33`).
 - **Os agentes hoje** só têm `Read, Grep, Glob, Bash` no `tools:` (`.claude/agents/revisor.md:4`,
-  `validador.md:4`); o validador faz a mutação numa cópia descartável (`validador.md:14` e `:37-43`).
+  `validador.md:4`); o validador faz a mutação numa cópia descartável (`validador.md:15` e `:38-44`).
 - **Esta máquina não tem o Roblox Studio** (`%LOCALAPPDATA%\Roblox` e `Program Files\Roblox`
   ausentes, 2026-11-13). Nem um runtime de Luau: o executor só se testa no Studio.
 - **A suíte do ferramental** dá `96 passed` em `1f9f827` (rodada pelo revisor desta spec,
-  2026-11-13), sem puladas. A fase 1 acrescenta testes: o total se relê no G1.
+  2026-11-13), sem puladas. Relida no G1, no `7671fc1`, com a fase 1: `123 passed in 60.16s`, sem
+  puladas (`validation.md`, item 1).
 - **A ideação da conversa de estratégia** ("o fluxo que aprende", 2026-11-13, fora do git, nas
   notas da sessão de estratégia): dela vêm o R3 como pedido, a lista de riscos com o "avisar e
   deixar" (ideia 1) e os dois jeitos de desfazer (ideia 3b).
@@ -373,9 +388,9 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
 - **O `tech-stack.md` de Roblox** segue `templates/constituicao/tech-stack.md`, seção por seção.
 - **As lições de exemplo** seguem o formato de `docs/licoes/README.md` e uma lição real, como
   `docs/licoes/suite-verde-so-vale-com-a-linha-de-resumo.md`.
-- **A lista de riscos** segue o formato que o `regras_para` lê (`licoes_relevantes.py:270-296`).
+- **A lista de riscos** segue o formato que o `regras_para` lê (`licoes_relevantes.py:284-310`).
 - **O guia** segue o `docs/guia-configuracao.md` da fase 1: uma página, palavras simples, nenhuma
-  sigla sem dizer o que é (`docs/plano-produto.md:532-533`).
+  sigla sem dizer o que é (`docs/plano-produto.md:549-550`).
 
 ## Notas do usuário
 

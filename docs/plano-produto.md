@@ -158,7 +158,7 @@ dentro do mesmo valor, pelo menor custo.
 | 1 | **Aprovação passo a passo:** a implementação para ao fim de cada grupo e mostra o que mudou; os grupos são pequenos (um arquivo ou uma função) | estilo | A | P |
 | 2 | **Gancho que acha o Python e falha uma vez só:** o diagnóstico mínimo (fase 0) e depois a configuração perguntam se ele tem Python e onde, e o gancho usa esse caminho ou procura também onde o instalador oficial põe o Python; quando falha, avisa uma vez, em palavras simples, cita a lição e dá o conserto em uma linha. Numa máquina sem Python nenhum, ele pode ser desligado: as skills passam a mandar buscar as lições em momentos fixos (o modo sem Python, de reserva) | fácil, custo | A | P |
 | 3 | **Receitas prontas, escolha por etapa e configuração por conversa:** três receitas recomendadas (`so-eu`, `economico`, `completo`); cada etapa opcional responde `sempre`, `perguntar` ou `nunca`; ele configura pedindo "configurar o Golem" e respondendo a botões; e o "guia de configuração", de uma página, explica cada escolha | custo, fácil | A | M |
-| 4 | **Pacote Roblox mínimo:** os comandos reais de um projeto Rojo, os gatilhos `.luau`/`rojo`/`selene`/`stylua`, um `tech-stack` modelo, critérios com playtest passo a passo e o uso do Studio MCP | Roblox | A | M |
+| 4 | **Pacote Roblox mínimo:** primeiro sem Rojo (decisão 8, seção 8): os comandos reais com o Studio MCP, o gancho lendo a edição pelo Studio MCP, um `tech-stack` modelo, critérios com playtest passo a passo; o Rojo e as áreas `.luau`/`rojo`/`selene`/`stylua` vêm na migração | Roblox | A | M |
 | 5 | **Aprender o estilo:** uma skill lê os programas que **ele escolher** e propõe as regras do estilo dele, cada uma com um exemplo `arquivo:linha` do próprio código; ele aprova uma a uma | estilo | A | M |
 | 6 | **Catálogo do que reaproveitar:** uma linha por módulo dele (o nome, o caminho, o que faz, a interface). A entrevista e o plano consultam o catálogo antes de criar algo novo | estilo | A | M |
 | 7 | **Instalação como plugin do Claude Code**, com uma skill de diagnóstico e o `AGENTS.md` preenchido por entrevista | fácil | A | M |
@@ -432,61 +432,90 @@ isso numa linha, e a escolha é dele.
 
 ## 5. Roblox Studio
 
-**O caminho recomendado: Rojo (ou Argon) e git, com o Studio MCP para jogar e ver o console.**
+**O caminho de entrada é sem Rojo** (decisão 8, seção 8). O código fica no place; as specs, as
+lições e o `AGENTS.md` ficam numa pasta ao lado, com git local (o kit não exige GitHub). O agente
+edita os scripts pelo Studio MCP. A fase 2 entrega esse caminho
+(`specs/2026-11-13-fase-2-roblox/`); os fatos abaixo foram lidos na fonte em 2026-11-13 e
+reconferidos em 2026-11-15.
+
+- **O Studio MCP oficial**, segundo a [documentação](https://create.roblox.com/docs/studio/mcp):
+  - vem embutido no Studio e se liga em Assistant ⟩ … ⟩ Manage MCP Servers ⟩ "Enable Studio as MCP
+    server"; o quick connect liga, entre outros, o Claude Code e o Codex. Na configuração por
+    JSON, o servidor se chama `Roblox_Studio`;
+  - os scripts: o `script_read` lê pelo caminho com pontos (`game.ServerScriptService.MyScript`);
+    o `script_search` busca pelo nome, e o `script_grep`, por um texto em todos os scripts; o
+    `multi_edit` edita, e cria o script se o caminho não existe;
+  - o `execute_luau` roda Luau num `datamodel_type` (Edit, Client ou Server); o `start_stop_play`
+    e o `get_studio_state` controlam o jogo; o `get_console_output` lê o console;
+  - o `save_place` salva como File ⟩ Save: uma versão nova, num place aberto do Roblox; por cima
+    do arquivo, num place local (a página escreve "`.rbx` and `.rbxlx`");
+  - toda chamada leva um `studio_id`, que o `list_roblox_studios` lista;
+  - avisa: "MCP clients can read and modify content in your open Roblox places."
+- **A Open Cloud pelo Studio MCP**
+  ([documentação](https://create.roblox.com/docs/studio/mcp-open-cloud)): o `open_cloud_invoke`
+  chama as APIs sem chave, com as permissões ligadas por jogo em MCP ⟩ MCP Permissions. Cada jogo
+  começa no nível "Balanced"; o "Full access" pode publicar no jogo ao vivo; e, no Studio, o
+  `DataStore` é o de verdade. O kit não usa a Open Cloud, e o guia de Roblox manda desligar as
+  permissões.
+- **O que fica mais fraco sem Rojo, e como a fase 2 cobre:**
+  - não há diff do git: o revisor lê o script atual pelo Studio MCP, com a lista dos scripts que o
+    grupo mexeu;
+  - os dois agentes ganham as ferramentas de leitura do Studio MCP no `tools:`; o validador ganha
+    também o `execute_luau`, para rodar os testes, e não faz mutação no place, porque não há cópia
+    descartável;
+  - o gancho ganha uma entrada para o `multi_edit` e o `execute_luau`, e lê o caminho do script e
+    o código (o nome dos campos fica a conferir na fase 2);
+  - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase, e volta-se pelo
+    [histórico de versões](https://create.roblox.com/docs/projects/version-history) (Window ⟩
+    Version History ⟩ ⋮ ⟩ Open Local Copy ⟩ Save to Roblox As, ou Creator Dashboard ⟩ Restore).
+    Restaurar cria uma versão nova e não publica.
+
+**O destino é o Rojo (ou o Argon) e o git, numa fase própria de migração** (seção 7, a fase 7):
 - **Os arquivos:** o código fica em `src/` como `.luau` (`.server.luau` e `.client.luau` para
   Script e LocalScript), e o `default.project.json` mapeia as pastas para os serviços do place
   (ReplicatedStorage, ServerScriptService, StarterPlayer). Assim, o git, o diff, o revisor e o
   gancho funcionam como num projeto de qualquer linguagem.
 - **As ferramentas:** o Rojo ou o Argon para sincronizar, o StyLua para formatar, o Selene para o
   lint e o Wally para pacotes, com as versões fixadas por um gerenciador de ferramentas (Rokit ou
-  Aftman). Elas vão para o `tech-stack.md` com a versão; as versões atuais ficam a conferir na
-  fase.
-- **O Studio MCP oficial**, segundo a [documentação](https://create.roblox.com/docs/studio/mcp):
-  - vem embutido no Studio e se liga em Assistant → Manage MCP Servers;
-  - conecta, entre outros, o Claude Code e o Codex;
-  - traz ferramentas para ler e buscar scripts (`script_read`, `script_grep`), editar
-    (`multi_edit`), rodar Luau (`execute_luau`), jogar e parar (`start_stop_play`) e ler o
-    console (`get_console_output`);
-  - avisa que o cliente pode mudar o place.
-
-**O caminho sem Rojo** (para começar, ou para quem não quer sair do Studio): o código fica no
-place, e as specs e as lições ficam numa pasta com git ao lado. O agente edita pelo MCP.
-- O revisor perde o diff do git.
-- Os dois agentes hoje só têm `Read, Grep, Glob, Bash` no `tools:`, então nem leem o place. Ou
-  ganham as ferramentas de leitura do MCP (e o validador, o `execute_luau` e o console), ou, sem
-  Rojo, quem revisa e valida é a própria conversa.
-- O gancho só lê `file_path` e `command` da entrada da ferramenta. Para ver uma edição pelo MCP,
-  o `matcher` tem de incluir o `multi_edit`, e o `licoes_relevantes.py` tem de ler a entrada dele
-  (o nome do campo fica a conferir).
-
-Isso funciona, mas é mais fraco. O guia sugere migrar para o Rojo quando o projeto crescer.
+  Aftman). As versões atuais ficam a conferir na fase da migração.
+- **O `rojo syncback`:** a versão 7.7.0 do Rojo, estável desde 2026-07-02 (a mais nova é a 7.7.1,
+  de 2026-10-02), traz o `rojo syncback path/to/project --input path/to/file.rbxl`, que converte
+  um place existente em projeto Rojo. Só vem o que descende de um nó do arquivo de projeto, e as
+  regras ficam no campo `syncbackRules`. As notas da release dizem que a documentação ainda vai
+  sair ("Documentation is forthcoming").
 
 **Os testes:**
-- **Framework:** o TestEZ, o clássico, ou o Jest Lua, que tem um guia de migração do TestEZ
-  ([documentação](https://jsdotlua.github.io/jest-lua)). Qual dos dois ele usa entra no
-  `tech-stack.md`.
-- **Como rodar, do mais simples ao mais automático:**
-  1. **pelo Studio MCP:** o `execute_luau` roda Luau, e o `get_console_output` traz o resumo, sem
-     credencial nenhuma. A conferir: se os testes rodam em modo de edição ou precisam de play
-     (`start_stop_play`). O "pronto" da fase 2 depende disso;
-  2. **pelo `run-in-roblox`, na linha de comando:** a documentação do Jest Lua diz que ele precisa
-     do `run-in-roblox` para isso. Se o `run-in-roblox` segue mantido fica a conferir;
-  3. **pela API Open Cloud de execução de Luau, sem abrir o Studio** ([documentação](https://create.roblox.com/docs/cloud/reference/features/luau-execution)):
+- **Framework** (API do GitHub, 2026-11-13): o `Roblox/testez` está arquivado (último push em
+  2024-03-05); o `TestEZ.rbxm` vem nas releases v0.2.0 a v0.3.2, e a última, v0.4.2 (2022), não o
+  traz. O resumo sai como `"%d passed, %d failed, %d skipped"` (`Roblox/testez`,
+  `src/Reporters/TextReporter.lua:80`). O Jest
+  ativo é o `Roblox/jest-roblox` (MIT), sem release publicada; o `jsdotlua/jest-lua` é um fork dele,
+  parado em 2024-12 (v3.10.0), com `.rbxm` só nas rc da 3.6.1. **Sem Rojo, a fase 2 usa um executor
+  mínimo**, modelo do kit, que imprime no formato do TestEZ; o framework entra na migração.
+- **Como rodar:**
+  1. **pelo Studio MCP**, o caminho da fase 2: o `execute_luau` roda o executor, e o
+     `get_console_output` traz o resumo, sem credencial nenhuma. A conferir na fase 2: se o
+     `require` em modo de edição enxerga uma edição recente, ou se os testes precisam de play;
+  2. **o `run-in-roblox`**, fora: o último commit é de 2020-07-20 (a v0.3.0);
+  3. **a API Open Cloud de execução de Luau, sem abrir o Studio** ([documentação](https://create.roblox.com/docs/cloud/reference/features/luau-execution)),
+     fora da fase 2:
      - pede uma chave de API, que é credencial (regra 5), e quem decide é o usuário;
      - aceita 5 criações de tarefa por minuto;
      - roda tarefas de até 5 minutos.
 - **A lição da linha de resumo vale igual:** sem o total de testes, as falhas e os pulados lidos no
-  console, não há resultado. O formato exato do resumo do TestEZ e do Jest Lua fica a conferir
-  para o gatilho.
+  console, não há resultado. O executor imprime a linha no formato do TestEZ e diz "nenhum teste
+  encontrado" quando não acha teste.
 - **O que não tem teste automático** (a física, a sensação de um pulo, a interface) entra no
   `validation.md` como passo a passo de playtest, que a regra 4 já aceita.
 
 **O que muda no kit:**
-- um modelo de `tech-stack` e de "Comandos reais" para Roblox;
-- `.luau` e `default.project.json` no `POR_CAMINHO`;
-- `rojo`, `argon`, `selene`, `stylua`, `wally` e `run-in-roblox` no `POR_COMANDO`;
-- as ferramentas do MCP no `tools:` do revisor e do validador (só se o caminho sem Rojo ficar);
-- duas lições de exemplo do mundo Roblox no lugar das de pytest.
+- **na fase 2:** os modelos em `templates/roblox/` (o `tech-stack`, os "Comandos reais", o
+  executor, duas lições e uma lista de riscos de exemplo, como regras de área); o gancho lendo o
+  Studio MCP, com os serviços do place (`game.ServerScriptService` e os outros) no `POR_CAMINHO`;
+  as ferramentas de leitura do Studio MCP no `tools:` do revisor e do validador; e o guia
+  `docs/guia-roblox.md`;
+- **na migração:** `.luau` e `default.project.json` no `POR_CAMINHO`; `rojo`, `argon`, `selene`,
+  `stylua` e `wally` no `POR_COMANDO`; o framework de teste no lugar do executor.
 
 **O kit fora de um repositório JS ou Python.** O método não depende da linguagem. Só o ferramental
 do kit (o gancho, a régua e o instalador) é Python. A busca nas lições e nos documentos não
@@ -561,17 +590,20 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
 |---|---|---|---|---|
 | **0. O gancho acha o Python** (feita: validada em 2026-11-13, branch `fase-0-python`, spec em `specs/2026-11-12-fase-0-python/`) | a pergunta do Python com botões ("Você tem Python? Onde?"), numa versão mínima da skill de diagnóstico (em texto onde não houver botões); o `golem.local.toml` com a linha `python` (que entra no `.gitignore`), procurado também na pasta principal; o `gancho.sh` com a ordem nova (a linha `python`, o `.venv`, o PATH, os lugares do instalador oficial); o aviso de falha que sai uma vez, diz onde procurou, cita a lição e manda rodar o diagnóstico; e, quando nada é achado, o comando de instalação | 2 (o Python e o aviso) | P–M | numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; respondendo "Sim, e sei onde" com um caminho fora dos lugares de costume, a skill o grava e o gancho entrega a lição; com um `.venv` presente e a linha `python` apontando para outro Python, o gancho usa o da linha (a ordem); num worktree, o gancho acha o `golem.local.toml` da pasta principal; `git check-ignore golem.local.toml` confirma que ele fica fora do git; com a linha `python` apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e o aviso de falha aparece uma vez por sessão, não a cada ação, citando a lição pelo id |
 | **1. Configuração e receita econômica** (feita: validada em 2026-11-15, branch `fase-1-configuracao`, spec em `specs/2026-11-13-fase-1-configuracao/`) | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões), que reaproveita a pergunta do Python da fase 0, e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md` e o `model:` dos agentes; o gancho lê o `golem.toml` direto, o desligado e o teto, sem passar pelo `aplicar`); as regras 10 e 11 (a 1 não mudou), a `validar-fase`, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2 (o modo sem Python), 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo e roda um revisor só, no Sonnet; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
-| **2. Roblox mínimo** | os modelos de tech-stack e de comandos para Rojo, os gatilhos, duas lições de exemplo e os testes pelo Studio MCP | 4 | M | num place Rojo de exemplo, uma fase pequena vai da spec ao validado, com o resumo dos testes lido no console |
+| **2. Roblox mínimo, sem Rojo** (spec em `specs/2026-11-13-fase-2-roblox/`, branch `fase-2-roblox`) | o caminho sem Rojo: o gancho lendo a edição pelo Studio MCP; o revisor e o validador lendo o place (o validador sem mutação no place); um executor mínimo de testes; os modelos de tech-stack e de comandos, duas lições e uma lista de riscos de exemplo em `templates/roblox/`; e o guia `docs/guia-roblox.md` | 4 | M | num place de exemplo, sem Rojo, com o Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de exemplo nessa edição; os testes rodam pelo executor, e a linha `N passed, N failed, N skipped` é lida no console; um teste quebrado de propósito aparece como `failed`; e, no fim, uma volta pelo histórico de versões é feita seguindo só o guia |
 | **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
 | **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` completo (a fase 0 entrega só a parte do Python) e o guia do primeiro dia | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
 | **5. Configuração completa e medidor** | o esforço por papel, o `golem aplicar --conferir`, a página HTML de configuração (se a fase 1 mostrar que a conversa com botões não basta), o medidor e a busca uniforme no índice | 8, 10, 12 | M | trocar a `receita` e rodar o `aplicar` muda o que a fase 1 gera, o `--conferir` acusa a divergência, e o medidor mostra o gasto por papel antes e depois |
 | **6. Produto** | versões, notas de versão, como atualizar, a página do kit, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
+| **7. Migração para o Rojo** (ordem a decidir; decisão 8) | a skill que guia a migração pelo `rojo syncback`; o `default.project.json`; o código no git; as áreas `.luau`, `default.project.json`, `rojo`, `argon`, `selene`, `stylua` e `wally` no gancho; e a troca do executor mínimo por um framework de teste | 4 | a conferir | a definir na spec da fase |
 
 **Perguntas ao primeiro usuário.**
 - **Antes da fase 0:** se ele já tem Python instalado, e onde (o trabalho do Python é da fase 0).
 - **Antes da fase 1:** qual modelo o Pro dele mostra no `/model` (as receitas fixam o Sonnet e o
   Opus, e o "pronto" da fase 1 pede o Sonnet).
-- **Antes da fase 2:** se ele usa Rojo ou só o Studio e que framework de teste usa.
+- **Antes da fase 2** (não travam a fase; sem resposta, o guia de Roblox sugere uma pasta por
+  jogo): se ele toparia migrar para o Rojo um dia; como organiza os jogos (uma pasta por jogo?);
+  e como volta a uma versão anterior hoje.
 
 ---
 
@@ -645,6 +677,30 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
      resto vai para a fase 4;
    - **"Receita + duas etapas":** a skill de configurar pergunta a receita, o revisor e o parar a
      cada parte.
+
+8. **O caminho sem Rojo e a spec da fase 2, em 2026-11-13.** As palavras dele sobre o caminho:
+   "Sem Rojo, migrar depois". O caminho de entrada é sem Rojo (seção 5): o código fica no place, e
+   as specs e as lições ficam numa pasta ao lado com git local; uma skill guia a migração para o
+   Rojo quando ele quiser ou o projeto crescer (a fase 7). Os fatos dele sobre o primeiro usuário:
+   não usa Rojo, e "Não parece ter muita experiência com controle de versões ainda". Na entrevista
+   da spec da fase 2 (`specs/2026-11-13-fase-2-roblox/requirements.md`, "Decisões"), ele escolheu
+   a opção recomendada em cinco das seis perguntas e respondeu a do Studio com texto livre:
+   - **"Só salvar o place"** para desfazer (primeiro "Sem espelho"; reconfirmado depois que a
+     conversa de estratégia trouxe o "Os dois, como ideia" dele): o agente salva uma versão antes
+     de cada fase. Descartado: guardar o antes e o depois de cada script no git;
+   - **"Executor mínimo do kit"**, reconfirmado como **"Mantém o executor"** com os fatos dos
+     frameworks corrigidos (seção 5). Descartados: o TestEZ e o Jest, dependência nova (regra 3);
+   - **"Fase própria depois"** para a migração (a fase 7);
+   - sobre o teste no Studio, que não está instalado na máquina do autor do kit: "Me pergunte
+     novamente quando chegarmos nesta etapa em que ele é necessário.";
+   - **"Fica na fase 2"**: o gancho lê a edição pelo Studio MCP (pedido da conversa de
+     estratégia);
+   - **"Nesta fase, como modelo"**: a lista de riscos do Roblox, em `templates/roblox/`.
+
+   Sobre o fluxo da própria fase 2: "Completo pelo prompt" (revisor e validador a cada grupo, no
+   Opus, e guardião no PR). **É uma exceção à decisão 7**, a "Econômica no kit": a fase 2 não serve
+   de teste da receita `economico`. A spec foi aprovada com "Aprovo" (2026-11-13), com um commit
+   por grupo.
 
 **Em aberto, uma de cada vez:**
 1. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes

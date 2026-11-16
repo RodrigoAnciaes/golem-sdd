@@ -11,20 +11,21 @@ o diff inteiro do PR. Um commit por grupo na branch da fase, se o autor do kit a
 
 ## G1 — O registro e o roteiro (R1)
 
-- [ ] Trazer a `main` com a fase 1 e reconferir: a suíte (o total novo, escrito no
+- [x] Trazer a `main` com a fase 1 e reconferir: a suíte (o total novo, escrito no
   `validation.md`, item 1), a régua, e as linhas citadas no `requirements.md`. Linha que andou se
   corrige na spec, no mesmo commit.
-- [ ] Reler as páginas do Studio MCP e do histórico de versões: o que mudou desde a versão citada
+- [x] Reler as páginas do Studio MCP e do histórico de versões: o que mudou desde a versão citada
   no "Contexto" se corrige na spec antes de ir ao plano.
-- [ ] Recado à GER antes de tocar o `docs/plano-produto.md` (arquivo comum).
-- [ ] `docs/plano-produto.md`, seção 8: a decisão "Sem Rojo, migrar depois", as seis respostas da
+- [x] Recado à GER antes de tocar o `docs/plano-produto.md` (arquivo comum).
+- [x] `docs/plano-produto.md`, seção 8: a decisão "Sem Rojo, migrar depois", as seis respostas da
   entrevista e a exceção do fluxo completo à decisão 1 da fase 1, com as palavras e a data.
-- [ ] `docs/plano-produto.md`, seção 5: o caminho sem Rojo como o de entrada; o Rojo como destino
+- [x] `docs/plano-produto.md`, seção 5: o caminho sem Rojo como o de entrada; o Rojo como destino
   da migração; os fatos do "Contexto" com o link. Os itens "a conferir" de hoje que a spec
   resolveu deixam de dizer "a conferir"; os que ficam para o G2 dizem "a conferir na fase 2".
-- [ ] `docs/plano-produto.md`, seção 7: a linha da fase 2 com a entrega e o "pronto" do R9; a linha
+- [x] `docs/plano-produto.md`, seção 7: a linha da fase 2 com a entrega e o "pronto" do R9; a linha
   nova "Migração para o Rojo", no fim, "ordem a decidir"; as perguntas "Antes da fase 2".
-- [ ] Caminho rápido: o revisor confere cada fato contra a fonte.
+- [x] Caminho rápido: o revisor confere cada fato contra a fonte (sem bloqueio em duas rodadas;
+  os 7 achados da primeira, corrigidos).
 
 ## G2 — As conferências no Studio (R2)
 

@@ -10,8 +10,8 @@ os caminhos desta máquina (sem Python no PATH):
 
 1. **A suíte do ferramental:**
    `$PYT -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs`
-   → `<N> passed`, 0 falhas, 0 puladas, em que `<N>` é o total da `main` depois do merge da fase 1
-   (lido no G1 e escrito aqui: `____`) mais os 7 testes novos desta fase (5 do G3 e 2 do G5).
+   → `130 passed`, 0 falhas, 0 puladas: o total da `main` depois do merge da fase 1 (lido no G1,
+   em `7671fc1`: `123 passed in 60.16s`) mais os 7 testes novos desta fase (5 do G3 e 2 do G5).
    Pulado é falha até prova em contrário (regra 8).
 2. **Os testes novos, um por um**, com `-k`, cada um `1 passed`:
    `test_multi_edit_num_script_do_place_acende_codigo`,
@@ -130,7 +130,7 @@ Antes de começar: o autor do kit diz onde o Studio vai rodar (decisão 4 da ent
 ## Registro
 
 - `docs/plano-produto.md`: a linha da fase 2 marcada como feita, com a data, a branch e a pasta da
-  spec, como a da fase 0 (`:545` na `1f9f827`).
+  spec, como a da fase 0 (`:562` na `7671fc1`).
 - O `CHANGELOG.md`, se a `validar-fase` o pedir.
 - As perguntas em aberto da spec respondidas ou movidas, cada uma com o destino.
 - As lições da regra 7, se o G2 refutar uma hipótese desta spec (por exemplo, o `require` em modo
