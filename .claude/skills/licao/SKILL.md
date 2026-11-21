@@ -102,7 +102,7 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 - **Contradiz uma spec ou um ADR?** Diga ao usuário. Não corrija spec fechada por conta própria.
 - **É preferência do usuário ou estado do projeto?** Não é lição: vai para a memória do agente.
 
-## 4. Regerar o índice: sem isto a lição não é encontrada
+## 4. Regerar o índice: sem isto a lição não chega pelo gancho
 
 **Primeiro o `git add` da lição, depois o `--gerar`.** Se o índice só vê o que o git rastreia, sem o
 `git add` a lição fica de fora sem erro nenhum.
@@ -132,21 +132,21 @@ que **deve** recebê-la (o caminho ou o comando que o `gatilhos:` descreve, ou u
 procure o id na saída:
 
 ```bash
-echo '{"tool_input":{"file_path":"<caminho da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '<id>'
-echo '{"tool_input":{"command":"<comando da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '<id>'
+echo '{"tool_input":{"file_path":"<caminho da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
+echo '{"tool_input":{"command":"<comando da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
 ```
 
 - O id tem de sair. Se não sair, o gatilho não alcança a ação em que o erro acontece: corrija os
   `gatilhos:` (ou a `area`), regere o índice e rode de novo. Se a saída traz outras lições e não
   esta, pode ser o teto de lições por ação (`gancho_teto`, no `docs/guia-configuracao.md`): a que
   casa por `gatilhos:` vem antes das que vêm só pela área.
-- Rode também as três ações comuns que **não** devem receber a lição (o passo 2): nenhuma deve
-  trazer o id.
+- Com `gatilhos:`, rode também as três ações comuns que **não** devem receber a lição (o passo
+  2): nenhuma deve trazer o id. Sem eles, a lição chega em toda ação da área, por desenho.
 - Sem Python, ou com o gancho desligado, pule este passo e diga ao usuário que pulou.
 
 **Com os papéis** (o bloco "Como o Golem trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis
-de `docs/operacao-das-conversas.md`"), avise a conversa de método (MET), pelo id da sessão dela,
-numa linha: o id da lição, o commit ou o PR, e a regra que mudou junto ou "nenhuma regra mudou".
+de `docs/operacao-das-conversas.md`"), avise a conversa de método (MET) numa linha: o id da
+lição, o commit ou o PR, e a regra que mudou junto ou "nenhuma regra mudou".
 A MET confere a saúde do acervo (duplicatas, gatilhos, a regra que a lição pede). Sem MET aberta,
 o aviso vai à conversa gerente. A própria MET, quando registra, não se avisa.
 

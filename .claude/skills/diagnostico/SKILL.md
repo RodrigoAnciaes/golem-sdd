@@ -8,11 +8,11 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 **Lê:** o `golem.local.toml` da pasta principal do repositório, se existir.
 **Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal e, com o ok do
-usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, e, com o sim ao modo sem Python, a
-linha `gancho = "desligado"` no `golem.toml` da raiz da sessão (que viaja no git) e a linha do
-gancho no bloco "Como o Golem trabalha aqui" do `AGENTS.md`. Não instala nada.
+usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, o índice das lições, se defasado,
+e, com o sim ao modo sem Python, a linha `gancho = "desligado"` no `golem.toml` da raiz (que viaja
+no git) e a linha do gancho no bloco "Como o Golem trabalha aqui" do `AGENTS.md`. Não instala nada.
 **Decide:** nada sozinha. Pergunta antes de procurar, e grava o que achou só depois do ok do
-usuário. Esta é a versão mínima: o resto do diagnóstico (o `sh`, o git, o índice) fica para depois.
+usuário. Esta é a versão mínima: o resto do diagnóstico (o `sh`, o git) fica para depois.
 
 Por que existe: o gancho procura o Python na linha `python`, no `.venv`, no PATH e nos lugares do
 instalador do Windows. Fora disso, ele não acha, e o aviso dele diz onde procurou, **não** que a
@@ -146,7 +146,8 @@ echo '{"tool_input":{"command":"pytest -q"}}' | sh "$(git rev-parse --show-tople
   casa com `pytest` neste projeto.
 - Com o Python rodando, confira o índice das lições: `"<o Python gravado>" .claude/regua.py
   --conferir`. Lição escrita enquanto não havia Python fica fora do índice, e o gancho, que lê o
-  índice, nunca a entrega. Se o `--conferir` acusar, rode o `--gerar` (com o `git add` das lições
-  antes, como na skill `licao`) e diga ao usuário que o índice mudou e que o commit é dele.
+  índice, nunca a entrega. Se o `--conferir` acusar, peça o ok para regerar, com a saída dele no
+  texto da pergunta. Com o ok, o `git add` das lições e o `--gerar`, como na skill `licao`, e diga
+  ao usuário que o índice mudou e que o commit é dele.
 
 Conte ao usuário o que foi gravado e onde, e o resultado do teste.

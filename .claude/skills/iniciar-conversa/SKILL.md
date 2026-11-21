@@ -69,8 +69,9 @@ Não leia esta tabela inteira: ache a sua linha.
 ## 4. As lições da área, antes de tocar nela
 
 ```bash
-grep -h '^area:' --exclude=README.md docs/licoes/*.md | sort | uniq -c   # as áreas que têm lição
-grep -lE '^area: *"?deploy"?\s*$' --exclude=README.md docs/licoes/*.md    # as da sua área (aqui, deploy)
+# as áreas que têm lição; depois, as da sua área (aqui, deploy)
+grep -h '^area:' --exclude=README.md docs/licoes/*.md | sed -e 's/[[:space:]]*#.*//' -e "s/[\"' ]//g" | sort | uniq -c
+grep -lE "^area:[[:space:]]*[\"']?deploy[\"']?([[:space:]]|#|$)" --exclude=README.md docs/licoes/*.md
 ```
 
 A busca vai na pasta, e não no índice: a lição que entrou sem o índice regerado aparece também.

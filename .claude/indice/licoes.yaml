@@ -19,8 +19,8 @@ licoes:
     area: "processo"
     tipo: "premissa-falsa"
     data: "2026-11-21"
-    gatilho: "a regra 10 (\\\"sem uma falha vista que a justifique\\\") aplicada a um kit que outras pessoas vão usar, ao classificar os aprendizados de outro projeto com o mesmo método"
-    gatilhos: ["specs/[^/]+/(requirements|plan)\\.md$", "specs/roadmap\\.md$"]
+    gatilho: "a regra 10 («sem uma falha vista que a justifique») aplicada a um kit que outras pessoas vão usar, ao classificar os aprendizados de outro projeto com o mesmo método"
+    gatilhos: ["specs/[^/]+/(requirements|plan)\\.md$", "specs/roadmap\\.md$", "docs/plano-produto\\.md$"]
     arquivo: docs/licoes/num-produto-a-falha-vista-vem-do-uso.md
   o-aviso-entre-duas-perguntas-fica-no-raciocinio:
     area: "processo"

@@ -32,5 +32,5 @@ instância" ou "a biblioteca X sem versão nova por 12 meses". >>
 ## Evidência de uso
 
 << O que, no uso, vai mostrar que a decisão funciona, e quando olhar. Ex.: "a busca de horários
-abaixo de 300 ms no relatório do mês" ou "nenhuma lição fora do índice na próxima fase". Sem isso,
-a decisão fica em uso sem que ninguém saiba se deu certo. >>
+abaixo de 300 ms no relatório do mês". Sem isso, a decisão fica em uso sem que ninguém saiba se deu
+certo. >>

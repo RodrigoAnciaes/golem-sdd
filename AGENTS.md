@@ -179,9 +179,10 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
 
 10. **Simplicidade: o menor que resolve o problema de hoje.**
     - Nada "por precaução" ou "para o futuro": nem peça nova, nem validação extra, nem camada de
-      defesa sem uma falha vista que a justifique. Num produto, a falha vista pode vir do uso (o
-      projeto de quem usa, ou outro projeto com o mesmo método), escrita com a fonte: não se espera
-      vê-la no repositório do produto (lição `num-produto-a-falha-vista-vem-do-uso`).
+      defesa sem uma falha vista que a justifique. A falha vista pode vir do uso de quem recebe o
+      que você entrega (o relato de um usuário, um teste com jogadores, o projeto de quem usa um
+      kit), escrita com a fonte, sem precisar aparecer antes no repositório (lição
+      `num-produto-a-falha-vista-vem-do-uso`).
     - Reuse o que existe antes de criar. Arquivo, módulo, flag, config ou tabela nova pedem um caso
       real, com exemplo concreto na spec ou no PR.
     - Nada de abstração antes do terceiro uso real: duas cópias parecidas são melhores que uma
