@@ -91,6 +91,11 @@ Registre a mudança na tabela "Alterações de escopo durante a fase" do `plan.m
 - surgir migração de dados destrutiva, mudança de schema em produção ou alteração de credencial
 - a próxima ação gastar dinheiro além do teto aprovado na spec
 
+Com os papéis (o bloco "Como o Golem trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis de
+`docs/operacao-das-conversas.md`"), a pergunta de produto (o que o usuário final vê, o escopo) vai
+à conversa de estratégia (EST) no cartão de decisão, com o texto original, e não direto ao usuário
+(`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+
 ## Ao terminar o último grupo
 
 - `plan.md` reflete o que realmente foi feito

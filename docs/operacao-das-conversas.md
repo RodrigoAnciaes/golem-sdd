@@ -10,8 +10,8 @@ valem a pena quando há duas ou mais entregas andando ao mesmo tempo.
 **No app, no terminal ou no Codex.** A coordenação entre conversas por mensagem (uma conversa
 mandar mensagem a outra, a caixa de pergunta com botões) é só do **app desktop** do Claude Code. No
 Codex e no terminal, o usuário repassa as mensagens à mão: copia o PEDIDO da frente para a GER e o
-LIBERADO de volta. O método funciona igual; onde este documento diz "manda à GER", leia ali "o
-usuário leva à GER".
+LIBERADO de volta. O método funciona igual; onde este documento diz "manda à GER" (ou "à EST"),
+leia ali "o usuário leva à GER" (ou "à EST").
 
 A memória do agente guarda o que é sobre o usuário e o estado do dia. **A regra de fluxo mora
 aqui.** Quando as duas divergirem, este documento manda, e quem notar corrige a memória.
@@ -29,9 +29,9 @@ aqui.** Quando as duas divergirem, este documento manda, e quem notar corrige a 
 | frentes | uma conversa por entrega | executam uma fase ou uma correção, no próprio worktree, pelo fluxo do `WORKFLOW.md` | coordenar outra frente direto: o que afeta outra conversa passa pela GER |
 
 **O fluxo das decisões.** Com os papéis, **as decisões de produto passam pela EST**: o escopo, a
-prioridade, o que o usuário ou o cliente vê e o rumo. O usuário decide lá, e as conversas não
-divergem por ler a mesma pergunta de jeitos diferentes. A EST registra e avisa a GER; a GER repassa
-a quem executa. Três travas:
+prioridade, o que o usuário ou o cliente vê e o rumo. O usuário decide lá (as de método, na MET),
+e as conversas não divergem por ler a mesma pergunta de jeitos diferentes. A EST
+devolve a resposta à frente que perguntou e avisa a GER, que registra. Três travas:
 
 1. **Sem telefone sem fio.** A frente manda à EST o [cartão](#cartão-de-decisão) com o texto
    original: a pergunta, as opções e a consequência de cada uma. A EST o mostra ao usuário como
@@ -166,8 +166,8 @@ fim de turno termina, nesta ordem, com quatro itens:
 3. **Worktree:** `<caminho absoluto>` (branch `<branch>`), conferido na hora com
    `git rev-parse --show-toplevel` e `git branch --show-current`, nunca de memória. Sem worktree:
    "sem worktree".
-4. **Espera:** `<quem> — [<tipo>] <o quê>`, a última linha. `<quem>` é `usuário`, `GER`, `CI`, o
-   nome de quem está fora, ou `nada`. A etiqueta é opcional: `[decisão]`, `[texto]`, `[rápido]`,
+4. **Espera:** `<quem> — [<tipo>] <o quê>`, a última linha. `<quem>` é `usuário`, `GER`, `EST`, `CI`,
+   o nome de quem está fora, ou `nada`. A etiqueta é opcional: `[decisão]`, `[texto]`, `[rápido]`,
    `[agenda]`, `[spec]`.
 
 **O fecho curto.** Quando nada espera pelo usuário (a Espera não começa por `usuário`), o Resumo
