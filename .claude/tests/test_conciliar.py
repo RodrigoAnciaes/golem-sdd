@@ -98,6 +98,10 @@ PERMITIDAS = [
     ("  - << o que mais o projeto listar >>.",
      "  - nenhum além dos três acima.",
      "o kit não tem nível 3 a mais; o docs/operacao-das-conversas.md, uma cópia só, guarda a lacuna"),
+    ("  lá no mesmo commit.\n",
+     "  lá no mesmo commit. No kit, aquele arquivo guarda a lacuna do modelo, e a regra vale entre ele e o\n"
+     "  `templates/AGENTS.md`.\n",
+     "no kit, a lista de nível 3 difere da do docs/operacao-das-conversas.md, que serve ao modelo"),
     ("`--conferir` acusa a\n  divergência).\n",
      "`--conferir` acusa a\n  divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no\n"
      "  projeto dele (`README.md` do kit, \"Usando com o Codex\").\n",

@@ -98,7 +98,8 @@ Receita `completo`; o guia é `docs/guia-configuracao.md`.
   - nenhum além dos três acima.
 
   A mesma lista está em `docs/operacao-das-conversas.md`, "Níveis de autonomia": mudou aqui, muda
-  lá no mesmo commit.
+  lá no mesmo commit. No kit, aquele arquivo guarda a lacuna do modelo, e a regra vale entre ele e o
+  `templates/AGENTS.md`.
 - **Merge em duas chamadas:** primeiro a conferência do head e da base; depois, noutra chamada e
   com o LIBERADO (mais a palavra do usuário, no nível 3), o merge com o sha lido na saída. Ver
   `docs/operacao-das-conversas.md`, "Merge".

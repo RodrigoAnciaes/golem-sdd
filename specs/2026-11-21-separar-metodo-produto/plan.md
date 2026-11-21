@@ -88,9 +88,9 @@ grupo vai num PR à parte.
 
 ## G5 — Verificação
 
-- [ ] O `validation.md` inteiro, com a saída colada.
-- [ ] O guardião: o `revisor`, numa conversa ou subagente novo, sobre o diff inteiro do PR.
-- [ ] A spec e o código reconciliados.
+- [x] O `validation.md` inteiro, com a saída colada.
+- [x] O guardião: o `revisor`, numa conversa ou subagente novo, sobre o diff inteiro do PR.
+- [x] A spec e o código reconciliados.
 
 ## Alterações de escopo durante a fase
 
@@ -103,8 +103,9 @@ grupo vai num PR à parte.
 | 2026-11-21 | O `git add` do passo 4 do `README.md` leva também o `AGENTS.md`; o passo diz a saída esperada do `aplicar`; o caso sem Python pede o mesmo `git add`; o `docs/guia-configuracao.md` aponta a exceção sem Python | Num `AGENTS.md` juntado à mão, o `aplicar` acrescenta o bloco depois do `git add` do passo 3 | O agente, pelo revisor do G3 |
 | 2026-11-21 | A ref da lição `num-produto-a-falha-vista-vem-do-uso` deixa de citar a linha do `AGENTS.md` ("regra 10, primeiro item") | O G1 mudou a numeração, e a linha é outra no kit e no modelo | O agente, pelo revisor do G3 (quem muda, varre) |
 | 2026-11-21 | O G4 (a seção 8 do `docs/plano-produto.md`) sai desta fase; o texto fica numa nota na pasta da GER (`separacao-g4-secao-8.md`) e entra no PR do replanejar do roteiro | O `docs/plano-produto.md` está com a fase 2, que não mergeou; o replanejar já mexe nas seções 7 e 8, e o arquivo muda uma vez só | A GER, opção (a): "Fechem a fase sem o G4: G5, guardião e PEDIDO" (2026-11-21) |
+| 2026-11-21 | O `docs/guia-configuracao.md` manda quem está sem Python à skill `configurar` (o `aplicar` pendente), e não ao passo 4 do `README.md`; o `AGENTS.md` do kit diz que a lista de nível 3 difere da do `docs/operacao-das-conversas.md`, com uma `PERMITIDAS` nova | A troca à mão do passo 4 só vale para a `economico`; um agente no kit poderia tentar igualar as duas listas | O agente, pelos achados 1 e 3 do guardião |
 | 2026-11-21 | Na verificação do G1, conferir também que o bloco da raiz diz "Parar a cada parte: nunca" e que o `golem.teto_do_gancho()` dá 4 | O pedido da GER: a `completo` do kit grava a parada e o teto | O agente, dentro da spec |
 
 ## Estado para a retomada
 
-G1, G2 e G3 feitos em 2026-11-21, cada um com revisor sem bloqueio e validador "valida". O G4 saiu da fase (tabela acima). Falta o G5: o `validation.md` inteiro, o guardião e o PEDIDO.
+Fase verificada em 2026-11-21: G1, G2 e G3 com revisor sem bloqueio e validador "valida"; o G4 saiu (tabela acima); o G5 com o `validation.md` marcado e o guardião sem bloqueio. Falta o merge, pelo PEDIDO → LIBERADO.
