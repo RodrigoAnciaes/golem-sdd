@@ -8,7 +8,7 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 **Lê:** `docs/licoes/` (para não duplicar) e `docs/licoes/README.md` (o formato).
 **Escreve:** `docs/licoes/<id>.md`; **e obrigatoriamente** `.claude/indice/licoes.yaml`, pelo
-`--gerar`. Lição fora do índice **não é encontrada por ninguém**. Se a lição implicar ação
+`--gerar`. Lição fora do índice **não chega pelo gancho**. Se a lição implicar ação
 obrigatória, escreve também a regra no `AGENTS.md`.
 **Decide:** se é lição mesmo: os quatro motivos abaixo, e nada além deles.
 
@@ -102,7 +102,7 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 - **Contradiz uma spec ou um ADR?** Diga ao usuário. Não corrija spec fechada por conta própria.
 - **É preferência do usuário ou estado do projeto?** Não é lição: vai para a memória do agente.
 
-## 4. Regerar o índice: sem isto a lição não é encontrada
+## 4. Regerar o índice: sem isto a lição não chega pelo gancho
 
 **Primeiro o `git add` da lição, depois o `--gerar`.** Se o índice só vê o que o git rastreia, sem o
 `git add` a lição fica de fora sem erro nenhum.
@@ -113,9 +113,9 @@ python3 .claude/regua.py --gerar      # no Windows, python ou py -3
 python3 .claude/regua.py --conferir
 ```
 
-**Não é opcional.** Quem consulta as lições (a skill `iniciar-conversa`, um gancho, outra conversa)
-lê `.claude/indice/licoes.yaml`, não a pasta. Lição escrita e índice não regerado = lição que
-existe no repositório e **nunca chega** a quem toca a área.
+**Não é opcional.** O gancho, que entrega as lições a cada ação, lê `.claude/indice/licoes.yaml`,
+não a pasta. Lição escrita e índice não regerado = lição que existe no repositório e **nunca
+chega** a quem toca a área.
 
 Se o comando recusar o arquivo (id fora de `[a-z0-9-]`, id diferente do nome do arquivo), o
 problema está no frontmatter, não no comando.
@@ -123,9 +123,34 @@ problema está no frontmatter, não no comando.
 **Sem Python nesta máquina** (nenhum Python 3.8+ que rode, conferido como na skill `diagnostico`):
 pule o `--gerar` e o `--conferir` e diga ao usuário que pulou. A lição já vale para quem a busca
 em `docs/licoes/`; o índice fica defasado até alguém rodar a régua numa máquina com Python, e esse
-alguém faz o commit do índice.
+alguém faz o commit do índice (a skill `diagnostico` confere o índice quando acha o Python).
 
-## 5. Fechar
+## 5. Provar que a lição chega
+
+O índice em dia não prova que o gancho entrega a lição na ação certa. Rode o gancho com a ação
+que **deve** recebê-la (o caminho ou o comando que o `gatilhos:` descreve, ou um da área) e
+procure o id na saída:
+
+```bash
+echo '{"tool_input":{"file_path":"<caminho da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
+echo '{"tool_input":{"command":"<comando da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
+```
+
+- O id tem de sair. Se não sair, o gatilho não alcança a ação em que o erro acontece: corrija os
+  `gatilhos:` (ou a `area`), regere o índice e rode de novo. Se a saída traz outras lições e não
+  esta, pode ser o teto de lições por ação (`gancho_teto`, no `docs/guia-configuracao.md`): a que
+  casa por `gatilhos:` vem antes das que vêm só pela área.
+- Com `gatilhos:`, rode também as três ações comuns que **não** devem receber a lição (o passo
+  2): nenhuma deve trazer o id. Sem eles, a lição chega em toda ação da área, por desenho.
+- Sem Python, ou com o gancho desligado, pule este passo e diga ao usuário que pulou.
+
+**Com os papéis** (o bloco "Como o Golem trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis
+de `docs/operacao-das-conversas.md`"), avise a conversa de método (MET) numa linha: o id da
+lição, o commit ou o PR, e a regra que mudou junto ou "nenhuma regra mudou".
+A MET confere a saúde do acervo (duplicatas, gatilhos, a regra que a lição pede). Sem MET aberta,
+o aviso vai à conversa gerente. A própria MET, quando registra, não se avisa.
+
+## 6. Fechar
 
 Commit em português, com a lição no corpo da mensagem **e o `licoes.yaml` regerado junto**: os dois
 no mesmo commit, senão o índice chega defasado na `main`. Sem Python, o commit leva só a lição, e a
