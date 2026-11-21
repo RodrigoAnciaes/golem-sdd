@@ -23,15 +23,29 @@ aqui.** Quando as duas divergirem, este documento manda, e quem notar corrige a 
 | Papel | Conversa | Faz | Não faz |
 |---|---|---|---|
 | **GER** | a gerente | coordena as conversas; responde ao PEDIDO com LIBERADO (merge, recurso compartilhado, conversa nova); confere head e base antes de merge; mantém o [registro vivo](#o-registro-vivo-da-gerente-gerentemd), o `GERENTE.md` | discutir ideia ou rumo (isso é da EST); escrever código de entrega |
-| **EST** | a estratégia | discute prioridade e produto com o usuário; registra as decisões dele, com a pergunta e as palavras; avisa a GER de cada decisão | operar, liberar merge |
+| **EST** | a estratégia | discute prioridade e produto com o usuário; recebe das frentes as perguntas de produto e as leva a ele como vieram (abaixo, "O fluxo das decisões"); registra as decisões dele, com a pergunta e as palavras; avisa a GER de cada decisão | operar, liberar merge, repassar autorização |
 | **MET** | o método | cuida de como as conversas trabalham: o `AGENTS.md`, este documento, as skills, os agentes, os ganchos, as lições e a memória; observa o comportamento das conversas e, quando uma regra produz efeito ruim, propõe a correção ao usuário | prioridade e produto (EST); operação e merge (GER); mudar as configurações do usuário (ela propõe, ele aplica) |
 | **GUA** | o guardião: o agente `revisor` numa conversa nova (ou num subagente novo, sem o contexto de quem escreveu) | a revisão final do PR com código, quando o bloco "Como o Golem trabalha aqui" do `AGENTS.md` a pede, depois da revisão por grupo e antes do merge: lê o **diff inteiro do PR** contra a spec e as regras | revisar PR só de documentação ou só de testes (basta o revisor, no caminho rápido) |
 | frentes | uma conversa por entrega | executam uma fase ou uma correção, no próprio worktree, pelo fluxo do `WORKFLOW.md` | coordenar outra frente direto: o que afeta outra conversa passa pela GER |
 
-**O fluxo das decisões.** O usuário decide na EST, na MET ou na conversa que executa. A EST
-registra e avisa a GER; a GER repassa a quem executa. **A GER repassa informação, nunca
-autorização:** o ok do usuário para o merge de nível 3, texto a terceiros ou produção vale só dito
-na conversa que executa.
+**O fluxo das decisões.** Com os papéis, **as decisões de produto passam pela EST**: o escopo, a
+prioridade, o que o usuário ou o cliente vê e o rumo. O usuário decide lá, e as conversas não
+divergem por ler a mesma pergunta de jeitos diferentes. A EST registra e avisa a GER; a GER repassa
+a quem executa. Três travas:
+
+1. **Sem telefone sem fio.** A frente manda à EST o [cartão](#cartão-de-decisão) com o texto
+   original: a pergunta, as opções e a consequência de cada uma. A EST o mostra ao usuário como
+   veio, com a leitura de produto e o impacto nas outras frentes, e devolve a resposta com as
+   palavras exatas dele e a data.
+2. **O que fica na frente:** o "posso seguir para a próxima parte?", o detalhe de implementação
+   dentro da spec aprovada (regra 10 do `AGENTS.md`) e a aprovação da spec escrita. A pergunta de
+   produto da entrevista da spec vai à EST antes.
+3. **A autorização fica na conversa que executa.** A GER e a EST repassam informação, nunca
+   autorização. Valem só ditos ali:
+   - o ok do usuário para o merge de nível 3, o texto a terceiros e a produção;
+   - a ordem de operação que dispensa um ok (seguir entre grupos sem parar, por exemplo).
+
+Sem papéis, numa conversa só, o usuário decide na própria conversa.
 
 Quando o usuário traz uma ideia à GER, ela sugere levar à EST, ou responde ali mesmo se couber em
 poucas linhas.
@@ -196,7 +210,8 @@ Exemplo:
   o merge do pacote já explicado) vai direto na caixa, sem cartão.
 - **Um dono por assunto.** A pergunta que cruza conversas, só o dono faz: prioridade, produto e
   rumo, a EST; operação, merge e a vez nas filas, a GER; o detalhe e os oks da própria entrega, a
-  frente. As outras escrevem `Espera: EST — …` ou `Espera: GER — …` e não perguntam.
+  frente. As outras escrevem `Espera: EST — …` ou `Espera: GER — …` e não perguntam: a
+  pergunta de produto vai à EST no cartão, com o texto original ("O fluxo das decisões", acima).
 - **O silêncio nunca vale como sim**, e a recomendação de uma conversa nunca vira "você já tinha
   decidido". Só as palavras do usuário decidem.
 
