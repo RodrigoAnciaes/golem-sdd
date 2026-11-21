@@ -100,7 +100,8 @@ não é fim de turno: com o próximo grupo liberado, a conversa segue no mesmo t
   então voltar ao código.
 
 Com os papéis, a pergunta de produto desses pontos vai à EST no cartão, com o texto original, e
-não direto ao usuário (`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+não direto ao usuário (`docs/operacao-das-conversas.md`, "O fluxo das decisões"). Sem EST aberta,
+ela vai à GER, que oferece ao usuário abrir a EST.
 
 Achado fora do escopo não se corrige no meio da fase: vira lição (se cumprir um dos quatro
 motivos da regra 7), aviso à gerente ou um item na caixa de achados

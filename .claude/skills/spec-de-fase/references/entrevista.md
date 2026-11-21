@@ -39,6 +39,8 @@ anteriores não respondem.
   - A resposta volta com as palavras dele e a data, e é assim que entra na spec.
   - Ficam aqui o detalhe técnico e a aprovação da spec escrita
     (`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+  - Sem EST aberta, a pergunta vai à GER, que oferece ao usuário abrir a EST num cartão. Até a
+    resposta, a entrevista espera com `Espera: EST — …`.
   - Sem papéis, pergunte ao usuário direto.
 - **Registre a resposta na spec com a palavra do usuário**, principalmente termos de domínio.
 - **Resposta que implica fato técnico se confere.** "Já tenho acesso ao banco" leva duas perguntas

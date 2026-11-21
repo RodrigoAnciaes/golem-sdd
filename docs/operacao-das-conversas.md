@@ -46,6 +46,9 @@ registra a decisão, devolve a resposta à frente que perguntou e avisa a GER, q
    - o ok do usuário para o merge de nível 3, o texto a terceiros e a produção;
    - a ordem de operação que dispensa um ok (seguir entre grupos sem parar, por exemplo).
 
+**Sem EST aberta**, a pergunta de produto vai à GER, que oferece ao usuário abrir a EST num
+cartão. Até a resposta, a frente espera com `Espera: EST — …`.
+
 Sem papéis, numa conversa só, o usuário decide na própria conversa.
 
 Quando o usuário traz uma ideia à GER, ela sugere levar à EST, ou responde ali mesmo se couber em
