@@ -233,7 +233,13 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     mas não a troca de texto (G2, resposta 7); o desfazer é o histórico de versões;
   - **rodar os testes liga o jogo, e os scripts do jogo rodam** (G2, resposta 3): o código de
     dados do jogo roda a cada execução dos testes;
-  - o que aparece quando o Studio está fechado (a ferramenta do MCP falha) e o que fazer.
+  - o que aparece quando o Studio está fechado (a ferramenta do MCP falha) e o que fazer;
+  - **a oferta de o agente fazer a configuração do Studio pelo controle da tela** (ligar o servidor
+    MCP, registrar no Claude Code, desligar o "Data access" e as permissões de Open Cloud,
+    salvar o place no Roblox), como o G2 fez. No G2, o pedido de acesso nomeou o app
+    ("Roblox Studio", nível "full") e o autor do kit o aprovou (visto na sessão do G2, sem
+    arquivo). Que o controle da tela só existe no app desktop do Claude, com o "Computer use"
+    ligado, fica a conferir na documentação no G5, antes de o guia dizê-lo.
 - **R9. O "pronto" da fase** (a linha `:564` reescrita): num place de exemplo, sem Rojo, com o
   Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da
   fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de
@@ -281,7 +287,18 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   foi "Depois" (2026-11-15): o G2 e os grupos que dependem dele (G3 a G5) esperam. Com o Studio
   instalado, ele perguntou "oque você precisa que eu faça exatamente?" (2026-11-16) e depois
   disse "O estúdio está instalado e aberto [...] Se você achar necessário, eu posso dar permissão
-  para controlar minha tela." (2026-11-21): o G2 rodou nesse dia.
+  para controlar minha tela." (2026-11-21): o G2 rodou nesse dia. Para os grupos seguintes: "Sim,
+  siga com o G3" e "ok, pode seguir com o G4 depois" (2026-11-21).
+- **As mudanças do G2 no guia (R8), aprovadas:** "Essas mudanças estão ok ok" (2026-11-21), à
+  lista das cinco (o registro pelo PowerShell, a conversa nova, o "Data access" desligado, o
+  Ctrl+Z que não desfaz o que o agente escreve, os scripts do jogo que rodam com os testes).
+- **O guia oferece a configuração do Studio pelo controle da tela** (R8). As palavras dele, depois
+  de o G2 configurar o Studio assim: "eu achei super interessante você cointrolar minha tela para
+  fazer a configuração. [...] Então, você poderia oferecer isso para o usuário. Talvez mais para
+  frente nós possamos até sugerir o golem controlar a tela do usuário. Para fazer toda a
+  configuração do projeto." (2026-11-21). Nesta fase entra só a configuração do Studio; a do
+  projeto inteiro, segundo a GER (recado de 2026-11-21), vai à fila da fase 4, com a medida do
+  gasto, porque "não gastou muitos tokens" é impressão dele, sem medida.
 - **"Modo de jogo (Recomendado)"** (2026-11-21), à pergunta "Os testes do kit rodam no modo de
   jogo?", depois do G2 mostrar o `require` guardado em modo de edição. O executor roda em modo de
   jogo (R6). Descartado: clonar o módulo de teste em modo de edição, que só refresca o próprio

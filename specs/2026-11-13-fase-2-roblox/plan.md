@@ -170,20 +170,43 @@ conversa nova e o "Data access" (R2.1, R2.7, R8).
 
 ## G4 — O revisor e o validador leem o place (R4)
 
-- [ ] `.claude/agents/revisor.md`: as sete ferramentas de leitura no `tools:` (com o
+- [x] `.claude/agents/revisor.md`: as sete ferramentas de leitura no `tools:` (com o
   `list_roblox_studios`); o parágrafo do
   caminho sem Rojo (a lista de scripts recebida da conversa, o `script_read`).
-- [ ] `.claude/agents/validador.md`: as mesmas, mais o `execute_luau`, o `start_stop_play` e o
+- [x] `.claude/agents/validador.md`: as mesmas, mais o `execute_luau`, o `start_stop_play` e o
   `get_studio_state` (o executor roda em modo de jogo); o parágrafo do caminho sem Rojo (o
   executor, a linha de resumo, a mutação pulada no place e por quê).
-- [ ] Conferir, com o Studio ligado, que um revisor chamado tem o `script_read` e consegue ler um
+- [x] Conferir, com o Studio ligado, que um revisor chamado tem o `script_read` e consegue ler um
   script, e não tem o `multi_edit`.
-- [ ] Conferir, numa pasta sem o Studio MCP, que o revisor ainda abre e lê um arquivo.
-- [ ] Rodar o `aplicar` da fase 1 numa cópia e conferir que o `tools:` novo continua, e o `model:`
+- [x] Conferir, numa pasta sem o Studio MCP, que o revisor ainda abre e lê um arquivo.
+- [x] Rodar o `aplicar` da fase 1 numa cópia e conferir que o `tools:` novo continua, e o `model:`
   também.
-- [ ] Varredura: a description dos dois agentes, se mencionar o que mudou; o instalador do Codex
+- [x] Varredura: a description dos dois agentes, se mencionar o que mudou; o instalador do Codex
   regera as cópias dos agentes sem erro, numa cópia.
-- [ ] Suíte, revisor e validador.
+- [x] Suíte, revisor e validador: `128 passed`; revisor sem bloqueio na segunda rodada (o bloqueio
+  da primeira, o veredito do validador no place, corrigido); validador "valida", com as três
+  mutações pegas (2026-11-21).
+
+### O que o G4 conferiu (2026-11-21)
+
+Pelo `claude -p`, no worktree, com a prova (os prompts e as transcrições `saida-g4a.jsonl`,
+`saida-g4b.jsonl` e `saida-g4c.jsonl`) em `fase-2-g4-prova/`, na pasta de notas da GER. O `aplicar` e
+o Codex rodaram numa cópia sem transcrição guardada; o validador do G4 os refez e deu o mesmo:
+
+- **Com o Studio ligado** (`saida-g4a.jsonl`): o `init` lista o `revisor` entre os agentes (o
+  frontmatter é YAML válido). Chamado pela ferramenta Agent, ele disse ter só as sete ferramentas
+  de leitura do Studio e "`mcp__Roblox_Studio__multi_edit`: não tenho"; o `script_read` em
+  `game.ServerStorage.G2Modulo` devolveu `1→return 3`.
+- **Sem o servidor do Studio** (`--strict-mcp-config` com `{"mcpServers": {}}`, `saida-g4b.jsonl`):
+  o `revisor` aparece entre os agentes, disse ter só `Read`, `Grep`, `Glob` e `Bash`, avisa que não tem
+  as ferramentas do Studio e lê as três primeiras linhas do `AGENTS.md`.
+- **O `aplicar`**, numa cópia com os agentes novos: "nada mudou: o AGENTS.md e os agentes já seguem
+  o golem.toml"; o `tools:` e o `model:` dos dois continuam. O `test_aplicar_escreve_o_model_dos_dois_agentes`
+  prova o mesmo com o `model:` trocado.
+- **O Codex**, na mesma cópia: o instalador gerou 24 arquivos, e o `--conferir` deu ok.
+- **O validador com o Studio ligado** (`saida-g4c.jsonl`, rodado pelo validador do G4): disse ter
+  as 10 ferramentas do Studio do `tools:` e não ter o `multi_edit`; chamou só o
+  `list_roblox_studios` e o `get_studio_state` ("Current Studio Mode: Edit"), sem ligar o jogo.
 
 ## G5 — O executor, os modelos, os exemplos e o guia (R5 a R8, R10)
 
@@ -193,7 +216,10 @@ conversa nova e o "Data access" (R2.1, R2.7, R8).
   console `1 passed, 0 failed, 1 skipped`; sem teste, `0 passed, 0 failed, 0 skipped` e
   "nenhum teste encontrado"; com um teste que falha, `failed` e a linha da falha. Colar as saídas
   aqui.
-- [ ] `templates/roblox/tech-stack.md` e `templates/roblox/comandos-reais.md` (R5).
+- [ ] `templates/roblox/tech-stack.md` e `templates/roblox/comandos-reais.md` (R5). O
+  `comandos-reais.md` diz também que, ao chamar o revisor ou o validador, a conversa passa os
+  caminhos dos scripts que o `multi_edit` tocou no grupo: sem diff no git, é a entrada de que o
+  revisor precisa (`revisor.md`, "Código num place do Roblox Studio"; achado do revisor do G4).
 - [ ] `templates/roblox/licoes/`: as duas lições de exemplo (R7), com a fonte de cada fato.
 - [ ] `templates/roblox/regras-de-area.md`: a lista de riscos (R7). Cada candidata conferida na
   documentação do Roblox, com o link; a que não tiver fonte sai. De 5 a 8 regras.
@@ -219,4 +245,6 @@ conversa nova e o "Data access" (R2.1, R2.7, R8).
 | 2026-11-21 | O executor roda em modo de jogo (R6), e o validador ganha o `start_stop_play` e o `get_studio_state` (R4) | o `require` em modo de edição devolve o módulo guardado (G2, resposta 3) | "Modo de jogo (Recomendado)" (2026-11-21) |
 | 2026-11-21 | A convenção de nome dos testes é `_spec`, e não `.spec` (R6) | o ponto separa no caminho do Studio MCP (G2, resposta 6) | previsto no R2.6 da spec aprovada |
 | 2026-11-21 | A leitura nova do gancho é só a do `code` do `execute_luau` (R3) | o `multi_edit` já manda o caminho em `file_path` (G2, resposta 2) | previsto no `plan.md`, G2 ("nesse caso, o gancho já os lê") |
-| 2026-11-21 | O guia (R8): o Ctrl+Z sai como desfazer do que o agente escreve, e o desfazer é o histórico de versões; o guia explica o registro do servidor pelo PowerShell, a conversa nova e o "Data access" desligado; e avisa que rodar os testes roda os scripts do jogo | G2, respostas 1, 3 e 7 | a confirmar com o autor do kit antes do G5, o grupo do guia |
+| 2026-11-21 | O guia (R8): o Ctrl+Z sai como desfazer do que o agente escreve, e o desfazer é o histórico de versões; o guia explica o registro do servidor pelo PowerShell, a conversa nova e o "Data access" desligado; e avisa que rodar os testes roda os scripts do jogo | G2, respostas 1, 3 e 7 | "Essas mudanças estão ok ok" (2026-11-21) |
+| 2026-11-21 | O guia (R8) oferece que o agente faça a configuração do Studio pelo controle da tela, com o que a documentação disser de onde ele existe (a conferir no G5) | o G2 configurou o Studio assim | "você poderia oferecer isso para o usuário" (2026-11-21) |
+| 2026-11-21 | O `test_aplicar_escreve_o_model_dos_dois_agentes` (`.claude/tests/test_golem.py`, da fase 1) lê a linha `tools:` do próprio revisor, em vez de fixar `Read, Grep, Glob, Bash`; assim ele prova também que o `aplicar` mantém o `tools:` novo | o teste fixava a lista antiga e falhou com o G4 | detalhe de implementação (o R4 pede que o `aplicar` não colida com o `tools:`) |

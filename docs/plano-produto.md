@@ -461,7 +461,8 @@ reconferidos em 2026-11-15.
   - não há diff do git: o revisor lê o script atual pelo Studio MCP, com a lista dos scripts que o
     grupo mexeu;
   - os dois agentes ganham as ferramentas de leitura do Studio MCP no `tools:`; o validador ganha
-    também o `execute_luau`, para rodar os testes, e não faz mutação no place, porque não há cópia
+    também o `execute_luau`, o `start_stop_play` e o `get_studio_state`, para rodar os testes em
+    modo de jogo, e não faz mutação no place, porque não há cópia
     descartável;
   - o gancho ganha uma entrada para o `multi_edit` e o `execute_luau`, e lê o caminho do script e
     o código (o nome dos campos fica a conferir na fase 2);

@@ -60,7 +60,9 @@ que traz o nome do usuário:
     sessão antiga sem salvar depois da volta (`grep -n -e "MCP Permissions" -e DataStore -e "antes
     da primeira fase" -e "sem salvar"`, as quatro aparecem); e diz que o Ctrl+Z não desfaz o
     que o agente escreve e que os testes rodam os scripts do jogo (`grep -n -e "Ctrl+Z" -e
-    "scripts do jogo"`, os dois aparecem; G2, respostas 3 e 7).
+    "scripts do jogo"`, os dois aparecem; G2, respostas 3 e 7); e oferece a configuração do
+    Studio pelo controle da tela (`grep -n "controle da tela"` → aparece, e a frase cita o link
+    da documentação que diz onde ele existe).
 
 ## Verificações manuais
 
