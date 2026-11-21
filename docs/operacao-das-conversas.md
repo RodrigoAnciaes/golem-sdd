@@ -52,7 +52,7 @@ O estado das frentes mora num arquivo só, o **`GERENTE.md`**, na **raiz do proj
   Leia só a parte mais recente; o resto se busca com `grep` quando a tarefa pedir.
 - **Quando o app não deixa a GER escrever na pasta principal** (no app desktop, a escrita lá pode
   ser recusada a partir da sessão dela), o registro mora na pasta de notas da sessão gerente: a
-  pasta fora do repositório que o app dá a um grupo de sessões para deixarem notas umas às outras.
+  pasta fora do repositório que o app desktop abre para a sessão (`side-session-notes/local_<id>/`).
   A primeira linha dele diz onde está e por quê. A GER dá o caminho no pedido de cada conversa que
   abre, porque a conversa não o acha pelo `git rev-parse`; uma GER nova recebe o caminho de quem a
   abre (o usuário ou a GER anterior).

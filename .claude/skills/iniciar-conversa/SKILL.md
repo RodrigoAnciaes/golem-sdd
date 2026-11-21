@@ -25,9 +25,8 @@ git worktree list
 ```
 
 Se o projeto usa uma GER, o registro vivo dela (o lugar está em `docs/operacao-das-conversas.md`)
-diz quem está fazendo o quê. Se o pedido desta conversa dá o caminho do registro, leia-o lá. Senão,
-o registro fora do Git costuma morar na pasta principal, que um worktree não enxerga pelo caminho
-relativo. A pasta principal é o pai do `.git` comum:
+diz quem está fazendo o quê: no caminho que o pedido desta conversa der ou, sem ele, na pasta
+principal, que um worktree não enxerga pelo caminho relativo. A pasta principal é o pai do `.git` comum:
 
 ```bash
 dirname "$(git rev-parse --path-format=absolute --git-common-dir)"
