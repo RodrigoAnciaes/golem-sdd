@@ -95,7 +95,8 @@ Registre a mudança na tabela "Alterações de escopo durante a fase" do `plan.m
 Com os papéis (o bloco "Como o Golem trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis de
 `docs/operacao-das-conversas.md`"), a pergunta de produto (o que o usuário final vê, o escopo) vai
 à conversa de estratégia (EST) no cartão de decisão, com o texto original, e não direto ao usuário
-(`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+(`docs/operacao-das-conversas.md`, "O fluxo das decisões"). Sem EST aberta, ela vai à GER, que
+oferece ao usuário abrir a EST num cartão, e o turno espera com `Espera: EST — …`.
 
 ## Ao terminar o último grupo
 

@@ -10,7 +10,7 @@ gatilhos:
   - 'specs/roadmap\.md$'
   - 'docs/plano-produto\.md$'
 refs:
-  - "AGENTS.md:181-185 (regra 10, primeiro item: a falha vista)"
+  - "AGENTS.md, regra 10, primeiro item: a falha vista (a linha muda entre o kit e o modelo)"
   - "a correção do usuário, 2026-11-21: «a gente tem sempre que pensar no que as pessoas vão usar e não esperar acontecer»"
 ---
 

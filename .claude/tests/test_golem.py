@@ -201,8 +201,9 @@ def test_bloco_de_cada_receita(tmp_path, receita, trechos):
 
 
 def test_o_agents_md_e_os_agentes_batem_com_o_golem_toml():
-    """O que o aplicar gera a partir do golem.toml deste projeto é o que está no disco. No kit, sem
-    golem.toml, é a `economico`: é o que o usuário copia até a fase 4."""
+    """O que o aplicar gera a partir do golem.toml deste projeto é o que está no disco. No kit, é a
+    `completo` do golem.toml dele; o modelo que o usuário copia (`templates/AGENTS.md`), na
+    `economico`, é conferido pelo test_conciliar.py."""
     divergentes = [p.relative_to(RAIZ).as_posix() for p, (texto, _) in golem.esperado(RAIZ).items()
                    if golem._ler(p)[0] != texto]
     assert not divergentes, f"rode `python3 .claude/golem.py aplicar`: {divergentes}"
