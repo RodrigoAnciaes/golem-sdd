@@ -200,6 +200,10 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     6. o dado do jogador se salva também no `game:BindToClose`, além do `PlayerRemoving`;
     7. a conexão de evento que não serve mais se desconecta;
     8. o `task.wait` no lugar do `wait`.
+
+    No G5, sete tiveram fonte e entraram (a 1, 2, 3, 4, 6, 7 e 8, nessa ordem, numeradas de 1 a
+    7). A 5, o laço sem pausa, saiu: a busca na documentação da Roblox (o índice `llms.txt`, por
+    "timeout", "exhausted" e "yield") não achou uma página que a sustente.
   - **Os testes:** um teste copia as duas lições de exemplo para o `docs/licoes/` de uma cópia do
     kit, regera o índice e confere que o gancho as entrega a um `tool_input` do Studio MCP (a do
     executor num `execute_luau`); outro copia a lista de riscos para o `docs/regras-de-area.md` da
@@ -211,7 +215,8 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - conectar o Claude Code: o quick connect mostra um comando `claude mcp add ... Roblox_Studio`,
     a rodar na pasta do projeto, no PowerShell (no Git Bash, o `/c` vira `C:/`); e o servidor só
     aparece numa conversa nova do Claude Code (G2, resposta 1);
-  - **desligar as permissões de Open Cloud do Studio MCP** (MCP ⟩ MCP Permissions), seção por
+  - **desligar as permissões de Open Cloud do Studio MCP** (Configurações do Assistente ⟩
+    Permissões MCP, na interface em português), seção por
     seção: cada jogo começa no nível "Balanced", com os escopos de risco baixo e moderado ligados,
     e o "Safe" ainda deixa algumas ligadas; o kit não usa o `open_cloud_invoke` (ver "Contexto");
   - o aviso de que, no Studio, o `DataStore` é o de verdade: um teste que escreve nele muda o dado
@@ -220,13 +225,16 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     não há histórico de versões;
   - a pasta do projeto com git ao lado do place (uma pasta por jogo, como sugestão); copiar os
     modelos do R5 e do R7 (as lições para `docs/licoes/`, a lista de riscos para
-    `docs/regras-de-area.md`) e rodar `regua.py --gerar`, porque o gancho lê o índice e só cai no
-    Markdown sem ele (`licoes_relevantes.py:197-210`, `:269-272`);
+    `docs/regras-de-area.md`), fazer o `git add` deles e rodar `regua.py --gerar`, porque o gancho
+    lê o índice e só cai no Markdown sem ele (`licoes_relevantes.py:197-210`, `:269-272`), e a
+    régua só indexa o que o git conhece (`.claude/regua.py:26-28`). Como o kit chega à pasta muda
+    quando o kit virar plugin (fase de instalação; decisão do Golem central, 2026-11-21, pela
+    EST); o guia diz o caminho de hoje, o kit copiado;
   - pedir ao agente que ponha o executor; rodar os testes;
   - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase, e volta-se à versão
     salva pelo histórico, com os passos do Studio e do Creator Dashboard, o aviso de que restaurar
-    não publica, e o de que, depois do "Open Local Copy" e do
-    "Save to Roblox As", a sessão antiga se fecha sem salvar, para não gravar por cima da volta;
+    não publica, e o de que, depois do "Abrir cópia local" e do "Salvar na Roblox como" (na
+    interface em português), a sessão antiga se fecha sem salvar, para não gravar por cima da volta;
   - o que fica mais fraco sem Rojo (sem diff, sem mutação, sem git do código), com o caminho para
     migrar depois;
   - **o Ctrl+Z não desfaz o que o agente escreve:** ele desfaz a criação de um script pelo agente,
@@ -238,8 +246,11 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     MCP, registrar no Claude Code, desligar o "Data access" e as permissões de Open Cloud,
     salvar o place no Roblox), como o G2 fez. No G2, o pedido de acesso nomeou o app
     ("Roblox Studio", nível "full") e o autor do kit o aprovou (visto na sessão do G2, sem
-    arquivo). Que o controle da tela só existe no app desktop do Claude, com o "Computer use"
-    ligado, fica a conferir na documentação no G5, antes de o guia dizê-lo.
+    arquivo). Conferido no G5 na documentação do Claude Code: no app desktop (aba Code), o
+    controle da tela existe no macOS e no Windows, nos planos Pro, Max ou Ultra, ligado nas
+    configurações (`desktop.md`, "Let Claude use your computer"); no Claude Code de terminal,
+    só no macOS, como prévia (`computer-use.md`); nos dois, o usuário aprova cada app. O "só no
+    app desktop" era falso para o Mac.
 - **R9. O "pronto" da fase** (a linha `:564` reescrita): num place de exemplo, sem Rojo, com o
   Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da
   fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de

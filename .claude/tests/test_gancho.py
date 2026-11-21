@@ -1013,3 +1013,52 @@ def test_pasta_workspace_num_arquivo_nao_acende_codigo(acervo, sessao):
     acervo.gerar()
     assert acervo.invocar({"file_path": "C:/x/Workspace/notas.md"}, sessao) == ""
     assert ids_de(acervo.invocar({"file_path": "game.Workspace.Porta"}, sessao)) == ["da-area-codigo"]
+
+
+def test_licoes_de_exemplo_do_roblox_chegam_pelo_studio_mcp(acervo, tmp_path):
+    """As lições de `templates/roblox/licoes/`, copiadas para o `docs/licoes/` de um projeto, chegam
+    pelo gatilho: a do executor num `execute_luau`, a do Ctrl+Z num `multi_edit` (fase 2, R7)."""
+    for licao in sorted((RAIZ_DO_KIT / "templates" / "roblox" / "licoes").glob("*.md")):
+        shutil.copy2(licao, acervo.raiz / "docs" / "licoes" / licao.name)
+    acervo.gerar()
+    assert acervo.rodar_regua("--conferir").returncode == 0
+    executor = "os-testes-do-place-so-valem-com-o-jogo-ligado"
+    ctrl_z = "o-ctrl-z-nao-desfaz-o-texto-que-o-agente-escreveu"
+
+    def recebe(entrada: dict, nome: str) -> list:
+        sessao = tmp_path / nome     # uma sessão nova por ação: cada lição chega uma vez por sessão
+        sessao.mkdir()
+        return ids_de(acervo.invocar(entrada, sessao))
+
+    # Cada gatilho da lição do executor, sozinho.
+    so_golem = 'return require(game:GetService("ServerStorage").GolemTestes.Executor).rodar()'
+    so_require = "return require(game.ServerStorage.Moedas)"
+    assert executor in recebe({"code": so_golem, "datamodel_type": "Server"}, "s1")
+    assert executor in recebe({"code": so_require, "datamodel_type": "Edit"}, "s2")
+    # A do Ctrl+Z chega pelo gatilho num `multi_edit`, e não pela área: um arquivo em `src/` também
+    # acende `codigo`, e ela não pode vir com ele.
+    editar = {"file_path": "game.ServerStorage.Moedas", "datamodel_type": "Edit", "studio_id": "x",
+              "edits": [{"old_string": "return 1", "new_string": "return 2"}]}
+    assert ctrl_z in recebe(editar, "s3")
+    assert ctrl_z not in recebe({"file_path": "src/loja.luau"}, "s4")
+    assert ctrl_z not in recebe({"code": 'game.ServerStorage.Teste.Name = "x"'}, "s5")
+
+
+def test_riscos_do_roblox_chegam_num_multi_edit(acervo, sessao):
+    """A lista de riscos de `templates/roblox/regras-de-area.md`, copiada para o projeto, chega
+    inteira a quem edita um script do place (fase 2, R7)."""
+    modelo = RAIZ_DO_KIT / "templates" / "roblox" / "regras-de-area.md"
+    shutil.copy2(modelo, acervo.raiz / "docs" / "regras-de-area.md")
+    titulos = re.findall(r"^## (Regra \d+ — .+)$", modelo.read_text(encoding="utf-8"), re.M)
+    assert 5 <= len(titulos) <= 8, titulos
+    acervo.gerar()
+    entrada = {"file_path": "game.ServerScriptService.Loja", "datamodel_type": "Edit",
+               "studio_id": "x", "edits": [{"old_string": "", "new_string": "return {}"}]}
+    texto = acervo.invocar(entrada, sessao)
+    for titulo in titulos:
+        assert f"**{titulo}**" in texto, titulo
+    # Cada regra traz a própria fonte: um link da documentação da Roblox dentro do bloco dela.
+    blocos = re.split(r"\n(?=## Regra )", modelo.read_text(encoding="utf-8"))[1:]
+    assert len(blocos) == len(titulos)
+    for bloco in blocos:
+        assert "https://create.roblox.com/docs/" in bloco, bloco.splitlines()[0]

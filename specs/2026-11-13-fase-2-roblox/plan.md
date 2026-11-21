@@ -210,31 +210,66 @@ o Codex rodaram numa cópia sem transcrição guardada; o validador do G4 os ref
 
 ## G5 — O executor, os modelos, os exemplos e o guia (R5 a R8, R10)
 
-- [ ] `templates/roblox/Executor.luau` (R6), com a linha de crédito, e um exemplo de teste com um
+- [x] `templates/roblox/Executor.luau` (R6), com a linha de crédito, e um exemplo de teste com um
   que passa, um que se pula e nenhum que falha (o nome conforme o R2.6).
-- [ ] No Studio: pôr o executor e o exemplo pelo `multi_edit`, rodar em modo de jogo (R6) e ler no
+- [x] No Studio: pôr o executor e o exemplo pelo `multi_edit`, rodar em modo de jogo (R6) e ler no
   console `1 passed, 0 failed, 1 skipped`; sem teste, `0 passed, 0 failed, 0 skipped` e
   "nenhum teste encontrado"; com um teste que falha, `failed` e a linha da falha. Colar as saídas
   aqui.
-- [ ] `templates/roblox/tech-stack.md` e `templates/roblox/comandos-reais.md` (R5). O
+- [x] `templates/roblox/tech-stack.md` e `templates/roblox/comandos-reais.md` (R5). O
   `comandos-reais.md` diz também que, ao chamar o revisor ou o validador, a conversa passa os
   caminhos dos scripts que o `multi_edit` tocou no grupo: sem diff no git, é a entrada de que o
   revisor precisa (`revisor.md`, "Código num place do Roblox Studio"; achado do revisor do G4).
-- [ ] `templates/roblox/licoes/`: as duas lições de exemplo (R7), com a fonte de cada fato.
-- [ ] `templates/roblox/regras-de-area.md`: a lista de riscos (R7). Cada candidata conferida na
+- [x] `templates/roblox/licoes/`: as duas lições de exemplo (R7), com a fonte de cada fato.
+- [x] `templates/roblox/regras-de-area.md`: a lista de riscos (R7). Cada candidata conferida na
   documentação do Roblox, com o link; a que não tiver fonte sai. De 5 a 8 regras.
-- [ ] Testes:
+- [x] Testes:
   6. `test_licoes_de_exemplo_do_roblox_chegam_pelo_studio_mcp`;
   7. `test_riscos_do_roblox_chegam_num_multi_edit`.
-- [ ] `docs/guia-roblox.md` (R8). Fechar o Studio e pedir um `script_read`: anotar o que aparece,
+- [x] `docs/guia-roblox.md` (R8). Fechar o Studio e pedir um `script_read`: anotar o que aparece,
   para o guia.
-- [ ] A varredura do R10: `test_credito.py`, `README.md`.
-- [ ] Suíte, revisor e validador.
+- [x] A varredura do R10: `test_credito.py`, `README.md`.
+- [x] Suíte, revisor e validador: `130 passed`; revisor sem bloqueio na segunda rodada (os três
+  bloqueios da primeira, corrigidos); validador "valida" na segunda rodada, com as mutações das
+  lições pegas; o caso do `_spec` vazio, sem teste em Python, provado no Studio (2026-11-21).
+
+### O que o G5 conferiu (2026-11-21)
+
+Pelo `claude -p`, com a prova em `fase-2-g5-prova/`, na pasta de notas da GER:
+
+- **O executor no place** (`saida-g5a.jsonl`): o `multi_edit` criou
+  `game.ServerStorage.GolemTestes.Executor` e `game.ServerStorage.Exemplo_spec` com o texto dos
+  modelos. Em modo de jogo (`execute_luau` no `Server`), o `get_console_output` trouxe:
+  - com o exemplo: `1 passed, 0 failed, 1 skipped`;
+  - sem nenhum teste: `nenhum teste encontrado` e `0 passed, 0 failed, 0 skipped`;
+  - com um `Falha_spec` que falha de propósito: `FALHOU ServerStorage.Falha_spec > um teste que
+    falha: ServerStorage.Falha_spec:1: falhou de propósito` e `1 passed, 1 failed, 0 skipped`.
+
+  O `Falha_spec` foi apagado no fim, e o `Exemplo_spec` voltou ao nome.
+- **O executor corrigido, de novo no place** (`saida-g5c.jsonl`): o `multi_edit` trocou os três
+  trechos, e o `script_read` mostrou o texto igual ao do modelo. Com só um `Vazio_spec` com o texto
+  padrão de um ModuleScript novo (`local module = {} return module`): `nenhum teste encontrado` e
+  `0 passed, 0 failed, 0 skipped`. Com o exemplo de volta: `1 passed, 0 failed, 1 skipped`. O
+  `studio_id` muda quando o Studio é reaberto.
+- **O Studio sem place** (`saida-g5b-sem-place.jsonl`): o `list_roblox_studios` deu
+  `"mode":"Unavailable"`, `"state":"Place is not open"`, e o `script_read`, "Place is not open".
+- **O Studio fechado** (`saida-g5b-fechado.jsonl`): o servidor `Roblox_Studio` conectou, o
+  `list_roblox_studios` deu `{"studios":[]}`, e o `script_read`, "No Roblox Studio instances are
+  connected. Ask the user to confirm that Studio is running with a place open and the MCP server
+  enabled in Assistant settings." O place foi reaberto depois.
+- **As fontes da lista de riscos:** as páginas da documentação da Roblox citadas em cada regra,
+  baixadas em 2026-11-21, em `fontes/`. O laço sem pausa saiu, sem fonte: a busca no índice da
+  documentação (`fontes/roblox-llms.txt`, por "timeout", "exhausted" e "yield") está em
+  `fontes/busca-llms-laco-sem-pausa.txt`, com uma linha só, de uma classe sem relação.
+- **O controle da tela:** a documentação do Claude Code (`desktop.md` e `computer-use.md`, baixadas em
+  2026-11-21).
 
 ## G6 — Verificação
 
 - [ ] Percorrer o `validation.md` inteiro, com a saída real de cada comando.
-- [ ] A verificação manual 1 (o "pronto"), com o autor do kit, onde ele disse no G2.
+- [ ] A verificação manual 1 (o "pronto"), com o autor do kit, onde ele disse no G2. Com as
+  permissões de Open Cloud em Negar, salvas no place novo, conferir que o `script_read` e o
+  `multi_edit` funcionam (nota do revisor do G5: os prints das permissões são de outro place).
 - [ ] O guardião sobre o diff inteiro do PR.
 
 ## Alterações de escopo durante a fase
@@ -247,4 +282,9 @@ o Codex rodaram numa cópia sem transcrição guardada; o validador do G4 os ref
 | 2026-11-21 | A leitura nova do gancho é só a do `code` do `execute_luau` (R3) | o `multi_edit` já manda o caminho em `file_path` (G2, resposta 2) | previsto no `plan.md`, G2 ("nesse caso, o gancho já os lê") |
 | 2026-11-21 | O guia (R8): o Ctrl+Z sai como desfazer do que o agente escreve, e o desfazer é o histórico de versões; o guia explica o registro do servidor pelo PowerShell, a conversa nova e o "Data access" desligado; e avisa que rodar os testes roda os scripts do jogo | G2, respostas 1, 3 e 7 | "Essas mudanças estão ok ok" (2026-11-21) |
 | 2026-11-21 | O guia (R8) oferece que o agente faça a configuração do Studio pelo controle da tela, com o que a documentação disser de onde ele existe (a conferir no G5) | o G2 configurou o Studio assim | "você poderia oferecer isso para o usuário" (2026-11-21) |
+| 2026-11-21 | A lista de riscos (R7) tem 7 regras: o laço sem pausa saiu | sem fonte na documentação da Roblox | previsto no R7 ("a que não tiver fonte sai") |
+| 2026-11-21 | O guia (R8) diz onde o controle da tela existe pela documentação: no app desktop, no Windows e no macOS; no terminal, só no macOS | o "só no app desktop" era falso para o Mac | conferência prevista no R8 |
+| 2026-11-21 | Os passos de copiar o kit e os modelos para o projeto (R8 e verificação manual 1) dizem que mudam quando o kit virar plugin (fase de instalação) | a decisão do Golem central ("Confirmo", 2026-11-21, pela EST) | pedido da GER (2026-11-21) |
+| 2026-11-21 | O guia (R8) usa os nomes da interface em português (Permissões MCP, Negar, Equilibrado, Seguro, Abrir cópia local, Salvar na Roblox como), com prints guardados em `fase-2-g5-prova/interface/`; o passo 10 da verificação manual 1 acompanha | a interface do Studio do autor do kit é em português | achado do revisor do G5 |
+| 2026-11-21 | O executor avisa "nenhum teste encontrado" quando nenhum teste roda, e não só sem módulo `_spec`; a lista de riscos corrige a Regra 6 (o objeto destruído se desconecta sozinho) e põe as fontes que faltavam nas regras 3 e 4; o guia manda o `git add` antes do `--gerar` | achados do revisor do G5 | detalhe de implementação |
 | 2026-11-21 | O `test_aplicar_escreve_o_model_dos_dois_agentes` (`.claude/tests/test_golem.py`, da fase 1) lê a linha `tools:` do próprio revisor, em vez de fixar `Read, Grep, Glob, Bash`; assim ele prova também que o `aplicar` mantém o `tools:` novo | o teste fixava a lista antiga e falhou com o G4 | detalhe de implementação (o R4 pede que o `aplicar` não colida com o `tools:`) |

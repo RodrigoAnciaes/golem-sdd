@@ -55,9 +55,9 @@ que traz o nome do usuário:
 11. **O crédito:** `grep -c "templates/roblox/Executor.luau" .claude/tests/test_credito.py` → `1`, e
     a primeira linha do `Executor.luau` é `-- Golem SDD · …` (o `test_credito.py`, dentro da suíte,
     confere a linha).
-12. **O guia (R8):** `docs/guia-roblox.md` cita as permissões de Open Cloud a desligar (MCP ⟩ MCP
-    Permissions), o `DataStore` de verdade, o salvar no Roblox antes da primeira fase e o fechar a
-    sessão antiga sem salvar depois da volta (`grep -n -e "MCP Permissions" -e DataStore -e "antes
+12. **O guia (R8):** `docs/guia-roblox.md` cita as permissões de Open Cloud a desligar (Configurações do
+    Assistente ⟩ Permissões MCP), o `DataStore` de verdade, o salvar no Roblox antes da primeira fase e o fechar a
+    sessão antiga sem salvar depois da volta (`grep -n -e "Permissões MCP" -e DataStore -e "antes
     da primeira fase" -e "sem salvar"`, as quatro aparecem); e diz que o Ctrl+Z não desfaz o
     que o agente escreve e que os testes rodam os scripts do jogo (`grep -n -e "Ctrl+Z" -e
     "scripts do jogo"`, os dois aparecem; G2, respostas 3 e 7); e oferece a configuração do
@@ -74,8 +74,8 @@ teste salvo no Roblox.
       Studio MCP seguindo só o `docs/guia-roblox.md`.
    2. Criar uma pasta de projeto fora do kit, com `git init`, e copiar para ela o kit e os modelos
       de `templates/roblox/` como o guia manda: as lições de exemplo em `docs/licoes/`, a lista de
-      riscos em `docs/regras-de-area.md`, e rodar `regua.py --gerar`. Abrir o Claude Code nessa
-      pasta.
+      riscos em `docs/regras-de-area.md`, o `git add` deles e o `regua.py --gerar`. Abrir o Claude
+      Code nessa pasta. Este passo muda quando o kit virar plugin (fase de instalação).
    3. Pedir: "ponha o executor de testes no place". Ver, no Explorer do Studio, o ModuleScript do
       executor no lugar do R6.
    4. Pedir uma fase pequena pela `spec-de-fase`: um ModuleScript `Moedas` em `ServerStorage`, com
@@ -95,7 +95,7 @@ teste salvo no Roblox.
       desfaça, e ver `3 passed` de novo.
    9. Na `validar-fase` do projeto de exemplo, ver o "validado" com a linha de resumo citada.
    10. Por último, voltar à versão do passo 5 seguindo só o guia (Janela ⟩ Histórico da versão ⟩ ⋮
-       ⟩ Open Local Copy ⟩ Save to Roblox As). Fechar a sessão antiga do Studio sem salvar,
+       ⟩ Abrir cópia local ⟩ Arquivo ⟩ Salvar na Roblox como). Fechar a sessão antiga do Studio sem salvar,
        reabrir o place pelo Roblox e ver, nele, que o `Moedas` sumiu.
 
    Esperado: todos os "ver" acontecem. Anotar aqui a saída do console dos passos 7 e 8.
@@ -120,7 +120,9 @@ teste salvo no Roblox.
 - **Outra ferramenta do Studio MCP** (o `script_read`): o `matcher` não casa (teste 3).
 - **Uma pasta `Workspace` num caminho de arquivo:** não acende `codigo` (teste 5).
 - **O Studio fechado no meio da fase:** o guia diz o que aparece e o que fazer; conferido no G5.
-- **Lição copiada sem regerar o índice:** o guia manda rodar `regua.py --gerar` (R8).
+- **Lição copiada sem regerar o índice:** o guia manda o `git add` e o `regua.py --gerar` (R8).
+- **Um `_spec` vazio** (o texto padrão de um ModuleScript novo): o executor imprime "nenhum teste
+  encontrado" (G5, no Studio).
 
 ## Requisitos da constituição
 
