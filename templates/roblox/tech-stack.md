@@ -40,7 +40,9 @@ permissões de Open Cloud do Studio MCP ficam desligadas.
 
 O código no place, nos serviços de sempre (`ServerScriptService` para o servidor,
 `ReplicatedStorage` para o que o cliente também usa, `ServerStorage` para o que só o servidor vê). Os
-testes são ModuleScripts com o sufixo `_spec`, ao lado do que testam. Antes de cada fase, o agente
+testes são ModuleScripts com o sufixo `_spec`, ao lado do que testam, num dos serviços em que o
+executor procura (`ServerScriptService`, `ServerStorage`, `ReplicatedStorage`, `ReplicatedFirst`,
+`StarterPlayer`, `StarterGui`, `Workspace`). Antes de cada fase, o agente
 salva uma versão do place no Roblox.
 
 ## Requisitos não-funcionais

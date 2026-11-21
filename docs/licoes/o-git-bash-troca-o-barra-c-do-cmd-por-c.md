@@ -9,7 +9,7 @@ refs:
   - "specs/2026-11-13-fase-2-roblox/plan.md (Respostas do G2, resposta 1)"
 gatilhos:
   - '\bmcp\s+add\b'
-  - '\bcmd(\.exe)?\s+/c\b'
+  - '\bcmd(\.exe)?"?\s+"?/c\b'
 ---
 
 **O que se achava:** que o comando que o Studio mostra para conectar o Claude Code
@@ -22,7 +22,8 @@ passá-lo a um programa nativo. Rodado nele, o `claude mcp add` respondeu "Added
 Roblox_Studio with command: cmd.exe C:/ %LOCALAPPDATA%\Roblox\mcp.bat", e o `claude mcp get
 Roblox_Studio` mostrou `Args: C:/ %LOCALAPPDATA%\Roblox\mcp.bat` e "Failed to connect", "connection
 timed out after 30000ms". O mesmo comando no PowerShell gravou `Args: /c %LOCALAPPDATA%\Roblox\mcp.bat`
-e deu `Status: √ Connected` (2026-11-21, Claude Code 2.1.323).
+e deu `Status: √ Connected` (2026-11-21, Claude Code 2.1.323; visto na sessão do G2, sem
+arquivo próprio).
 
 **Como perceber da próxima vez:**
 1. Um `claude mcp get <servidor>` que mostra `C:/` no lugar do `/c` nos `Args`, ou um servidor que

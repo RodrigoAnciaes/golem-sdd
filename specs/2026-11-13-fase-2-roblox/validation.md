@@ -29,7 +29,7 @@ que traz o nome do usuário:
    O `file_path` do `multi_edit` o gancho já lia antes da fase (G2, resposta 2).
 4. **A régua:** `$PY .claude/regua.py --conferir` → sai com código 0, sem divergência. As lições de
    exemplo em `templates/roblox/licoes/` não entram no índice do kit
-   (`grep -c roblox .claude/indice/licoes.yaml` → `0`, salvo lição real da regra 7 sobre Roblox).
+   (`grep -c "templates/roblox" .claude/indice/licoes.yaml` → `0`).
 5. **O Codex:** numa cópia do repositório, `$PY .claude/instalar_codex.py` e depois ler o
    `.codex/hooks.json` gerado → só os dois `matcher` de antes da fase, `Bash` e `apply_patch` (os
    `MATCHERS`, `.claude/instalar_codex.py:39`).

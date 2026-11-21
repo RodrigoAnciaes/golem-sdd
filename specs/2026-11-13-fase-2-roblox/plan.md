@@ -269,7 +269,12 @@ Pelo `claude -p`, com a prova em `fase-2-g5-prova/`, na pasta de notas da GER:
 - [ ] Percorrer o `validation.md` inteiro, com a saída real de cada comando.
 - [ ] A verificação manual 1 (o "pronto"), com o autor do kit, onde ele disse no G2. Com as
   permissões de Open Cloud em Negar, salvas no place novo, conferir que o `script_read` e o
-  `multi_edit` funcionam (nota do revisor do G5: os prints das permissões são de outro place).
+  `multi_edit` funcionam. No place de teste do G2 ao G5 isso já se viu: o Negar ficou salvo às
+  16:39 (`fase-2-g5-prova/interface/permissoes-negar-salvas.jpg`: "Personalizado", Negar em
+  cada seção, o Salvar apagado), antes da primeira chamada da rodada 1 do G2 (16:40:56), e
+  todas as rodadas depois leram e editaram scripts. Conferir também o caminho da falha com o
+  executor final (o g5a rodou o executor anterior) e se a conversa nova é do app desktop ou do
+  terminal (o G2 só provou no terminal; achados do guardião).
 - [ ] O guardião sobre o diff inteiro do PR.
 
 ## Alterações de escopo durante a fase

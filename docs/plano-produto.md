@@ -440,8 +440,9 @@ reconferidos em 2026-11-15.
 
 - **O Studio MCP oficial**, segundo a [documentação](https://create.roblox.com/docs/studio/mcp):
   - vem embutido no Studio e se liga em Assistant ⟩ … ⟩ Manage MCP Servers ⟩ "Enable Studio as MCP
-    server"; o quick connect liga, entre outros, o Claude Code e o Codex. Na configuração por
-    JSON, o servidor se chama `Roblox_Studio`;
+    server"; o quick connect tem, entre outros, o Claude Code e o Codex, e para o Claude Code ele
+    mostra um comando `claude mcp add` a rodar na pasta do projeto (fase 2, G2, resposta 1). Na
+    configuração por JSON, o servidor se chama `Roblox_Studio`;
   - os scripts: o `script_read` lê pelo caminho com pontos (`game.ServerScriptService.MyScript`);
     o `script_search` busca pelo nome, e o `script_grep`, por um texto em todos os scripts; o
     `multi_edit` edita, e cria o script se o caminho não existe;
@@ -464,8 +465,9 @@ reconferidos em 2026-11-15.
     também o `execute_luau`, o `start_stop_play` e o `get_studio_state`, para rodar os testes em
     modo de jogo, e não faz mutação no place, porque não há cópia
     descartável;
-  - o gancho ganha uma entrada para o `multi_edit` e o `execute_luau`, e lê o caminho do script e
-    o código (o nome dos campos fica a conferir na fase 2);
+  - o gancho ganha uma entrada para o `multi_edit` e o `execute_luau`: o caminho do script chega
+    em `file_path`, que ele já lia, e o código em `code`, que ele passou a ler (fase 2, G2,
+    resposta 2);
   - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase, e volta-se pelo
     [histórico de versões](https://create.roblox.com/docs/projects/version-history) (Window ⟩
     Version History ⟩ ⋮ ⟩ Open Local Copy ⟩ Save to Roblox As, ou Creator Dashboard ⟩ Restore).
@@ -495,8 +497,9 @@ reconferidos em 2026-11-15.
   mínimo**, modelo do kit, que imprime no formato do TestEZ; o framework entra na migração.
 - **Como rodar:**
   1. **pelo Studio MCP**, o caminho da fase 2: o `execute_luau` roda o executor, e o
-     `get_console_output` traz o resumo, sem credencial nenhuma. A conferir na fase 2: se o
-     `require` em modo de edição enxerga uma edição recente, ou se os testes precisam de play;
+     `get_console_output` traz o resumo, sem credencial nenhuma. Os testes rodam com o jogo
+     ligado: em modo de edição, o `require` devolve a versão guardada de um módulo, mesmo
+     depois de editado (fase 2, G2, resposta 3);
   2. **o `run-in-roblox`**, fora: o último commit é de 2020-07-20 (a v0.3.0);
   3. **a API Open Cloud de execução de Luau, sem abrir o Studio** ([documentação](https://create.roblox.com/docs/cloud/reference/features/luau-execution)),
      fora da fase 2:

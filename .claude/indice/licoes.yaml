@@ -34,7 +34,7 @@ licoes:
     tipo: "armadilha"
     data: "2026-11-21"
     gatilho: "registrar o servidor MCP do Roblox Studio no Claude Code com o comando que o quick connect do Studio mostra, rodado pela ferramenta Bash (Git Bash) no Windows"
-    gatilhos: ["\\bmcp\\s+add\\b", "\\bcmd(\\.exe)?\\s+/c\\b"]
+    gatilhos: ["\\bmcp\\s+add\\b", "\\bcmd(\\.exe)?\"?\\s+\"?/c\\b"]
     arquivo: docs/licoes/o-git-bash-troca-o-barra-c-do-cmd-por-c.md
   o-grep-do-git-for-windows-aborta-com-i-e-varios-e:
     area: "processo"
