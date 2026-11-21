@@ -105,7 +105,8 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   no lugar de `python3`, aqui e em todo o kit. As cópias para o Codex (`.agents/skills/`, `.codex/`)
   também são geradas: mudou uma skill ou um agente em `.claude/`, rode
   `python3 .claude/instalar_codex.py` e faça o commit das cópias junto (`--conferir` acusa a
-  divergência).
+  divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no
+  projeto dele (`README.md`, "Usando com o Codex").
 - << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>
 
 ---
@@ -231,7 +232,8 @@ justifica. >>
 ## Skills e agentes
 
 Versionados em `.claude/skills/` e `.claude/agents/`, e as cópias do Codex em `.agents/skills/` e
-`.codex/agents/`: clonar o repositório reproduz o ambiente nos dois agentes.
+`.codex/agents/` (no projeto que usa o kit; ver "Convenções"): clonar o repositório reproduz o
+ambiente nos dois agentes.
 
 O fluxo normal é `spec-de-fase` → `implementar-fase` → `validar-fase`, com `licao` sempre que a
 regra 7 disparar e `replanejar-roadmap` quando o plano envelhecer. Os agentes `revisor` e

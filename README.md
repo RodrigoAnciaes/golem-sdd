@@ -162,7 +162,8 @@ quem quer ver a forma sem rodar a skill. A skill `iniciar-sdd` usa três deles (
 ## Usando com o Codex
 
 O Codex lê o mesmo `AGENTS.md`, mas procura o resto em outros lugares. A fonte continua sendo
-`.claude/`; um instalador gera as cópias que o Codex lê, e elas vão para o git com o projeto.
+`.claude/`; um instalador gera as cópias que o Codex lê, e elas vão para o git com o projeto. O
+repositório do kit não traz as cópias: elas nascem no seu projeto, no passo 1 abaixo.
 
 | No Claude Code | No Codex | De onde vem |
 |---|---|---|

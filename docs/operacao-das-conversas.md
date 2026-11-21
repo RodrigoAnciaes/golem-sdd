@@ -50,6 +50,10 @@ O estado das frentes mora num arquivo só, o **`GERENTE.md`**, na **raiz do proj
 - **Quem escreve:** só a GER. As outras conversas leem e mandam o texto à GER.
 - **Como se lê de um worktree:** a pasta principal é o pai do `git rev-parse --git-common-dir`.
   Leia só a parte mais recente; o resto se busca com `grep` quando a tarefa pedir.
+- **Quando o app não deixa a GER escrever na pasta principal** (no app desktop, a escrita lá pode
+  ser recusada a partir da sessão dela), o registro mora na pasta de notas da sessão gerente. A
+  primeira linha dele diz onde está e por quê, e a GER dá o caminho no pedido de cada conversa que
+  abre, porque a conversa não o acha pelo `git rev-parse`.
 - **Se o registro e o git discordarem**, o git manda: pare e avise a GER, que corrige o registro.
 
 Uma GER nova (outra sessão) abre por este arquivo e reconfere no git o que ele diz.

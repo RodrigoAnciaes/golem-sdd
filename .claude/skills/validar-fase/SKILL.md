@@ -18,8 +18,20 @@ Percorra `specs/AAAA-MM-DD-<<nome>>/validation.md` item por item.
 
 - **Verificações automatizadas:** rode cada comando e **mostre a saída real**. Nada de "deve
   passar": cole o que apareceu, incluindo a contagem de testes.
-- **Verificações manuais:** liste os passos para o usuário executar e espere a confirmação dele.
-  Você não marca item manual como pronto sozinho.
+- **Verificações manuais pelo `claude -p`:** rode-as você, numa pasta descartável fora do
+  projeto, com o kit no head da fase, e cole da transcrição (a saída com
+  `--output-format stream-json`, ou a sessão em `~/.claude/projects/`) o trecho que o critério
+  pede. Rode as rodadas que o item diz, e não mais: cada uma é uma sessão inteira, no limite de uso
+  do usuário, que ele aprovou junto com a spec.
+  - No `-p` não há a ferramenta de pergunta: a pergunta da skill sai em texto, e se responde com
+    `claude -p --resume <id da sessão> "<resposta>"`.
+  - As permissões que o teste precisa vão na linha (`--allowedTools` ou `--permission-mode`).
+  - O `-p` lê o `CLAUDE.md` global do usuário: não é uma máquina limpa. Registre isso no item
+    quando o critério depende da configuração.
+  - Uma rodada não prova comportamento do agente: o critério de comportamento pede duas.
+  - Sem o CLI do Claude Code (no Codex, por exemplo), o item vai ao usuário, como os de baixo.
+- **Verificações manuais pelo usuário:** liste os passos para o usuário executar e espere a
+  confirmação dele. Você não marca item manual como pronto sozinho.
 - **Casos de borda:** exercite-os de fato; se não houver como, diga que não foram cobertos.
 - **Requisitos da constituição:** confira dependências contra `specs/tech-stack.md` e as convenções
   contra os arquivos de referência.

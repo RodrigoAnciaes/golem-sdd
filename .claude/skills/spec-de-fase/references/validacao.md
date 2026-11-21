@@ -13,7 +13,7 @@ e não valida nada.
 | Bloco | Conteúdo |
 |---|---|
 | Verificações automatizadas | comando literal + resultado esperado, um bloco por comando |
-| Verificações manuais | passo a passo que uma pessoa executa: abrir X, fazer Y, ver Z |
+| Verificações manuais | passo a passo que uma pessoa executa: abrir X, fazer Y, ver Z; cada uma diz quem executa: o agente pelo `claude -p` (com a transcrição como prova e o número de rodadas) ou o usuário (só o que precisa dos olhos dele) |
 | Casos de borda | entrada vazia, valor limite, falha de dependência externa |
 | Requisitos da constituição | nenhuma dependência fora da stack, convenções seguidas, RNF da fase |
 | Registro | changelog, roadmap marcado, perguntas em aberto resolvidas |

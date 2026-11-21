@@ -15,9 +15,20 @@
 
 ## Verificações manuais
 
-Passo a passo que uma pessoa executa: abrir X, fazer Y, ver Z.
+Passo a passo que uma pessoa executa: abrir X, fazer Y, ver Z. Cada uma diz quem a executa:
 
-> Ex.: Abrir `localhost:8000/agenda`, escolher o médico 1 e amanhã, ver a lista começando às 8h00.
+- **pelo `claude -p`:** o que não precisa dos olhos do usuário (uma skill de ponta a ponta, o que
+  o agente grava ou responde). O agente roda numa pasta descartável fora do projeto, e a prova é a
+  transcrição: diga o que procurar nela e quantas rodadas (cada uma é uma sessão inteira, no limite
+  de uso do usuário; o critério de comportamento do agente pede duas);
+- **pelo usuário:** só o que precisa dos olhos dele, como os botões no app, o jogo no Studio ou o
+  desenho de uma tela.
+
+> Ex. (pelo `claude -p`, duas rodadas): numa cópia descartável do head da fase, pedir "implementar
+> a fase"; esperado: na transcrição, o turno termina ao fim do grupo 1 esperando o ok, sem revisor.
+>
+> Ex. (pelo usuário): Abrir `localhost:8000/agenda`, escolher o médico 1 e amanhã, ver a lista
+> começando às 8h00.
 
 ## Casos de borda
 

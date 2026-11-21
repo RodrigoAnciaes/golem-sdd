@@ -28,9 +28,11 @@ git -C "$principal" check-ignore -q golem.local.toml && echo ignorado || echo "N
 
 - A pasta principal é a do repositório, e não a do worktree: o `golem.local.toml` não viaja para
   os worktrees, e o gancho o procura lá **se a raiz da sessão não tiver a linha**.
-- Se já há uma linha `python` na pasta principal, mostre-a ao usuário: ela será substituída no fim.
-- Se o arquivo **não** está ignorado pelo git, diga isso e proponha a linha `golem.local.toml` no
-  `.gitignore` antes de gravar. O caminho é desta máquina e traz o nome do usuário.
+- Se já há uma linha `python` na pasta principal, ponha-a no texto da pergunta do passo 2, com o
+  aviso de que ela será substituída no fim.
+- Se o arquivo **não** está ignorado pelo git, diga isso no texto da pergunta do passo 2 e, no
+  pedido de ok para gravar, proponha também a linha `golem.local.toml` no `.gitignore`. O caminho é
+  desta máquina e traz o nome do usuário.
 
 ## 2. Perguntar
 
@@ -46,8 +48,8 @@ houver botões: **"Você tem Python instalado nesta máquina?"**
 
 | Resposta | O que fazer |
 |---|---|
-| Sim, e sei onde | Peça o caminho do `python.exe` (ou do `python`). Tire as aspas duplas, se ele colar com elas. Se o caminho tiver aspa simples (`'`), recuse e peça outro: a linha não a aceita. Teste (passo 4). Se rodar, grave (passo 5). Se não rodar, diga isso e ofereça a busca. |
-| Sim, mas não sei onde | Procure (passo 4). Mostre o que achou e grave depois do ok. Se não achar nada, dê o comando de instalação (passo 6). |
+| Sim, e sei onde | Peça o caminho do `python.exe` (ou do `python`). Tire as aspas duplas, se ele colar com elas. Se o caminho tiver aspa simples (`'`), recuse e peça outro: a linha não a aceita. Teste (passo 4). Se rodar, grave (passo 5). Se não rodar, ofereça a busca numa pergunta que diz, no próprio texto, que o caminho não rodou. |
+| Sim, mas não sei onde | Procure (passo 4). Peça o ok para gravar com o que achou no texto da pergunta, e grave depois do ok. Se não achar nada, dê o comando de instalação (passo 6). |
 | Não sei | O mesmo que a anterior. |
 | Não | Faça a mesma busca. Se achar, pergunte: "Achei um em `...`. Quer usar este?". Se não achar, dê o comando de instalação (passo 6). |
 
@@ -109,8 +111,9 @@ Depois da instalação, volte ao passo 4.
 
 Se o usuário não quiser instalar agora, ofereça o **modo sem Python**: a linha
 `gancho = "desligado"` no `golem.toml` da raiz desliga o gancho e o aviso, e as lições passam a
-ser buscadas à mão em `docs/licoes/`. Com o sim, ponha a linha `gancho = "desligado"` no
-`golem.toml` da raiz (crie o arquivo se não existir), mostrando a mudança antes; o resto da
+ser buscadas à mão em `docs/licoes/`. A mudança (a linha e o arquivo em que ela entra) vai no
+texto da própria oferta. Com o sim, ponha a linha `gancho = "desligado"` no `golem.toml` da raiz
+(crie o arquivo se não existir); o resto da
 configuração fica como está (`docs/guia-configuracao.md`). Sem Python, o `aplicar` não roda: troque
 à mão, no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, só a linha do gancho por esta, que é
 a que o `aplicar` gera:

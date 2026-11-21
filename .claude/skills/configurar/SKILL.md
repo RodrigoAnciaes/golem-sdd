@@ -22,7 +22,9 @@ usuário perguntar algo que esta skill não responde.
 cat golem.toml 2>/dev/null || echo "sem golem.toml: vale a receita economico"
 ```
 
-Se o arquivo existe, mostre-o. As linhas das chaves que esta skill não pergunta (todas, menos
+Se o arquivo existe, ponha-o inteiro no texto da primeira pergunta do passo 2: um texto à parte,
+entre a leitura e a pergunta, se perde (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`).
+As linhas das chaves que esta skill não pergunta (todas, menos
 `receita`, `revisor` e `parar_a_cada_parte`) ficam como estão.
 
 ## 2. Perguntar
@@ -109,9 +111,9 @@ o caminho que o primeiro a passar imprime (o `sys.executable`), e não o nome do
 **Sem nenhum Python:** faça a pergunta do Python da skill `diagnostico`, passos 2 a 6, sem a oferta
 do modo sem Python do passo 6 (ela vem aqui, uma vez só). Se ainda não houver Python:
 - o `golem.toml` fica escrito;
-- diga que o `aplicar` fica pendente e que o bloco do `AGENTS.md` continua com a configuração
-  anterior até o `aplicar` rodar numa máquina com Python;
-- ofereça o modo sem Python, com botões ("Desligar o gancho das lições?", sim ou não). Com o sim,
+- ofereça o modo sem Python, com botões ("Desligar o gancho das lições?", sim ou não), e ponha no
+  texto da própria pergunta que o `aplicar` fica pendente e que o bloco do `AGENTS.md` continua com
+  a configuração anterior até o `aplicar` rodar numa máquina com Python. Com o sim,
   ponha `gancho = "desligado"` no `golem.toml`. Isso vale já, sem Python: o gancho para de avisar a
   cada ação, e as lições passam a ser buscadas à mão em `docs/licoes/`. Troque também, à mão, no
   bloco do `AGENTS.md`, só a linha do gancho pela que o `aplicar` gera (o texto está no passo 6 da
