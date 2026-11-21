@@ -29,40 +29,134 @@ o diff inteiro do PR. Um commit por grupo na branch da fase, se o autor do kit a
 
 ## G2 — As conferências no Studio (R2)
 
-- [ ] Perguntar ao autor do kit onde o Studio vai rodar (decisão 4 da entrevista) e esperar a
+- [x] Perguntar ao autor do kit onde o Studio vai rodar (decisão 4 da entrevista) e esperar a
   resposta.
-- [ ] Ligar o Studio MCP ao Claude Code pelo quick connect; anotar o nome do servidor (a lista de
+- [x] Ligar o Studio MCP ao Claude Code pelo quick connect; anotar o nome do servidor (a lista de
   ferramentas da sessão).
-- [ ] Num place de teste (Baseplate novo, salvo no Roblox), com um gancho de registro temporário
+- [x] Num place de teste (Baseplate novo, salvo no Roblox), com um gancho de registro temporário
   **fora do repositório do kit** (um `.claude/settings.local.json` numa pasta de teste, que grava o
   JSON de entrada num arquivo), anotar os campos do `multi_edit` e do `execute_luau` (R2.2).
-- [ ] O `require` em modo de edição (R2.3): criar um ModuleScript que devolve `1`, ler pelo
+- [x] O `require` em modo de edição (R2.3): criar um ModuleScript que devolve `1`, ler pelo
   `execute_luau`, mudar para `2` pelo `multi_edit`, ler de novo. Anotar o que voltou.
-- [ ] O `get_console_output` (R2.4): dois `print` em duas chamadas do `execute_luau`; anotar se o
+- [x] O `get_console_output` (R2.4): dois `print` em duas chamadas do `execute_luau`; anotar se o
   segundo `get_console_output` traz os dois ou só o novo.
-- [ ] O `save_place` (R2.5): chamar e ver no Window ⟩ Version History se apareceu uma versão.
-- [ ] O nome com ponto (R2.6): `multi_edit` em `game.ServerStorage.Moedas.spec` e ver no Explorer
+- [x] O `save_place` (R2.5): chamar e ver no Window ⟩ Version History se apareceu uma versão.
+- [x] O nome com ponto (R2.6): `multi_edit` em `game.ServerStorage.Moedas.spec` e ver no Explorer
   se nasceu um script `Moedas.spec` ou um `spec` dentro de `Moedas`; e o `script_read` do mesmo
   caminho.
-- [ ] O Ctrl+Z (R2.7): editar um script pelo `multi_edit`, apertar Ctrl+Z no Studio e ver se a
+- [x] O Ctrl+Z (R2.7): editar um script pelo `multi_edit`, apertar Ctrl+Z no Studio e ver se a
   edição sumiu.
-- [ ] Anotar as sete respostas abaixo, com a saída colada, e na tabela de alterações o que mudou no
+- [x] Anotar as sete respostas abaixo, com a saída colada, e na tabela de alterações o que mudou no
   desenho. Anotar também se os campos do R2.2 já se chamam `file_path` ou `command`: nesse caso, o
   gancho já os lê: o teste 1 do G3 passa a provar só o `POR_CAMINHO`, e o teste 2 não prova código
   novo. O que mudar o R3 ao R8 volta ao autor do kit antes do G3.
-- [ ] Revisor e validador sobre as anotações: o validador confere que cada uma tem a saída e que
-  as conclusões seguem dela (ele não tem o `multi_edit` e não repete as edições).
+- [x] Revisor e validador sobre as anotações: o validador confere que cada uma tem a saída e que
+  as conclusões seguem dela (ele não tem o `multi_edit` e não repete as edições). Feito (2026-11-21): revisor sem bloqueio
+  na segunda rodada; validador "valida" (123 passed, a régua ok).
 
 ### Respostas do G2
 
-(a preencher no G2)
+Feitas em 2026-11-21, nesta máquina, com o Roblox Studio instalado pelo autor do kit, num place
+novo (Baseplate) salvo no Roblox com a "Criação em equipe" ligada, como vem por padrão. O Studio foi
+operado pela conversa, com o controle da tela que ele ofereceu ("Se você achar necessário, eu posso
+dar permissão para controlar minha tela", 2026-11-21). As chamadas ao Studio MCP rodaram pelo
+`claude -p` (decisão do autor do kit, pela EST, 2026-11-13): as rodadas 1 a 3 numa pasta descartável
+fora do repositório, com `--strict-mcp-config`, `--mcp-config` só com o servidor do Studio e
+`--settings` com um gancho `PreToolUse` que gravava o JSON de entrada de cada chamada; a rodada 5
+na mesma pasta, sem o gancho; a rodada 4 na pasta do worktree, sem configuração extra (uma conversa nova, como a de um usuário).
+Rodadas: 1 (11 passos), 2 (8), 3 (9), 4 e 5 (só leitura), todas `success`. Os nomes da conta do
+Roblox foram trocados por `<usuário>` abaixo. **A prova** (os prompts das rodadas 1 a 5, as transcrições
+`saida*.jsonl`, o `entradas.jsonl` e o print do histórico) está fora do repositório, na pasta de
+notas da GER, `fase-2-g2-prova/`; o que sustenta cada resposta está colado aqui.
+
+1. **O servidor (R2.1): `Roblox_Studio`.**
+   - O quick connect do Studio (Configurações do Assistente ⟩ Servidores MCP ⟩ Conexão rápida ⟩
+     Claude Code CLI) não liga sozinho: mostra o comando `claude mcp add --transport stdio
+     Roblox_Studio -- "cmd.exe" "/c" ...` e "Execute este comando no diretório do seu projeto"
+     (visto na tela, sem arquivo).
+   - Rodado pela ferramenta Bash (Git Bash), o comando gravou
+     `Args: C:/ %LOCALAPPDATA%\Roblox\mcp.bat` e não conectou ("connection timed out after
+     30000ms"); pelo PowerShell, gravou `Args: /c %LOCALAPPDATA%\Roblox\mcp.bat`, e o
+     `claude mcp get Roblox_Studio` deu `Status: √ Connected` (a lição
+     `o-git-bash-troca-o-barra-c-do-cmd-por-c`). Rodado no worktree, o `claude mcp add` gravou o
+     registro sob a pasta principal do projeto ("File modified: ...\.claude.json [project: <pasta
+     principal>]").
+   - Esta conversa, já aberta, não viu o servidor: a `ToolSearch` por "Roblox_Studio" respondeu "No
+     matching deferred tools found".
+   - Uma conversa nova (rodada 4), aberta no worktree, viu: no `init`, `{'name': 'Roblox_Studio',
+     'status': 'connected', 'source': 'local'}`, com 37 ferramentas `mcp__Roblox_Studio__*`, e o
+     `script_read` funcionou.
+   - Na mesma tela, o "Data access" estava ligado ("To help improve the Studio experience,
+     provide Roblox with access to prompt information."). Ele foi desligado, porque o kit não
+     precisa dele e ele manda os prompts à Roblox (leitura do agente, a levar ao guia).
+2. **Os campos (R2.2)**, como o gancho os recebeu no `tool_input`:
+   - `multi_edit`: `{"file_path": "game.ServerStorage.G2Modulo", "edits": [{"old_string": "",
+     "new_string": "return 1"}], "className": "ModuleScript", "datamodel_type": "Edit",
+     "studio_id": "..."}`. **O caminho chega em `file_path`**, que o gancho já lê
+     (`licoes_relevantes.py:470`);
+   - `execute_luau`: `{"code": "print(\"G2-A\", ...) return ...", "datamodel_type": "Edit",
+     "studio_id": "..."}`. **O código chega em `code`**, que o gancho ainda não lê;
+   - `script_read`: `{"target_file": "game.ServerStorage.Moedas.spec", "studio_id": "..."}`;
+   - `start_stop_play`: `{"is_start": true, "studio_id": "..."}`.
+
+   O gancho lê só `file_path` e `command` (`licoes_relevantes.py:470-472`), nunca `code`. O
+   validador do G2 o rodou com essas entradas e duas lições de teste (uma com gatilho
+   `game\.ServerStorage`, outra com gatilho no texto do `code`): o `multi_edit` entregou a
+   primeira; o `execute_luau` não entregou nada; o mesmo texto do `code` posto em `command`
+   entregou as duas. Por isso, o teste 1 do G3 prova só o `POR_CAMINHO`, e a leitura
+   nova do G3 é só a do `code`.
+3. **O `require` em modo de edição (R2.3): devolve o módulo guardado.**
+   - O `G2Modulo` com `return 1`: o `execute_luau` (Edit) devolveu `1`. Trocado para `return 2`
+     pelo `multi_edit` ("Modified G2Modulo (ModuleScript) with 1 edits applied"), a mesma leitura
+     devolveu `1`. Na rodada 2, o `script_read` mostrou `return 2`, e o `require` (Edit) ainda
+     devolveu `1`.
+   - **O clone:** `require(game.ServerStorage.G2Modulo:Clone())` (Edit) devolveu `2`. Na rodada 3,
+     um `G2Chamador` com `return require(game.ServerStorage.G2Modulo)`, clonado e chamado
+     (`require(game.ServerStorage.G2Chamador:Clone())`), devolveu `1`: o clone refresca o próprio
+     módulo, e o que ele chama por `require` continua o guardado.
+   - **O modo de jogo:** `start_stop_play` com `is_start: true` ("Game Started"; o
+     `get_studio_state` disse "Current Studio Mode: Play", "Available DataModels: Client,
+     Server"), o `execute_luau` com `datamodel_type` `Server` devolveu `2`, e o `start_stop_play`
+     com `is_start: false` voltou ao modo de edição ("Game Stopped").
+   - **Os scripts do jogo rodam no modo de jogo:** na rodada 3, um Script
+     `game.ServerScriptService.G2Script` com `print("G2-SCRIPT rodou")`; ligado o jogo, o
+     `get_console_output` trouxe "G2-SCRIPT rodou".
+4. **O console (R2.4): o `print` do `execute_luau` chega nele; na sessão de edição, o log é
+   cumulativo.** O primeiro `get_console_output` trouxe "DataModel Loading ... | `<usuário>` joined
+   live editing session. | G2-A 1"; o segundo, o mesmo e mais "G2-B 1". Nas duas jogadas (rodadas 2
+   e 3), o `get_console_output` trouxe só o daquela jogada ("G2-C 2"; "G2-SCRIPT rodou"). O
+   `execute_luau` também devolve o valor do `return`.
+5. **O `save_place` (R2.5): grava uma versão.** A resposta: `{"location":"TeamCreate",
+   "status":"Saved","version":3,"message":"Saved to Roblox."}`. Em Janela ⟩ Histórico da versão
+   apareceu a v3 (a do `version: 3`), às 16:42; a chamada foi às 16:41:27. A v1 e a v2 são do
+   "Salvar na Roblox" que criou o place, às 16:38. Na interface em português, o menu é "Janela ⟩
+   Histórico da versão".
+6. **O nome com ponto (R2.6): o ponto separa.** O `multi_edit` em `game.ServerStorage.Moedas.spec`
+   respondeu "Created spec (ModuleScript)", e os descendentes do `ServerStorage` passaram a ser
+   `ServerStorage.Moedas [Folder]` e `ServerStorage.Moedas.spec [ModuleScript]`: ele criou uma pasta
+   `Moedas` e um ModuleScript `spec` dentro dela (visto também no Explorer). A convenção do R6
+   passa a ser o sufixo `_spec`.
+7. **O Ctrl+Z (R2.7): desfaz a criação de um script, e não a troca de texto.**
+   - Depois da rodada 1, Editar ⟩ Desfazer (Ctrl+Z) apagou de uma vez a pasta `Moedas` e o `spec`, a
+     última criação (no Explorer: antes, `Moedas` ⟩ `spec` e `G2Modulo`; depois, só `G2Modulo`).
+   - Na rodada 3, a última chamada foi a troca de texto do `G2Modulo` (`return 2` → `return 3`),
+     depois da criação do `G2Script`. O Ctrl+Z no Studio deixou o `G2Modulo` com `return 3` (rodadas
+     4 e 5, `script_read`) e apagou o `G2Script` ("Script not found at path:
+     game.ServerScriptService.G2Script", rodada 5). A troca de texto pelo `multi_edit` não entrou
+     no desfazer do Studio. Foi uma tentativa só, com o Ctrl+Z apertado com o foco na janela 3D.
+
+**O que muda no desenho** (na tabela abaixo): o executor roda em modo de jogo, e rodar os testes
+roda também os scripts do jogo (R2.3, R6, R8); a convenção é `_spec` (R2.6); o G3 lê o `code` do
+`execute_luau`, e o `file_path` do `multi_edit` já é lido (R2.2); o guia não oferece o Ctrl+Z como
+desfazer do que o agente escreveu, só o histórico de versões, e explica o registro do servidor, a
+conversa nova e o "Data access" (R2.1, R2.7, R8).
 
 ## G3 — O gancho vê o Studio MCP (R3)
 
 - [ ] `.claude/settings.json`: a terceira entrada `PreToolUse`, com o `matcher` das duas
   ferramentas (com o nome do servidor do G2 ou um padrão que não dependa dele) e o mesmo conteúdo
   de `hooks` (`command`, `timeout`, `statusMessage`).
-- [ ] `.claude/hooks/licoes_relevantes.py`: ler os campos do G2 como caminho e como comando; o
+- [ ] `.claude/hooks/licoes_relevantes.py`: ler o `tool_input.code` do `execute_luau` como comando; o
   `POR_CAMINHO` com os serviços na forma `game.<Serviço>`; a docstring `:9-13`.
 - [ ] Testes em `.claude/tests/test_gancho.py`:
   1. `test_multi_edit_num_script_do_place_acende_codigo`;
@@ -78,8 +172,8 @@ o diff inteiro do PR. Um commit por grupo na branch da fase, se o autor do kit a
 - [ ] `.claude/agents/revisor.md`: as sete ferramentas de leitura no `tools:` (com o
   `list_roblox_studios`); o parágrafo do
   caminho sem Rojo (a lista de scripts recebida da conversa, o `script_read`).
-- [ ] `.claude/agents/validador.md`: as mesmas, mais o `execute_luau` (e o `start_stop_play` e o
-  `get_studio_state`, se o G2 mandar rodar em modo de jogo); o parágrafo do caminho sem Rojo (o
+- [ ] `.claude/agents/validador.md`: as mesmas, mais o `execute_luau`, o `start_stop_play` e o
+  `get_studio_state` (o executor roda em modo de jogo); o parágrafo do caminho sem Rojo (o
   executor, a linha de resumo, a mutação pulada no place e por quê).
 - [ ] Conferir, com o Studio ligado, que um revisor chamado tem o `script_read` e consegue ler um
   script, e não tem o `multi_edit`.
@@ -94,7 +188,7 @@ o diff inteiro do PR. Um commit por grupo na branch da fase, se o autor do kit a
 
 - [ ] `templates/roblox/Executor.luau` (R6), com a linha de crédito, e um exemplo de teste com um
   que passa, um que se pula e nenhum que falha (o nome conforme o R2.6).
-- [ ] No Studio: pôr o executor e o exemplo pelo `multi_edit`, rodar pelo `execute_luau` e ler no
+- [ ] No Studio: pôr o executor e o exemplo pelo `multi_edit`, rodar em modo de jogo (R6) e ler no
   console `1 passed, 0 failed, 1 skipped`; sem teste, `0 passed, 0 failed, 0 skipped` e
   "nenhum teste encontrado"; com um teste que falha, `failed` e a linha da falha. Colar as saídas
   aqui.
@@ -120,4 +214,8 @@ o diff inteiro do PR. Um commit por grupo na branch da fase, se o autor do kit a
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
-| | | | |
+| 2026-11-21 | As verificações manuais e as conferências que não precisam dos olhos do autor do kit rodam pelo `claude -p`, numa pasta descartável fora do kit, com a transcrição como prova | decisão do autor do kit na ideação da EST: "Ok, vamos seguir sua recomendação." (2026-11-13), repassada pela GER | o autor do kit, na EST |
+| 2026-11-21 | O executor roda em modo de jogo (R6), e o validador ganha o `start_stop_play` e o `get_studio_state` (R4) | o `require` em modo de edição devolve o módulo guardado (G2, resposta 3) | "Modo de jogo (Recomendado)" (2026-11-21) |
+| 2026-11-21 | A convenção de nome dos testes é `_spec`, e não `.spec` (R6) | o ponto separa no caminho do Studio MCP (G2, resposta 6) | previsto no R2.6 da spec aprovada |
+| 2026-11-21 | A leitura nova do gancho é só a do `code` do `execute_luau` (R3) | o `multi_edit` já manda o caminho em `file_path` (G2, resposta 2) | previsto no `plan.md`, G2 ("nesse caso, o gancho já os lê") |
+| 2026-11-21 | O guia (R8): o Ctrl+Z sai como desfazer do que o agente escreve, e o desfazer é o histórico de versões; o guia explica o registro do servidor pelo PowerShell, a conversa nova e o "Data access" desligado; e avisa que rodar os testes roda os scripts do jogo | G2, respostas 1, 3 e 7 | a confirmar com o autor do kit antes do G5, o grupo do guia |

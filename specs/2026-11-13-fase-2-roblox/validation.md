@@ -1,10 +1,11 @@
 # Fase 2: Roblox mínimo, sem Rojo — Validação
 
-O contrato de merge. Cada item se marca com a saída real, no head que vai ao PR. Os comandos usam
-os caminhos desta máquina (sem Python no PATH):
+O contrato de merge. Cada item se marca com a saída real, no head que vai ao PR. A máquina da fase
+não tem Python no PATH; os comandos usam dois caminhos, ditos aqui pelo papel, e não pelo caminho,
+que traz o nome do usuário:
 
-- `PYT` = `"C:\Users\rodri\Documents\Rodrigo\Insper\ProjetoImportExport\agent_validation_env\.venv\Scripts\python.exe"`
-- `PY` = `"C:\Users\rodri\AppData\Local\Programs\Python\Python312\python.exe"`
+- `PYT` = o `python.exe` do venv de testes do ferramental (com o pytest), fora do repositório;
+- `PY` = o Python 3.12 do instalador oficial, em `%LOCALAPPDATA%\Programs\Python\Python312\`.
 
 ## Verificações automatizadas
 
@@ -21,12 +22,11 @@ os caminhos desta máquina (sem Python no PATH):
    `test_pasta_workspace_num_arquivo_nao_acende_codigo`,
    `test_licoes_de_exemplo_do_roblox_chegam_pelo_studio_mcp`,
    `test_riscos_do_roblox_chegam_num_multi_edit`.
-3. **Os testes pegam o defeito** (o validador, numa cópia descartável): tirar a leitura do campo
-   do `multi_edit` do `licoes_relevantes.py` faz o teste 1 falhar; tirar a entrada nova do
+3. **Os testes pegam o defeito** (o validador, numa cópia descartável): tirar a leitura do
+   `tool_input.code` do `licoes_relevantes.py` faz o teste 2 falhar; tirar a entrada nova do
    `settings.json` faz o teste 4 falhar; tirar `game.ServerScriptService` do `POR_CAMINHO` faz o
    teste 1 falhar; trocar `game.Workspace` por `Workspace` no `POR_CAMINHO` faz o teste 5 falhar.
-   Se o G2 mostrou que o campo já era `file_path` ou `command`, a primeira mutação não se aplica, e
-   o registro diz isso.
+   O `file_path` do `multi_edit` o gancho já lia antes da fase (G2, resposta 2).
 4. **A régua:** `$PY .claude/regua.py --conferir` → sai com código 0, sem divergência. As lições de
    exemplo em `templates/roblox/licoes/` não entram no índice do kit
    (`grep -c roblox .claude/indice/licoes.yaml` → `0`, salvo lição real da regra 7 sobre Roblox).
@@ -45,10 +45,10 @@ os caminhos desta máquina (sem Python no PATH):
    o print do Version History ou a lista do Explorer).
 9. **Os modelos (R5):** `templates/roblox/tech-stack.md` tem as seções de
    `templates/constituicao/tech-stack.md` (`grep -c "^## " ` igual nos dois), nenhuma com o texto
-   de modelo ("> Ex.:"); `templates/roblox/comandos-reais.md` cita a ferramenta que roda o
-   executor, o `datamodel_type`, onde ler a linha de resumo e o `save_place` antes de cada fase
-   (`grep -n -e execute_luau -e datamodel_type -e get_console_output -e save_place`, as quatro
-   aparecem).
+   de modelo ("> Ex.:"); `templates/roblox/comandos-reais.md` cita o modo de jogo (o
+   `start_stop_play`), a ferramenta que roda o executor, o `datamodel_type`, onde ler a linha de
+   resumo e o `save_place` antes de cada fase (`grep -n -e start_stop_play -e execute_luau -e
+   datamodel_type -e get_console_output -e save_place`, as cinco aparecem).
 10. **A lista de riscos (R7):** `grep -c "^## Regra " templates/roblox/regras-de-area.md` → de 5 a
     8; cada bloco tem a linha `areas: codigo` e um link `https://create.roblox.com/` (conferido
     pelo revisor do G5, que abre cada link).
@@ -58,12 +58,14 @@ os caminhos desta máquina (sem Python no PATH):
 12. **O guia (R8):** `docs/guia-roblox.md` cita as permissões de Open Cloud a desligar (MCP ⟩ MCP
     Permissions), o `DataStore` de verdade, o salvar no Roblox antes da primeira fase e o fechar a
     sessão antiga sem salvar depois da volta (`grep -n -e "MCP Permissions" -e DataStore -e "antes
-    da primeira fase" -e "sem salvar"`, as quatro aparecem); e o Ctrl+Z só aparece se o R2.7 o
-    confirmou.
+    da primeira fase" -e "sem salvar"`, as quatro aparecem); e diz que o Ctrl+Z não desfaz o
+    que o agente escreve e que os testes rodam os scripts do jogo (`grep -n -e "Ctrl+Z" -e
+    "scripts do jogo"`, os dois aparecem; G2, respostas 3 e 7).
 
 ## Verificações manuais
 
-Antes de começar: o autor do kit diz onde o Studio vai rodar (decisão 4 da entrevista).
+Antes de começar: o Studio roda nesta máquina (respondido no G2, 2026-11-21), com o place de
+teste salvo no Roblox.
 
 1. **O "pronto" (R9), num place de exemplo, sem Rojo:**
    1. No Studio, File ⟩ New ⟩ Baseplate, e salvar no Roblox (File ⟩ Save to Roblox). Ligar o
@@ -78,18 +80,20 @@ Antes de começar: o autor do kit diz onde o Studio vai rodar (decisão 4 da ent
       `adicionar(jogador, n)` e `gastar(jogador, n)`, que nunca deixa o saldo negativo, e o teste
       com três casos. Aprovar a spec.
    5. Na `implementar-fase`, **ver o agente chamar o `save_place` antes de editar** e anotar a hora
-      no `plan.md`; conferir em Window ⟩ Version History que a versão apareceu.
+      no `plan.md`; conferir em Janela ⟩ Histórico da versão (Window ⟩ Version History,
+      em inglês) que a versão apareceu.
    6. Ver o agente criar o `Moedas` pelo `multi_edit`. **Ver a lição de exemplo e as regras de
       risco chegarem** nessa edição (a linha "Lendo as lições da área..." e o texto no contexto;
       pedir ao agente que diga qual lição e quais regras recebeu).
-   7. Ver o agente rodar o executor pelo `execute_luau` e ler no console
+   7. Ver o agente rodar o executor em modo de jogo (liga o jogo pelo `start_stop_play`, roda o
+      executor pelo `execute_luau` no `Server`, desliga) e ler no console
       `3 passed, 0 failed, 0 skipped`.
    8. Pedir ao agente que quebre o `gastar` de propósito (deixe o saldo ficar negativo) e rode de
       novo: o console mostra `failed` maior que 0 e a linha da falha com o teste. Pedir que
       desfaça, e ver `3 passed` de novo.
    9. Na `validar-fase` do projeto de exemplo, ver o "validado" com a linha de resumo citada.
-   10. Por último, voltar à versão do passo 5 seguindo só o guia (Window ⟩ Version History ⟩ ⋮ ⟩
-       Open Local Copy ⟩ Save to Roblox As). Fechar a sessão antiga do Studio sem salvar,
+   10. Por último, voltar à versão do passo 5 seguindo só o guia (Janela ⟩ Histórico da versão ⟩ ⋮
+       ⟩ Open Local Copy ⟩ Save to Roblox As). Fechar a sessão antiga do Studio sem salvar,
        reabrir o place pelo Roblox e ver, nele, que o `Moedas` sumiu.
 
    Esperado: todos os "ver" acontecem. Anotar aqui a saída do console dos passos 7 e 8.

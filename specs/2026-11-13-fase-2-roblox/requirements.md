@@ -87,10 +87,11 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     As duas entradas de hoje não mudam: o `instalar_codex.py` lê o comando da primeira
     (`.claude/instalar_codex.py:77-84`) e usa os `MATCHERS` dele (`:39`) para o Codex, e o Codex
     fica fora desta fase.
-  - **A leitura:** o `.claude/hooks/licoes_relevantes.py` lê o caminho do script do `multi_edit`
-    como caminho (hoje só `tool_input.file_path`, `:470`) e o código do `execute_luau` como
-    comando (hoje só `tool_input.command`, `:472`), pelos campos do R2. A docstring "As entradas
-    que ele entende" (`:9-13`) ganha as duas.
+  - **A leitura:** o caminho do script do `multi_edit` já chega em `tool_input.file_path`, que o
+    `.claude/hooks/licoes_relevantes.py` lê (`:470`; G2, resposta 2). O que falta é o código do
+    `execute_luau`, que chega em `tool_input.code`: ele passa a ser lido como comando, como o
+    `tool_input.command` (`:472`). A docstring "As entradas que ele entende" (`:9-13`) ganha as
+    duas.
   - **As áreas:** o `POR_CAMINHO` (`:78-92`) ganha os serviços do place em que mora código, na
     forma do caminho do Studio MCP (`game.ServerScriptService`, `game.ServerStorage`,
     `game.ReplicatedStorage`, `game.StarterPlayer`, `game.StarterGui`, `game.Workspace`), na área
@@ -117,8 +118,8 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     servidor do R2 (`mcp__<servidor>__<ferramenta>`). Nenhuma
     que escreve (`multi_edit`, `execute_luau`, `save_place`, `start_stop_play`,
     `open_cloud_invoke`).
-  - **O validador** ganha as mesmas, mais o `execute_luau`, para rodar o executor, e, se o R2
-    mandar rodar em modo de jogo, o `start_stop_play` e o `get_studio_state`.
+  - **O validador** ganha as mesmas, mais o `execute_luau`, o `start_stop_play` e o
+    `get_studio_state`, para rodar o executor em modo de jogo (R6).
   - **O texto dos dois** ganha o caminho sem Rojo, curto: sem diff no git, o revisor recebe da
     conversa a lista dos scripts que o grupo mexeu e os lê pelo `script_read`; o validador roda o
     executor e lê a linha de resumo no console. **No place, o validador não faz mutação**: não há
@@ -135,20 +136,30 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     seção, para o caminho sem Rojo (Luau no Studio; o código no place; o Studio MCP; o executor
     mínimo; o git local só para specs e lições; nenhum segredo, porque nada usa chave);
   - `comandos-reais.md`: o bloco "Comandos reais" do `AGENTS.md` para Roblox. Não há comando de
-    terminal para os testes: o bloco diz qual ferramenta do Studio MCP roda o executor, com que
-    `datamodel_type`, e onde ler a linha de resumo; e diz que, **antes de começar cada fase**, o
-    agente chama o `save_place` e anota no `plan.md` a hora da versão salva. Num place aberto de
+    terminal para os testes: o bloco diz como rodar o executor em modo de jogo (o
+    `start_stop_play` para ligar, o `execute_luau` com o `datamodel_type` `Server`, o
+    `get_console_output` para ler a linha de resumo, o `start_stop_play` para desligar); e diz
+    que, **antes de começar cada fase**, o agente chama o `save_place` e anota no `plan.md` a hora
+    da versão salva. Num place aberto de
     um arquivo local, o `save_place` grava por cima do arquivo e não cria versão
     (ver "Contexto"): o agente para e pede ao usuário que salve o place no Roblox (File ⟩ Save to
     Roblox) antes da fase. A "Contagem esperada
     de testes" vive no `validation.md` da fase, como hoje (`AGENTS.md:59`);
   - `Executor.luau` e um exemplo de teste (R6).
 - **R6. O executor mínimo de testes.** Um ModuleScript curto, em Luau, que o agente põe no place
-  pelo `multi_edit` (o lugar, um ModuleScript `GolemTestes.Executor` em `ServerStorage`, se
-  confirma no G2):
-  - um teste é uma função num ModuleScript cujo nome termina em `.spec` (ou `_spec`, conforme o
-    R2.6), que devolve uma tabela `{ ["nome do teste"] = função }`. O sufixo `.spec` é o do nome
-    dos arquivos de teste do TestEZ e do Jest; o conteúdo não é o `describe`/`it` deles;
+  pelo `multi_edit` (o lugar: uma pasta `GolemTestes` em `ServerStorage`, com o ModuleScript
+  `Executor` dentro, no caminho `game.ServerStorage.GolemTestes.Executor`; G2, resposta 6):
+  - um teste é uma função num ModuleScript cujo nome termina em `_spec`, que devolve uma tabela
+    `{ ["nome do teste"] = função }`. O TestEZ e o Jest usam `.spec` no nome dos arquivos, mas, no
+    caminho do Studio MCP, o ponto separa: `game.ServerStorage.Moedas.spec` virou uma pasta
+    `Moedas` com um `spec` dentro (G2, resposta 6). O conteúdo não é o `describe`/`it` deles;
+  - **o executor roda em modo de jogo**: o `require` em modo de edição devolve o módulo guardado,
+    mesmo depois de um `multi_edit` (G2, resposta 3). O agente liga o jogo (`start_stop_play`),
+    roda o executor pelo `execute_luau` com o `datamodel_type` `Server`, lê a linha de resumo no
+    `get_console_output` e desliga o jogo. **Os scripts do jogo também rodam** enquanto ele está
+    ligado (G2, resposta 3, com um `print` no topo de um Script). Por isso, o código de dados do
+    usuário (o que roda no `PlayerAdded`, no `PlayerRemoving` ou no `BindToClose`) pode rodar a
+    cada execução dos testes (leitura do agente, a conferir no G5), e o guia (R8) avisa;
   - o executor acha os testes nos serviços do R3, roda cada função com `pcall` e imprime, no fim,
     uma linha `N passed, N failed, N skipped` (o formato do TestEZ, `src/Reporters/TextReporter.lua:80`), e uma
     linha por falha com o módulo, o teste e o erro;
@@ -167,7 +178,8 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     console (o que o R2.4 mostrar). A outra conta um fato conferido na fonte ou no G2 (regra 9).
     Candidatas: "restaurar uma versão não publica"
     ([histórico de versões](https://create.roblox.com/docs/projects/version-history)); o `require`
-    guardado em modo de edição, se o R2.3 o confirmar.
+    guardado em modo de edição (G2, resposta 3); o Ctrl+Z que não desfaz a troca de texto do
+    agente (G2, resposta 7).
   - **A lista de riscos do Roblox** (pedido da conversa de estratégia, confirmado pelo autor do
     kit): `templates/roblox/regras-de-area.md`, de 5 a 8 regras no formato que o gancho entende
     (`## Regra N — Título`, a linha `areas: codigo`, o corpo; `licoes_relevantes.py:31-33`,
@@ -192,8 +204,12 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     executor num `execute_luau`); outro copia a lista de riscos para o `docs/regras-de-area.md` da
     cópia e confere que um `multi_edit` em `game.ServerScriptService` a entrega.
 - **R8. O guia.** `docs/guia-roblox.md`, de uma página:
-  - ligar o Studio MCP (Assistant ⟩ … ⟩ Manage MCP Servers ⟩ Enable Studio as MCP server, e o quick
-    connect do Claude Code), com o aviso da documentação de que o cliente MCP lê e muda o place;
+  - ligar o Studio MCP (Assistant ⟩ … ⟩ Manage MCP Servers ⟩ Enable Studio as MCP server; na
+    interface em português, Configurações do Assistente ⟩ Servidores MCP), com o aviso da
+    documentação de que o cliente MCP lê e muda o place, e o "Data access" desligado;
+  - conectar o Claude Code: o quick connect mostra um comando `claude mcp add ... Roblox_Studio`,
+    a rodar na pasta do projeto, no PowerShell (no Git Bash, o `/c` vira `C:/`); e o servidor só
+    aparece numa conversa nova do Claude Code (G2, resposta 1);
   - **desligar as permissões de Open Cloud do Studio MCP** (MCP ⟩ MCP Permissions), seção por
     seção: cada jogo começa no nível "Balanced", com os escopos de risco baixo e moderado ligados,
     e o "Safe" ainda deixa algumas ligadas; o kit não usa o `open_cloud_invoke` (ver "Contexto");
@@ -206,12 +222,16 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     `docs/regras-de-area.md`) e rodar `regua.py --gerar`, porque o gancho lê o índice e só cai no
     Markdown sem ele (`licoes_relevantes.py:197-210`, `:269-272`);
   - pedir ao agente que ponha o executor; rodar os testes;
-  - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase; o Ctrl+Z, só se o
-    R2.7 o confirmar; e voltar à versão salva pelo histórico, com os passos do Studio e do Creator
-    Dashboard, o aviso de que restaurar não publica, e o de que, depois do "Open Local Copy" e do
+  - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase, e volta-se à versão
+    salva pelo histórico, com os passos do Studio e do Creator Dashboard, o aviso de que restaurar
+    não publica, e o de que, depois do "Open Local Copy" e do
     "Save to Roblox As", a sessão antiga se fecha sem salvar, para não gravar por cima da volta;
   - o que fica mais fraco sem Rojo (sem diff, sem mutação, sem git do código), com o caminho para
     migrar depois;
+  - **o Ctrl+Z não desfaz o que o agente escreve:** ele desfaz a criação de um script pelo agente,
+    mas não a troca de texto (G2, resposta 7); o desfazer é o histórico de versões;
+  - **rodar os testes liga o jogo, e os scripts do jogo rodam** (G2, resposta 3): o código de
+    dados do jogo roda a cada execução dos testes;
   - o que aparece quando o Studio está fechado (a ferramenta do MCP falha) e o que fazer.
 - **R9. O "pronto" da fase** (a linha `:564` reescrita): num place de exemplo, sem Rojo, com o
   Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da
@@ -257,7 +277,14 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   esta fase, "Sim, só a spec". As palavras dele: "Sim, faça o G1 (Recomendado)", à pergunta
   "Fase 2: você quer que eu implemente agora?" (2026-11-15). O G1 foi escrito antes dessa ordem,
   sem commit, e só foi commitado depois dela. Sobre o G2, que precisa do Studio, a resposta dele
-  foi "Depois" (2026-11-15): o G2 e os grupos que dependem dele (G3 a G5) esperam.
+  foi "Depois" (2026-11-15): o G2 e os grupos que dependem dele (G3 a G5) esperam. Com o Studio
+  instalado, ele perguntou "oque você precisa que eu faça exatamente?" (2026-11-16) e depois
+  disse "O estúdio está instalado e aberto [...] Se você achar necessário, eu posso dar permissão
+  para controlar minha tela." (2026-11-21): o G2 rodou nesse dia.
+- **"Modo de jogo (Recomendado)"** (2026-11-21), à pergunta "Os testes do kit rodam no modo de
+  jogo?", depois do G2 mostrar o `require` guardado em modo de edição. O executor roda em modo de
+  jogo (R6). Descartado: clonar o módulo de teste em modo de edição, que só refresca o próprio
+  clone, e não o código que ele chama.
 - **"Sem Rojo, migrar depois"** (palavras do autor do kit, 2026-11-13, repassadas pela conversa
   gerente). O caminho de entrada é sem Rojo: o código fica no place, e as specs e as lições ficam
   numa pasta ao lado com git, que o agente opera. O kit não exige GitHub; git local basta. Uma
@@ -372,8 +399,9 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   regras de área vêm de `docs/regras-de-area.md`, sem teto, uma vez por sessão (`:31-33`).
 - **Os agentes hoje** só têm `Read, Grep, Glob, Bash` no `tools:` (`.claude/agents/revisor.md:4`,
   `validador.md:4`); o validador faz a mutação numa cópia descartável (`validador.md:15` e `:38-44`).
-- **Esta máquina não tem o Roblox Studio** (`%LOCALAPPDATA%\Roblox` e `Program Files\Roblox`
-  ausentes, 2026-11-13). Nem um runtime de Luau: o executor só se testa no Studio.
+- **O Roblox Studio nesta máquina:** ausente em 2026-11-13 (`%LOCALAPPDATA%\Roblox` e
+  `Program Files\Roblox`); instalado pelo autor do kit antes do G2 (2026-11-21). Não há runtime de
+  Luau fora dele: o executor só se testa no Studio.
 - **A suíte do ferramental** dá `96 passed` em `1f9f827` (rodada pelo revisor desta spec,
   2026-11-13), sem puladas. Relida no G1, no `7671fc1`, com a fase 1: `123 passed in 60.16s`, sem
   puladas (`validation.md`, item 1).
@@ -412,9 +440,10 @@ Nenhum: a fase não gasta dinheiro. O Studio e o Studio MCP são gratuitos; a Op
 - **As três perguntas ao primeiro usuário** (R1): se toparia migrar para o Rojo, como organiza os
   jogos, como volta a uma versão hoje. Não bloqueiam: o guia diz "uma pasta por jogo" como
   sugestão, e a resposta pode mudar o guia antes do merge.
-- **Onde rodar o teste no Studio:** perguntar ao autor do kit no começo do G2 (decisão 4).
-- **As sete conferências do R2:** a conferir no G2; cada uma que mudar o desenho volta ao autor do
-  kit.
+- **Onde rodar o teste no Studio:** respondida: nesta máquina, com o Studio instalado por ele
+  (2026-11-21; `plan.md`, Respostas do G2).
+- **As sete conferências do R2:** respondidas no G2 (`plan.md`, Respostas do G2); a do modo de jogo
+  voltou ao autor do kit ("Modo de jogo (Recomendado)", 2026-11-21).
 - **Se o nome exato de uma ferramenta de MCP vale no `tools:`** do agente (a documentação só o
   mostra no `disallowedTools`): a conferir no G4.
 - **As fontes da lista de riscos** (R7): a conferir no G5, item por item.
