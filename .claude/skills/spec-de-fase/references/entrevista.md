@@ -31,6 +31,15 @@ anteriores não respondem.
 - **Não pergunte o que está escrito.** Se a missão já define o tom, use-o.
 - **Ofereça opções quando houver caminho óbvio.** É mais fácil escolher do que redigir. Cada opção
   com a consequência, a recomendada primeiro.
+- **Com os papéis, a pergunta de produto vai à EST.** Isso vale quando o bloco "Como o Golem
+  trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis de `docs/operacao-das-conversas.md`".
+  - As perguntas de escopo, de prioridade e do que o usuário vê vão à conversa de estratégia
+    (EST), no cartão de decisão, com o texto original: a pergunta, as opções e a consequência de
+    cada uma.
+  - A resposta volta com as palavras dele e a data, e é assim que entra na spec.
+  - Ficam aqui o detalhe técnico e a aprovação da spec escrita
+    (`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+  - Sem papéis, pergunte ao usuário direto.
 - **Registre a resposta na spec com a palavra do usuário**, principalmente termos de domínio.
 - **Resposta que implica fato técnico se confere.** "Já tenho acesso ao banco" leva duas perguntas
   baratas: qual, exatamente, e por onde (o caminho no código ou na config). Sem o caminho, escreva

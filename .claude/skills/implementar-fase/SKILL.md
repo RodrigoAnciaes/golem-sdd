@@ -77,7 +77,8 @@ Acontece, e é sinal de que a spec está viva. A ordem é sempre a mesma:
 
 1. Pare de implementar.
 2. Explique ao usuário o que foi descoberto e as opções, cada uma com a consequência e a
-   recomendada primeiro.
+   recomendada primeiro. Com os papéis, a parte de produto vai à EST (abaixo, depois de "Pare e
+   pergunte quando").
 3. Atualize `requirements.md` (seção Decisões) e `plan.md`.
 4. Só então volte ao código.
 
@@ -90,6 +91,11 @@ Registre a mudança na tabela "Alterações de escopo durante a fase" do `plan.m
 - o caminho mais simples exigir mexer em área marcada como frágil ou sensível
 - surgir migração de dados destrutiva, mudança de schema em produção ou alteração de credencial
 - a próxima ação gastar dinheiro além do teto aprovado na spec
+
+Com os papéis (o bloco "Como o Golem trabalha aqui" do `AGENTS.md` diz "Conversas: os papéis de
+`docs/operacao-das-conversas.md`"), a pergunta de produto (o que o usuário final vê, o escopo) vai
+à conversa de estratégia (EST) no cartão de decisão, com o texto original, e não direto ao usuário
+(`docs/operacao-das-conversas.md`, "O fluxo das decisões").
 
 ## Ao terminar o último grupo
 
