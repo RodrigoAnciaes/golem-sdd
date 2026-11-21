@@ -25,8 +25,9 @@ git worktree list
 ```
 
 Se o projeto usa uma GER, o registro vivo dela (o lugar está em `docs/operacao-das-conversas.md`)
-diz quem está fazendo o quê. Registro fora do Git costuma morar na pasta principal, que um worktree
-não enxerga pelo caminho relativo. A pasta principal é o pai do `.git` comum:
+diz quem está fazendo o quê. Se o pedido desta conversa dá o caminho do registro, leia-o lá. Senão,
+o registro fora do Git costuma morar na pasta principal, que um worktree não enxerga pelo caminho
+relativo. A pasta principal é o pai do `.git` comum:
 
 ```bash
 dirname "$(git rev-parse --path-format=absolute --git-common-dir)"
@@ -83,8 +84,8 @@ lições automaticamente, não varra a pasta à mão.
 Diga ao usuário, em três linhas: **onde paramos**, **o que você entendeu como tarefa de hoje** e
 **o que vai fazer primeiro**. Se houver mais de uma leitura possível do pedido, pergunte agora: é
 mais barato que desfazer depois. Se perguntar com botões, as três linhas vão no texto da própria
-pergunta, porque o texto escrito antes dela pode não aparecer. Frase curta sem ponto de interrogação ("é só…", "não daria…")
-pode ser pergunta: responda antes de agir.
+pergunta, porque o texto escrito antes dela pode não aparecer. Frase curta sem ponto de
+interrogação ("é só…", "não daria…") pode ser pergunta: responda antes de agir.
 
 Com GER no projeto, a conversa nova se apresenta a ela na primeira mensagem, com o worktree e a
 tarefa. Os papéis, os níveis de autonomia e o fecho das mensagens (Resumo, O que você faz agora,

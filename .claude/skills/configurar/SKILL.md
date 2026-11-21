@@ -125,7 +125,7 @@ do modo sem Python do passo 6 (ela vem aqui, uma vez só). Se ainda não houver 
 "$PY" .claude/golem.py aplicar
 ```
 
-- Mostre a saída. Se vier `ERRO`, mostre a linha que ele cita e corrija o `golem.toml` com o
-  usuário.
+- Mostre a saída. Se vier `ERRO`, corrija o `golem.toml` com o usuário, e a linha que ele cita vai
+  no texto da pergunta de correção.
 - Diga que a configuração nova vale numa **conversa nova**: o `AGENTS.md` desta já foi lido.
 - Diga o que mudou (o `golem.toml`, o `AGENTS.md`, os agentes) e que o commit é dele.

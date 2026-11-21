@@ -106,7 +106,7 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   também são geradas: mudou uma skill ou um agente em `.claude/`, rode
   `python3 .claude/instalar_codex.py` e faça o commit das cópias junto (`--conferir` acusa a
   divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no
-  projeto dele (`README.md`, "Usando com o Codex").
+  projeto dele (`README.md` do kit, "Usando com o Codex").
 - << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>
 
 ---

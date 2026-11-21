@@ -19,10 +19,11 @@ Percorra `specs/AAAA-MM-DD-<<nome>>/validation.md` item por item.
 - **Verificações automatizadas:** rode cada comando e **mostre a saída real**. Nada de "deve
   passar": cole o que apareceu, incluindo a contagem de testes.
 - **Verificações manuais pelo `claude -p`:** rode-as você, numa pasta descartável fora do
-  projeto, com o kit no head da fase, e cole da transcrição (a saída com
+  projeto, com uma cópia do head da fase, e cole da transcrição (a saída com
   `--output-format stream-json`, ou a sessão em `~/.claude/projects/`) o trecho que o critério
   pede. Rode as rodadas que o item diz, e não mais: cada uma é uma sessão inteira, no limite de uso
-  do usuário, que ele aprovou junto com a spec.
+  do usuário, que ele aprovou junto com a spec. Item de comportamento do agente com uma rodada só:
+  aponte isso ao usuário antes de rodar.
   - No `-p` não há a ferramenta de pergunta: a pergunta da skill sai em texto, e se responde com
     `claude -p --resume <id da sessão> "<resposta>"`.
   - As permissões que o teste precisa vão na linha (`--allowedTools` ou `--permission-mode`).

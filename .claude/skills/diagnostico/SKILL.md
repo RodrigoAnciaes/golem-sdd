@@ -136,7 +136,8 @@ echo '{"tool_input":{"command":"pytest -q"}}' | sh "$(git rev-parse --show-tople
 - A entrada vai **sem** `session_id`: assim, o gancho não esconde a lição nem o aviso numa segunda
   rodada.
 - Leia o motivo entre parênteses, e não só a palavra "falhou":
-  - "nenhum Python 3.8+ encontrado": o gancho ainda não acha o Python. Volte ao passo 2.
+  - "nenhum Python 3.8+ encontrado": o gancho ainda não acha o Python. Volte ao passo 2,
+    com o motivo no texto da pergunta.
   - "licoes_relevantes.py saiu com código N": o Python foi achado e rodou. Mostre o motivo ao
     usuário; ele fica para o diagnóstico completo.
   - "não achei .claude/hooks/licoes_relevantes.py": o gancho parou antes de procurar o Python, e o

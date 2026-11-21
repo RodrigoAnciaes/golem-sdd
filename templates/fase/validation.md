@@ -21,8 +21,8 @@ Passo a passo que uma pessoa executa: abrir X, fazer Y, ver Z. Cada uma diz quem
   o agente grava ou responde). O agente roda numa pasta descartável fora do projeto, e a prova é a
   transcrição: diga o que procurar nela e quantas rodadas (cada uma é uma sessão inteira, no limite
   de uso do usuário; o critério de comportamento do agente pede duas);
-- **pelo usuário:** só o que precisa dos olhos dele, como os botões no app, o jogo no Studio ou o
-  desenho de uma tela.
+- **pelo usuário:** só o que precisa dos olhos dele, como os botões no app, um jogo no editor (o
+  Studio, no Roblox) ou o desenho de uma tela.
 
 > Ex. (pelo `claude -p`, duas rodadas): numa cópia descartável do head da fase, pedir "implementar
 > a fase"; esperado: na transcrição, o turno termina ao fim do grupo 1 esperando o ok, sem revisor.
