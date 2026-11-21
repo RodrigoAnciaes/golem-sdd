@@ -30,6 +30,7 @@ ARQUIVOS_DO_KIT = (
         ".claude/regua.py",
         ".claude/tests/conftest.py",
         ".claude/tests/test_codex.py",
+        ".claude/tests/test_conciliar.py",
         ".claude/tests/test_credito.py",
         ".claude/tests/test_gancho.py",
         ".claude/tests/test_golem.py",
