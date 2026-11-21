@@ -144,5 +144,9 @@ echo '{"tool_input":{"command":"pytest -q"}}' | sh "$(git rev-parse --show-tople
     teste não diz nada sobre ele. Mostre o motivo ao usuário: falta o arquivo do kit.
 - Se a saída traz uma lição, ou sai vazia, o Python rodou. Vazia quer dizer só que nenhuma lição
   casa com `pytest` neste projeto.
+- Com o Python rodando, confira o índice das lições: `"<o Python gravado>" .claude/regua.py
+  --conferir`. Lição escrita enquanto não havia Python fica fora do índice, e o gancho, que lê o
+  índice, nunca a entrega. Se o `--conferir` acusar, rode o `--gerar` (com o `git add` das lições
+  antes, como na skill `licao`) e diga ao usuário que o índice mudou e que o commit é dele.
 
 Conte ao usuário o que foi gravado e onde, e o resultado do teste.

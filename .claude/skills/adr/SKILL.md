@@ -43,8 +43,9 @@ com a fonte: `arquivo:linha`, documentação com versão, ou a saída do comando
 ### 3. Escrever
 
 Seções: status, data, decisores, contexto, opções consideradas, decisão, consequências
-(positivas, dívida aceita, impacto no roadmap e na constituição) e **gatilho de revisão**: a
-condição objetiva que faz revisitar a decisão. O modelo está em `docs/adr/modelo.md` (ou em
+(positivas, dívida aceita, impacto no roadmap e na constituição), **gatilho de revisão** (a
+condição objetiva que faz revisitar a decisão) e **evidência de uso** (o que, no uso, vai mostrar
+que a decisão funciona, e quando olhar). O modelo está em `docs/adr/modelo.md` (ou em
 `templates/adr.md` do kit).
 
 O contexto descreve forças, não preferências: requisito, limite técnico, prazo, restrição externa.
