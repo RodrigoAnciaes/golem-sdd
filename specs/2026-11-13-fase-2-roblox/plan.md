@@ -153,19 +153,20 @@ conversa nova e o "Data access" (R2.1, R2.7, R8).
 
 ## G3 — O gancho vê o Studio MCP (R3)
 
-- [ ] `.claude/settings.json`: a terceira entrada `PreToolUse`, com o `matcher` das duas
+- [x] `.claude/settings.json`: a terceira entrada `PreToolUse`, com o `matcher` das duas
   ferramentas (com o nome do servidor do G2 ou um padrão que não dependa dele) e o mesmo conteúdo
   de `hooks` (`command`, `timeout`, `statusMessage`).
-- [ ] `.claude/hooks/licoes_relevantes.py`: ler o `tool_input.code` do `execute_luau` como comando; o
+- [x] `.claude/hooks/licoes_relevantes.py`: ler o `tool_input.code` do `execute_luau` como comando; o
   `POR_CAMINHO` com os serviços na forma `game.<Serviço>`; a docstring `:9-13`.
-- [ ] Testes em `.claude/tests/test_gancho.py`:
+- [x] Testes em `.claude/tests/test_gancho.py`:
   1. `test_multi_edit_num_script_do_place_acende_codigo`;
   2. `test_execute_luau_chega_aos_gatilhos`;
   3. `test_matcher_do_studio_casa_so_com_edicao_e_execucao`;
   4. `test_settings_tem_a_entrada_do_studio_com_o_mesmo_comando`;
   5. `test_pasta_workspace_num_arquivo_nao_acende_codigo`.
-- [ ] O instalador do Codex numa cópia: o `.codex/hooks.json` gerado tem os mesmos dois `matcher`.
-- [ ] Suíte, revisor e validador.
+- [x] O instalador do Codex numa cópia: o `.codex/hooks.json` gerado tem os mesmos dois `matcher`.
+- [x] Suíte, revisor e validador: `128 passed`; revisor sem bloqueio (com o `game.ReplicatedFirst`
+  acrescentado, achado dele); validador "valida", com as quatro mutações pegas (2026-11-21).
 
 ## G4 — O revisor e o validador leem o place (R4)
 

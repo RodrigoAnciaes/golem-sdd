@@ -10,7 +10,10 @@ As entradas que ele entende:
 - Claude Code: `tool_input.file_path` (Edit, Write) ou `tool_input.command` (Bash, PowerShell);
 - Codex: `tool_name: "Bash"` com `tool_input.command`, como acima; e `tool_name: "apply_patch"`,
   em que `tool_input.command` é o texto do patch: valem só os caminhos do cabeçalho
-  (`caminhos_do_patch`), nunca o corpo.
+  (`caminhos_do_patch`), nunca o corpo;
+- Studio MCP do Roblox: o `multi_edit` manda o caminho do script em `tool_input.file_path`
+  (`game.ServerStorage.Moedas`), lido como o de um arquivo; o `execute_luau` manda o Luau em
+  `tool_input.code`, lido como um comando.
 
 Por que existe: registrar uma armadilha não adianta se nada força a leitura no momento certo.
 O agente não relê o acervo antes de cada ação; o gancho entrega o que interessa àquela ação.
@@ -89,6 +92,15 @@ POR_CAMINHO = [
     ("specs/", "processo"),
     ("AGENTS.md", "processo"),
     ("CLAUDE.md", "processo"),
+    # Os serviços do place em que mora código, no caminho com pontos do Studio MCP. Com o `game.`
+    # na frente, uma pasta comum chamada `Workspace` num caminho de arquivo não acende `codigo`.
+    ("game.ServerScriptService", "codigo"),
+    ("game.ServerStorage", "codigo"),
+    ("game.ReplicatedStorage", "codigo"),
+    ("game.ReplicatedFirst", "codigo"),
+    ("game.StarterPlayer", "codigo"),
+    ("game.StarterGui", "codigo"),
+    ("game.Workspace", "codigo"),
 ]
 
 # Comando -> áreas. O comando é testado SEM o texto entre aspas e sem corpo de heredoc
@@ -469,7 +481,8 @@ def main():
     else:
         caminho = str(entrada.get("file_path") or "").replace("\\", "/")
         caminhos = [caminho] if caminho else []
-        cru = entrada.get("command") or ""
+        # O `code` é o Luau do `execute_luau` do Studio MCP: vale como um comando.
+        cru = entrada.get("command") or entrada.get("code") or ""
         cru = " ".join(map(str, cru)) if isinstance(cru, list) else str(cru)
         comando = sem_texto(cru)
 

@@ -94,7 +94,8 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     duas.
   - **As áreas:** o `POR_CAMINHO` (`:78-92`) ganha os serviços do place em que mora código, na
     forma do caminho do Studio MCP (`game.ServerScriptService`, `game.ServerStorage`,
-    `game.ReplicatedStorage`, `game.StarterPlayer`, `game.StarterGui`, `game.Workspace`), na área
+    `game.ReplicatedStorage`, `game.ReplicatedFirst`, `game.StarterPlayer`, `game.StarterGui`,
+    `game.Workspace`; o `ReplicatedFirst` entrou no G3, achado do revisor), na área
     `codigo`. Na forma com `game.`, uma pasta comum chamada `Workspace` num caminho de arquivo não
     acende `codigo`. O `POR_COMANDO` não muda: uma lição com `gatilhos:` só chega quando um gatilho
     casa, e não pela área (`licoes_relevantes.py:20-24`, `:276-280`); a lição do resumo dos testes

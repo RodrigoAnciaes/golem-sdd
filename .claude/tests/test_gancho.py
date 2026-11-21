@@ -948,3 +948,68 @@ def test_teto_da_receita_completo_e_4(acervo, sessao):
 def test_golem_toml_com_erro_o_gancho_usa_o_teto_padrao(acervo, sessao):
     _golem_toml(acervo.raiz, 'receita = "completo"\nrevisr = "nunca"\n')
     assert _quantas_chegam(acervo, sessao) == 2
+
+
+# ------------------------------------------------- o Studio MCP do Roblox (fase 2)
+
+def _casa_matcher(matcher: str, ferramenta: str) -> bool:
+    """Os dois casos da regra do Claude Code para o `matcher` que o kit usa (docs, hooks, "Matcher
+    patterns"): só com letras, dígitos, `_`, `-`, espaço, `,` e `|`, é uma lista de nomes exatos;
+    com qualquer outro caractere, é uma expressão regular sem âncora. O terceiro caso, `"*"` ou
+    vazio (casa com tudo), o kit não usa e a função não cobre."""
+    if re.fullmatch(r"[A-Za-z0-9_\-, |]*", matcher):
+        return ferramenta in {n.strip() for n in re.split(r"[|,]", matcher)}
+    return re.search(matcher, ferramenta) is not None
+
+
+def _entrada_do_studio() -> dict:
+    config = json.loads((RAIZ_DO_KIT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    entradas = config["hooks"]["PreToolUse"]
+    achadas = [e for e in entradas if _casa_matcher(e["matcher"], "mcp__Roblox_Studio__multi_edit")]
+    assert len(achadas) == 1, [e["matcher"] for e in entradas]
+    return achadas[0]
+
+
+def test_multi_edit_num_script_do_place_acende_codigo(acervo, sessao):
+    """O `multi_edit` manda o caminho do script em `file_path`, com pontos (G2, resposta 2)."""
+    acervo.licao("da-area-codigo", "codigo")
+    acervo.gerar()
+    entrada = {"file_path": "game.ServerScriptService.Moedas", "className": "ModuleScript",
+               "edits": [{"old_string": "", "new_string": "return {}"}],
+               "datamodel_type": "Edit", "studio_id": "x"}
+    assert ids_de(acervo.invocar(entrada, sessao)) == ["da-area-codigo"]
+
+
+def test_execute_luau_chega_aos_gatilhos(acervo, sessao):
+    """O `execute_luau` manda o Luau em `code`, que vale como um comando (G2, resposta 2)."""
+    acervo.licao("do-executor", gatilhos=[r"'\bGolemTestes\b'"])
+    acervo.gerar()
+    entrada = {"code": 'require(game.ServerStorage.GolemTestes.Executor).rodar()',
+               "datamodel_type": "Server", "studio_id": "x"}
+    assert ids_de(acervo.invocar(entrada, sessao)) == ["do-executor"]
+
+
+def test_matcher_do_studio_casa_so_com_edicao_e_execucao():
+    matcher = _entrada_do_studio()["matcher"]
+    for ferramenta in ("mcp__Roblox_Studio__multi_edit", "mcp__Roblox_Studio__execute_luau"):
+        assert _casa_matcher(matcher, ferramenta), (matcher, ferramenta)
+    for ferramenta in ("mcp__Roblox_Studio__script_read", "mcp__Roblox_Studio__save_place",
+                       "Edit", "Bash", "mcp__Roblox_Studio__multi_edit_x"):
+        assert not _casa_matcher(matcher, ferramenta), (matcher, ferramenta)
+
+
+def test_settings_tem_a_entrada_do_studio_com_o_mesmo_comando():
+    config = json.loads((RAIZ_DO_KIT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+    entradas = config["hooks"]["PreToolUse"]
+    assert len(entradas) == 3, [e["matcher"] for e in entradas]
+    studio = _entrada_do_studio()["hooks"]
+    for outra in entradas:
+        assert outra["hooks"] == studio, outra["matcher"]
+
+
+def test_pasta_workspace_num_arquivo_nao_acende_codigo(acervo, sessao):
+    """O trecho é `game.Workspace`: uma pasta comum chamada Workspace não é o place."""
+    acervo.licao("da-area-codigo", "codigo")
+    acervo.gerar()
+    assert acervo.invocar({"file_path": "C:/x/Workspace/notas.md"}, sessao) == ""
+    assert ids_de(acervo.invocar({"file_path": "game.Workspace.Porta"}, sessao)) == ["da-area-codigo"]
