@@ -1,19 +1,22 @@
 # AGENTS.md — regras permanentes do projeto
 
 Este arquivo é lido pelo agente em toda sessão. As regras numeradas são **método**: valem para toda
-tarefa, em qualquer conversa. Os trechos entre `<< >>` são do projeto: preencha antes de usar.
+tarefa, em qualquer conversa. Este é o `AGENTS.md` do kit. O modelo que o usuário copia é o
+`templates/AGENTS.md`, com as lacunas; as diferenças entre os dois estão no conciliador
+(`.claude/tests/test_conciliar.py`).
 
 ---
 
 ## O projeto
 
-<< Uma frase: o que o projeto é e para quem. Ex.: "API de agendamento para clínicas pequenas." >>
+Golem SDD: kit de spec-driven development para Claude Code e Codex, pensado para desenvolvedores de
+Roblox iniciantes.
 
 | O quê | Onde |
 |---|---|
-| Código | << ex.: `src/` >> |
-| Specs | `specs/` (a constituição e uma pasta por fase) |
-| Decisões técnicas | `docs/adr/` |
+| Código | `.claude/` (skills, agentes, gancho, régua, `golem.py`, instalador do Codex) e `templates/` |
+| Specs | `specs/` (uma pasta por fase) |
+| Decisões técnicas | a seção 8 do `docs/plano-produto.md` (o kit não tem `docs/adr/`) |
 | Lições | `docs/licoes/` |
 | Como as conversas trabalham | `docs/operacao-das-conversas.md` |
 | Ferramental do agente | `.claude/` (skills, agentes, ganchos, régua): a fonte |
@@ -27,9 +30,9 @@ detalhe de implementação dentro de uma spec aprovada.
 
 1. Este arquivo.
 2. `docs/operacao-das-conversas.md`: os papéis e o que cada conversa faz sozinha.
-3. `specs/mission.md`, `specs/tech-stack.md`, `specs/roadmap.md`: a constituição.
+3. `docs/plano-produto.md`: a constituição do kit, com o roteiro na seção 7.
 4. `specs/AAAA-MM-DD-<fase>/`: a spec da fase em andamento.
-5. `docs/adr/`: as decisões registradas, com o gatilho de revisão de cada uma.
+5. A seção 8 do `docs/plano-produto.md`: as decisões registradas.
 
 Leia só o que a tarefa de hoje exige. O resto se abre quando for preciso.
 
@@ -37,27 +40,30 @@ Leia só o que a tarefa de hoje exige. O resto se abre quando for preciso.
 
 ## Comandos reais
 
-<< Preencha com os comandos que funcionam hoje, copiados de quem roda. Sem eles, as regras 4 e 8
-ficam no ar. >>
+Onde se lê `python`, use um Python 3.8+ com pytest (no Windows, `python` ou `py -3`).
 
 ```bash
 # setup
-<< ex.: python -m venv .venv && .venv/bin/pip install -r requirements.txt >>
+nenhum: só a biblioteca padrão; a suíte pede pytest
 
 # testes (a linha de resumo tem de aparecer na saída)
-<< ex.: .venv/bin/python -m pytest -q >>
+python -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs
+
+# a régua
+python .claude/regua.py --conferir
 
 # lint e formatação
-<< ex.: ruff check . && ruff format --check . — ou "não instalado" >>
+não instalado
 
 # subir local
-<< ex.: docker compose up -d >>
+não há: o kit é texto e scripts
 ```
 
-**Stack:** << linguagem e versão, framework, banco. O detalhe vive em `specs/tech-stack.md`. >>
+**Stack:** Python 3.8+ só com a biblioteca padrão (scripts e gancho), `sh` POSIX no gancho,
+Markdown nas skills, e pytest só na suíte do kit.
 
-**Contagem esperada de testes:** << onde ela vive: um índice gerado ou o `validation.md` da fase.
-Nunca um número escrito à mão em prosa, que envelhece sem avisar. >>
+**Contagem esperada de testes:** no `validation.md` de cada fase: a contagem da fase anterior mais
+os testes novos.
 
 ---
 
@@ -66,22 +72,22 @@ Nunca um número escrito à mão em prosa, que envelhece sem avisar. >>
 
 <!-- Gerado pelo `.claude/golem.py aplicar`. Não edite à mão: peça "configurar o Golem". -->
 
-Receita `economico`; o guia é `docs/guia-configuracao.md`.
+Receita `completo`; o guia é `docs/guia-configuracao.md`.
 
-- **Revisor:** sempre, uma vez por fase, antes da verificação: o `revisor` lê o diff da fase inteira. Modelo `sonnet`.
-- **Validador:** nunca.
-- **Guardião:** nunca.
+- **Revisor:** sempre, a cada grupo: o `revisor` lê o diff do grupo. Modelo `opus`.
+- **Validador:** sempre, a cada grupo: o `validador` prova o diff do grupo. Modelo `opus`.
+- **Guardião:** sempre, antes do merge: o `revisor` lê o diff inteiro do PR.
 - **Os comandos do `validation.md`:** sempre, pela própria conversa, com a linha de resumo lida.
-- **Parar a cada parte:** sempre: ao fim de cada grupo, mostre o diff e uma linha do que mudou, e espere o ok.
-- **Conversas:** uma; os papéis de `docs/operacao-das-conversas.md` são opcionais.
-- **Gancho das lições:** ligado, até 2 lições novas por ação.
+- **Parar a cada parte:** nunca: siga grupo a grupo.
+- **Conversas:** os papéis de `docs/operacao-das-conversas.md`.
+- **Gancho das lições:** ligado, até 4 lições novas por ação.
 <!-- golem:fim -->
 
 ---
 
 ## Convenções
 
-- Commits e PRs em << português >>. Merge por << squash | merge commit >>.
+- Commits e PRs em português. Merge por merge commit.
 - **Quem libera o merge.** Por padrão, o merge no repositório do projeto é **nível 2**: a conversa
   gerente (GER) libera pelo par PEDIDO → LIBERADO, depois de conferir o head, a base e a prova. Sem
   gerente (uma conversa só), o usuário faz esse papel. É **nível 3**, só com a palavra do usuário
@@ -89,7 +95,7 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   - o merge em repositório de terceiros (de outra equipe, de um cliente, um projeto aberto);
   - o merge que vai a produção (uma branch com deploy automático, uma branch de release);
   - o merge local, num projeto sem remoto (não há PR nem GER que confira: quem mergeia é o usuário);
-  - << o que mais o projeto listar >>.
+  - nenhum além dos três acima.
 
   A mesma lista está em `docs/operacao-das-conversas.md`, "Níveis de autonomia": mudou aqui, muda
   lá no mesmo commit.
@@ -107,7 +113,8 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
   `python3 .claude/instalar_codex.py` e faça o commit das cópias junto (`--conferir` acusa a
   divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no
   projeto dele (`README.md` do kit, "Usando com o Codex").
-- << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>
+- Nenhum nome de cliente, de outro projeto ou de pessoa entra no kit, fora do crédito (a linha de
+  crédito, o `LICENSE` e a seção "Licença e crédito" do `README.md`).
 
 ---
 
@@ -130,8 +137,8 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
    inchar a fase.
    *Por quê:* fase grande não se revisa de uma vez, e abandonada no meio deixa a `main` quebrada.
 
-3. **Nenhuma dependência nova sem aprovação do usuário.** Algo fora de `specs/tech-stack.md`,
-   inclusive dependência transitiva relevante: pare e proponha.
+3. **Nenhuma dependência nova sem aprovação do usuário.** Algo fora da linha **Stack** dos
+   "Comandos reais", inclusive dependência transitiva relevante: pare e proponha.
    *Por quê:* dependência é mudança de stack, não detalhe de implementação, e sai caro de tirar.
 
 4. **Critério de validação é comando ou passo a passo.** Cada item do `validation.md` diz o comando
@@ -140,7 +147,8 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
    *Por quê:* o agente diz "pronto" com a mesma confiança quando está errado; só a execução separa.
 
 5. **Nada de credencial, token ou dado sensível no repositório.** Segredo vive fora do Git
-   (<< ex.: `.env`, no `.gitignore` >>). Não leia nem imprima segredo para "conferir".
+   (o kit não tem segredo; o `golem.local.toml`, com o caminho do Python da máquina, fica no
+   `.gitignore`). Não leia nem imprima segredo para "conferir".
    *Por quê:* o que entra no histórico do Git não sai mais de verdade.
 
 6. **Não commitar sem o usuário pedir.** Aprovar o plano pode incluir "um commit por grupo na
@@ -227,8 +235,7 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
     executa**, e só então sai. Agentes não combinam decisões com pessoas ou agentes de fora.
     *Por quê:* o que sai fala em nome do usuário e não se desfaz.
 
-<< Regras do projeto: acrescente a partir da 13, cada uma curta, imperativa e citando a lição que a
-justifica. >>
+Regras do kit a partir da 13: nenhuma por ora.
 
 ---
 

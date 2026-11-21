@@ -15,17 +15,17 @@ cria esse `golem.toml`, e a partir dele o bloco do `AGENTS.md` da raiz passa a d
 
 ## G1 — O modelo e a raiz do kit (R1, R2, e o `copia_do_kit` do R6)
 
-- [ ] `templates/AGENTS.md`: copiar o `AGENTS.md` da `main` e tirar a frase do kit
+- [x] `templates/AGENTS.md`: copiar o `AGENTS.md` da `main` e tirar a frase do kit
   (`AGENTS.md:108-109` em `30b87db`).
-- [ ] `.claude/tests/conftest.py`: o `copia_do_kit` copia o `templates/AGENTS.md` como
+- [x] `.claude/tests/conftest.py`: o `copia_do_kit` copia o `templates/AGENTS.md` como
   `AGENTS.md`, com recuo ao `AGENTS.md` da raiz quando o modelo não existe (R6). A docstring
   muda junto (`:150-151`, `:156`).
-- [ ] `golem.toml` na raiz: `receita = "completo"` e o comentário de uma linha.
-- [ ] `python .claude/golem.py aplicar`: o bloco da `completo` no `AGENTS.md` da raiz e
+- [x] `golem.toml` na raiz: `receita = "completo"` e o comentário de uma linha.
+- [x] `python .claude/golem.py aplicar`: o bloco da `completo` no `AGENTS.md` da raiz e
   `model: opus` nos dois agentes. Ler a saída: `2 arquivo(s) mudaram` (o `AGENTS.md` e o
   revisor; o validador já está em `opus`, `validador.md:5`).
-- [ ] O `AGENTS.md` da raiz com o texto do R2.
-- [ ] A suíte inteira, com a linha de resumo lida: `123 passed` (nenhum teste novo no G1). O
+- [x] O `AGENTS.md` da raiz com o texto do R2.
+- [x] A suíte inteira, com a linha de resumo lida: `123 passed` (nenhum teste novo no G1). O
   `test_o_agents_md_e_os_agentes_batem_com_o_golem_toml` passa contra a `completo`, e o
   `test_segunda_rodada_do_aplicar_nao_muda_nada` passa com a cópia partindo do modelo.
 
@@ -96,9 +96,11 @@ grupo vai num PR à parte.
 
 | Data | O que mudou | Por quê | Decidido por |
 |---|---|---|---|
+| 2026-11-21 | Os grupos seguem sem pedir licença entre eles; com revisor e validador sem bloqueio, commit do grupo na branch da fase. Para só por bloqueio, decisão de produto (à EST) ou fim da fase | Ordem do autor do kit | O autor do kit, nesta conversa: "não precisa parar e me perguntar se Você pode começar cada grupo. Assim que estiver pronto para começar Você pode começá-los"; e à GER: "Sim, confirmo" (as duas de 2026-11-21) |
+| 2026-11-21 | A frase de uso do `python` nos comandos reais do `AGENTS.md` da raiz, que o R2 não trazia (a lacuna que abria a seção) | Tapa a lacuna da `:40-41`; vira uma `PERMITIDAS` no G2 | O agente, pelo achado do revisor no G1 |
+| 2026-11-21 | As três partes adiadas (a lista do que viaja, o mapa das pastas e a `iniciar-sdd`) vão para a fase nova "fundação do Golem central", logo depois desta | O Golem central (M2) decidido | O autor do kit, pela EST: "Ficam para depois (Recomendado)" e "Sim, fundação antes (Recomendado)" (2026-11-21) |
+| 2026-11-21 | Na verificação do G1, conferir também que o bloco da raiz diz "Parar a cada parte: nunca" e que o `golem.teto_do_gancho()` dá 4 | O pedido da GER: a `completo` do kit grava a parada e o teto | O agente, dentro da spec |
 
 ## Estado para a retomada
 
-A spec foi escrita em 2026-11-21 e revisada duas vezes; depois veio a decisão 5 (instalação
-mínima até a decisão M1 × M2). Aprovada pelo autor do kit em 2026-11-21: "Aprovo
-(Recomendado)". Ainda não há código: o G1 espera a ordem dele nesta conversa.
+G1 feito em 2026-11-21: revisor sem bloqueio (3 menores, 2 aplicados; o terceiro são textos que os grupos seguintes corrigem) e validador "valida" (`123 passed`, mutações pegas). O G2 começa pelo `test_conciliar.py`.
