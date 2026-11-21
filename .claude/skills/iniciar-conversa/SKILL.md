@@ -69,11 +69,12 @@ Não leia esta tabela inteira: ache a sua linha.
 ## 4. As lições da área, antes de tocar nela
 
 ```bash
-grep "area:" .claude/indice/licoes.yaml | sort | uniq -c          # as áreas que têm lição
-grep -B1 -A4 'area: "deploy"' .claude/indice/licoes.yaml          # as da sua área (aqui, deploy)
+# as áreas que têm lição; depois, as da sua área (aqui, deploy)
+grep -h '^area:' --exclude=README.md docs/licoes/*.md | sed -e 's/[[:space:]]*#.*//' -e "s/[\"' ]//g" | sort | uniq -c
+grep -lE "^area:[[:space:]]*[\"']?deploy[\"']?([[:space:]]|#|$)" --exclude=README.md docs/licoes/*.md
 ```
 
-No índice, o valor vem entre aspas (`area: "deploy"`), e o id da lição é a linha de cima.
+A busca vai na pasta, e não no índice: a lição que entrou sem o índice regerado aparece também.
 
 Abra em `docs/licoes/` só as lições que a busca apontar. Se o projeto tiver um gancho que injeta as
 lições automaticamente, não varra a pasta à mão.
