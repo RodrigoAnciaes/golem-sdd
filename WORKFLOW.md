@@ -134,7 +134,7 @@ nenhuma revisão de grupo viu.
 | **Skill** | `validar-fase` ("validar a fase") |
 | **Entra** | o `validation.md`, o código e a saída real das suítes |
 | **Sai** | cada item marcado com evidência, a spec reconciliada com o código, o `CHANGELOG.md` (skill `changelog`), a fase marcada no `roadmap.md` e, se houve decisão cara de reverter, um ADR (skill `adr`) |
-| **O usuário decide** | executa as verificações manuais e pede o commit e o PR. O merge é liberado pela gerente (PEDIDO → LIBERADO; sem gerente, pelo usuário); o merge de nível 3 (`AGENTS.md`, "Convenções") espera também a palavra do usuário |
+| **O usuário decide** | executa as verificações manuais que precisam dos olhos dele (as outras o agente roda pelo `claude -p`) e pede o commit e o PR. O merge é liberado pela gerente (PEDIDO → LIBERADO; sem gerente, pelo usuário); o merge de nível 3 (`AGENTS.md`, "Convenções") espera também a palavra do usuário |
 
 - `[x]` **só com evidência**: o comando e a saída colada, nunca leitura do código.
 - Item que não pôde ser exercitado vira `[~]` com o motivo. Nunca `[x]` por analogia.

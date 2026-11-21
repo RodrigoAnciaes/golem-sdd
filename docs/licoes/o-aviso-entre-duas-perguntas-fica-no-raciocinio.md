@@ -6,8 +6,8 @@ tipo: armadilha
 custo: "duas rodadas da verificação manual 3 e uma correção da skill (30560cc) que não pegou"
 gatilho: "a skill configurar mandava dizer, numa linha de texto entre duas chamadas da ferramenta de pergunta, o que fica sem revisão; em duas sessões novas, a linha não saiu"
 refs:
-  - ".claude/skills/configurar/SKILL.md:50-59 (o aviso, agora na descrição do botão \"Nunca\")"
-  - ".claude/skills/configurar/SKILL.md:83-86 (o arquivo, agora no texto da pergunta de gravar)"
+  - ".claude/skills/configurar/SKILL.md:52-61 (o aviso, agora na descrição do botão \"Nunca\")"
+  - ".claude/skills/configurar/SKILL.md:85-88 (o arquivo, agora no texto da pergunta de gravar)"
   - "specs/2026-11-13-fase-1-configuracao/plan.md, G6, verificação 3 refeita (as duas rodadas)"
 gatilhos:
   - '/SKILL\.md$'

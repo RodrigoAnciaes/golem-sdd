@@ -43,8 +43,8 @@ outro sistema ou outra equipe.
      - **por fase:** nada aqui. Os que estiverem em `sempre` (ou em `perguntar`, com o sim) rodam
        uma vez, ao fim do último grupo de implementação (antes do grupo de verificação), sobre o
        diff da fase inteira. Com bloqueio, corrija e revise de novo antes de seguir;
-     - **`perguntar`:** antes de rodar, a pergunta com botões e o custo (regra 11); só roda com o
-       sim. O caminho rápido também é da regra 11;
+     - **`perguntar`:** antes de rodar, a pergunta com botões, com o custo no texto da própria
+       pergunta (regra 11); só roda com o sim. O caminho rápido também é da regra 11;
   3. **se o usuário pediu commits ao aprovar o plano** (regra 6 do `AGENTS.md`), o commit do
      grupo na branch da fase, por caminho explícito (`git add <arquivos>`, nunca `git add -A`);
      sem esse pedido, o trabalho fica pronto para commit;
