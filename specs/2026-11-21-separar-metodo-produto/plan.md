@@ -51,12 +51,12 @@ cria esse `golem.toml`, e a partir dele o bloco do `AGENTS.md` da raiz passa a d
 Só as duas linhas que a separação obriga (decisão 5). O resto do que viaja espera a decisão
 M1 × M2.
 
-- [ ] `README.md`, "Instalar num projeto":
+- [x] `README.md`, "Instalar num projeto":
   - o passo 1 (`:99`): o `AGENTS.md` é o `templates/AGENTS.md`, copiado como `AGENTS.md` (R5);
   - o passo 4: o `aplicar` junto da régua, o `git add .claude/agents` depois dele e a linha do caso
     sem Python (R4).
-- [ ] A docstring de `test_golem.py:202-203`.
-- [ ] A busca do que ainda trata o `AGENTS.md` da raiz como o modelo que o usuário copia:
+- [x] A docstring de `test_golem.py:202-203`.
+- [x] A busca do que ainda trata o `AGENTS.md` da raiz como o modelo que o usuário copia:
 
   ```bash
   git grep -n -e 'o que o usuário copia' -e 'AGENTS.md` do kit' -- '*.md' '*.py'
@@ -67,7 +67,7 @@ M1 × M2.
   inteira da `.claude/` e da `docs/` continuam certas até a decisão M1 × M2. Nas specs das fases
   feitas (`specs/2026-11-*`), nada muda: elas registram o que era verdade na época. A lição
   `o-grep-do-git-for-windows-aborta-com-i-e-varios-e` vale aqui: não juntar `-i` com vários `-e`.
-- [ ] O recado à GER: o passo 3 do `roteiro-teste-golem.md` (copiar o `templates/AGENTS.md` e rodar
+- [x] O recado à GER: o passo 3 do `roteiro-teste-golem.md` (copiar o `templates/AGENTS.md` e rodar
   o `aplicar`) muda depois do merge.
 
 **Revisão:** revisor e validador sobre o diff do grupo. O grupo é quase só documentação, mas o
@@ -100,8 +100,11 @@ grupo vai num PR à parte.
 | 2026-11-21 | A frase de uso do `python` nos comandos reais do `AGENTS.md` da raiz, que o R2 não trazia (a lacuna que abria a seção) | Tapa a lacuna da `:40-41`; vira uma `PERMITIDAS` no G2 | O agente, pelo achado do revisor no G1 |
 | 2026-11-21 | As três partes adiadas (a lista do que viaja, o mapa das pastas e a `iniciar-sdd`) vão para a fase nova "fundação do Golem central", logo depois desta | O Golem central (M2) decidido | O autor do kit, pela EST: "Ficam para depois (Recomendado)" e "Sim, fundação antes (Recomendado)" (2026-11-21) |
 | 2026-11-21 | O pulo do conciliador passa de `pytest.skip(..., allow_module_level=True)` a `pytestmark = pytest.mark.skipif(...)`; a cópia da mutação leva também o `golem.toml` | O pulo de módulo conta 1, e a spec pede 3 pulados com o motivo; sem o `golem.toml`, a cópia limpa já falha | O agente, pelo validador do G2 |
+| 2026-11-21 | O `git add` do passo 4 do `README.md` leva também o `AGENTS.md`; o passo diz a saída esperada do `aplicar`; o caso sem Python pede o mesmo `git add`; o `docs/guia-configuracao.md` aponta a exceção sem Python | Num `AGENTS.md` juntado à mão, o `aplicar` acrescenta o bloco depois do `git add` do passo 3 | O agente, pelo revisor do G3 |
+| 2026-11-21 | A ref da lição `num-produto-a-falha-vista-vem-do-uso` deixa de citar a linha do `AGENTS.md` ("regra 10, primeiro item") | O G1 mudou a numeração, e a linha é outra no kit e no modelo | O agente, pelo revisor do G3 (quem muda, varre) |
+| 2026-11-21 | O G4 (a seção 8 do `docs/plano-produto.md`) sai desta fase; o texto fica numa nota na pasta da GER (`separacao-g4-secao-8.md`) e entra no PR do replanejar do roteiro | O `docs/plano-produto.md` está com a fase 2, que não mergeou; o replanejar já mexe nas seções 7 e 8, e o arquivo muda uma vez só | A GER, opção (a): "Fechem a fase sem o G4: G5, guardião e PEDIDO" (2026-11-21) |
 | 2026-11-21 | Na verificação do G1, conferir também que o bloco da raiz diz "Parar a cada parte: nunca" e que o `golem.teto_do_gancho()` dá 4 | O pedido da GER: a `completo` do kit grava a parada e o teto | O agente, dentro da spec |
 
 ## Estado para a retomada
 
-G1 e G2 feitos em 2026-11-21, cada um com revisor sem bloqueio e validador "valida" (`126 passed` no G2, mutações pegas, `3 skipped` fora do kit). O G3 começa pelo `README.md`, depois de trazer a `main`.
+G1, G2 e G3 feitos em 2026-11-21, cada um com revisor sem bloqueio e validador "valida". O G4 saiu da fase (tabela acima). Falta o G5: o `validation.md` inteiro, o guardião e o PEDIDO.

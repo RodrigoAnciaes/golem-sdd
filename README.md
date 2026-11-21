@@ -96,8 +96,10 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
      das lições, que **já vem pronto** no kit, e o `LICENSE` do kit, que fica junto: é a condição
      da licença, veja "Licença e crédito");
    - a pasta `docs/` (a operação das conversas, o guia de configuração e as lições de exemplo);
-   - o `AGENTS.md`, o `WORKFLOW.md` e o `CLAUDE.md` (ele importa o `AGENTS.md` para o Claude
-     Code; quem usa só o Codex não precisa dele).
+   - o `templates/AGENTS.md`, copiado como `AGENTS.md` (é o modelo, com as lacunas `<< >>` que
+     você preenche; o `AGENTS.md` da raiz do kit é o do desenvolvimento do próprio kit e não vai);
+   - o `WORKFLOW.md` e o `CLAUDE.md` (ele importa o `AGENTS.md` para o Claude Code; quem usa só o
+     Codex não precisa dele).
 
    Se o projeto já tem algum desses arquivos, **não sobrescreva**: junte à mão. No `CLAUDE.md`
    existente, acrescente a linha `@AGENTS.md`. No `.claude/settings.json`
@@ -122,13 +124,22 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
    No Windows, o git pode avisar `LF will be replaced by CRLF` para vários arquivos: é normal. O
    `gancho.sh` não aparece na lista, porque o `.gitattributes` o mantém em LF.
 
-4. **Gere e confira o índice das lições:**
+4. **Gere e confira o índice das lições, e aplique a configuração:**
 
    ```bash
    python3 .claude/regua.py --gerar
    python3 .claude/regua.py --conferir
    tail -1 .claude/indice/licoes.yaml
+   python3 .claude/golem.py aplicar
+   git add .claude/agents AGENTS.md
    ```
+
+   O `aplicar` deixa os agentes no modelo da receita do seu projeto: sem `golem.toml`, a
+   `economico`, com o `revisor` no Sonnet. Numa instalação nova, ele diz
+   `escrito  .claude/agents/revisor.md` e `1 arquivo(s) mudaram`. Sem o `aplicar`, o `revisor`
+   fica no modelo do kit (o Opus). O `git add` põe no stage o que ele escreveu (os agentes e, num
+   `AGENTS.md` juntado à mão, o bloco "Como o Golem trabalha aqui"). Sem Python, troque à mão, no
+   `.claude/agents/revisor.md`, a linha `model:` por `model: sonnet`, e rode o mesmo `git add`.
 
    O `--conferir` tem de terminar com `ok       .claude/indice/licoes.yaml`, e a última linha do
    índice tem de ser `total:` com um número **maior que zero**: o de arquivos em `docs/licoes/`,

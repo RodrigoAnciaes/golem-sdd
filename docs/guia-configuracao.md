@@ -71,7 +71,8 @@ python3 .claude/golem.py aplicar
 
 No Windows, `python` ou `py -3` no lugar de `python3`. Um valor errado faz o `aplicar` parar sem
 escrever nada e dizer a linha. O `aplicar` escreve o bloco "Como o Golem trabalha aqui" do
-`AGENTS.md` e o `model:` dos agentes; não edite esses trechos à mão.
+`AGENTS.md` e o `model:` dos agentes; não edite esses trechos à mão (sem Python, veja o passo 4
+de "Instalar num projeto", no `README.md` do kit).
 
 ```toml
 # golem.toml: como o Golem trabalha neste projeto.
