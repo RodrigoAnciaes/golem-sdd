@@ -77,7 +77,8 @@ Acontece, e é sinal de que a spec está viva. A ordem é sempre a mesma:
 
 1. Pare de implementar.
 2. Explique ao usuário o que foi descoberto e as opções, cada uma com a consequência e a
-   recomendada primeiro.
+   recomendada primeiro. Com os papéis, a parte de produto vai à EST (abaixo, depois de "Pare e
+   pergunte quando").
 3. Atualize `requirements.md` (seção Decisões) e `plan.md`.
 4. Só então volte ao código.
 

@@ -31,7 +31,8 @@ aqui.** Quando as duas divergirem, este documento manda, e quem notar corrige a 
 **O fluxo das decisões.** Com os papéis, **as decisões de produto passam pela EST**: o escopo, a
 prioridade, o que o usuário ou o cliente vê e o rumo. O usuário decide lá (as de método, na MET),
 e as conversas não divergem por ler a mesma pergunta de jeitos diferentes. A EST
-devolve a resposta à frente que perguntou e avisa a GER, que registra. Três travas:
+registra a decisão, devolve a resposta à frente que perguntou e avisa a GER, que anota no
+`GERENTE.md`. Três travas:
 
 1. **Sem telefone sem fio.** A frente manda à EST o [cartão](#cartão-de-decisão) com o texto
    original: a pergunta, as opções e a consequência de cada uma. A EST o mostra ao usuário como
