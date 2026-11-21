@@ -33,7 +33,7 @@ cria esse `golem.toml`, e a partir dele o bloco do `AGENTS.md` da raiz passa a d
 
 ## G2 — O conciliador (R3)
 
-- [ ] `.claude/tests/test_conciliar.py`, com a linha de crédito, a `PERMITIDAS` (um trio por
+- [x] `.claude/tests/test_conciliar.py`, com a linha de crédito, a `PERMITIDAS` (um trio por
   diferença do G1, cada uma com o motivo) e três testes:
   - `test_o_agents_md_do_kit_concilia_com_o_modelo`;
   - `test_cada_diferenca_permitida_tem_motivo_e_acha_o_trecho`;
@@ -41,8 +41,8 @@ cria esse `golem.toml`, e a partir dele o bloco do `AGENTS.md` da raiz passa a d
 
   O módulo se pula, com o motivo, quando o `AGENTS.md` da raiz não traz a frase de abertura do kit
   (R3).
-- [ ] `.claude/tests/test_credito.py`: o caminho novo na `ARQUIVOS_DO_KIT`.
-- [ ] A mutação do `validation.md` ("A mutação do conciliador"), numa cópia da árvore de trabalho.
+- [x] `.claude/tests/test_credito.py`: o caminho novo na `ARQUIVOS_DO_KIT`.
+- [x] A mutação do `validation.md` ("A mutação do conciliador"), numa cópia da árvore de trabalho.
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 
@@ -99,8 +99,9 @@ grupo vai num PR à parte.
 | 2026-11-21 | Os grupos seguem sem pedir licença entre eles; com revisor e validador sem bloqueio, commit do grupo na branch da fase. Para só por bloqueio, decisão de produto (à EST) ou fim da fase | Ordem do autor do kit | O autor do kit, nesta conversa: "não precisa parar e me perguntar se Você pode começar cada grupo. Assim que estiver pronto para começar Você pode começá-los"; e à GER: "Sim, confirmo" (as duas de 2026-11-21) |
 | 2026-11-21 | A frase de uso do `python` nos comandos reais do `AGENTS.md` da raiz, que o R2 não trazia (a lacuna que abria a seção) | Tapa a lacuna da `:40-41`; vira uma `PERMITIDAS` no G2 | O agente, pelo achado do revisor no G1 |
 | 2026-11-21 | As três partes adiadas (a lista do que viaja, o mapa das pastas e a `iniciar-sdd`) vão para a fase nova "fundação do Golem central", logo depois desta | O Golem central (M2) decidido | O autor do kit, pela EST: "Ficam para depois (Recomendado)" e "Sim, fundação antes (Recomendado)" (2026-11-21) |
+| 2026-11-21 | O pulo do conciliador passa de `pytest.skip(..., allow_module_level=True)` a `pytestmark = pytest.mark.skipif(...)`; a cópia da mutação leva também o `golem.toml` | O pulo de módulo conta 1, e a spec pede 3 pulados com o motivo; sem o `golem.toml`, a cópia limpa já falha | O agente, pelo validador do G2 |
 | 2026-11-21 | Na verificação do G1, conferir também que o bloco da raiz diz "Parar a cada parte: nunca" e que o `golem.teto_do_gancho()` dá 4 | O pedido da GER: a `completo` do kit grava a parada e o teto | O agente, dentro da spec |
 
 ## Estado para a retomada
 
-G1 feito em 2026-11-21: revisor sem bloqueio (3 menores, 2 aplicados; o terceiro são textos que os grupos seguintes corrigem) e validador "valida" (`123 passed`, mutações pegas). O G2 começa pelo `test_conciliar.py`.
+G1 e G2 feitos em 2026-11-21, cada um com revisor sem bloqueio e validador "valida" (`126 passed` no G2, mutações pegas, `3 skipped` fora do kit). O G3 começa pelo `README.md`, depois de trazer a `main`.

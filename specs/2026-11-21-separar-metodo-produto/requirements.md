@@ -112,9 +112,9 @@ o usuário copia. Daí saem três problemas:
     `.claude/tests/`, e o `README.md` oferece a suíte ao usuário (`:83`, `:268`). O teste que
     falhasse no projeto dele seria lido como "o kit está quebrado" (sugestão da EST, pela GER,
     2026-11-21). A condição é exata:
-    - o módulo inteiro se pula (`pytest.skip(..., allow_module_level=True)`) quando o `AGENTS.md`
-      da raiz não traz a frase de abertura do kit (R2, "Este é o `AGENTS.md` do kit."). O motivo
-      diz: "não é o repositório do kit: o conciliador só roda lá";
+    - os 3 testes do módulo se pulam (`pytestmark = pytest.mark.skipif(...)`, que conta um pulo
+      por teste) quando o `AGENTS.md` da raiz não traz a frase de abertura do kit (R2, "Este é o
+      `AGENTS.md` do kit."). O motivo diz: "não é o repositório do kit: o conciliador só roda lá";
     - no kit, a frase existe, e ele nunca se pula. Se alguém apagar a frase no kit, os 3 pulados
       aparecem no `-rs`, e a contagem do `validation.md` ("0 pulados") acusa (regra 8).
 - **R4. A instalação roda o `aplicar`.**

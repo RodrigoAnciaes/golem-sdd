@@ -41,8 +41,9 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
 
 ## A mutação do conciliador (R3)
 
-Numa cópia da árvore de trabalho, sem a `.git` (`cp -r` para uma pasta descartável; o
-`git archive` não serve antes do commit do grupo), rodando na cópia
+Numa cópia da árvore de trabalho, sem a `.git` (`cp -r` de `.claude`, `AGENTS.md`, `templates`,
+`docs` e `golem.toml` para uma pasta descartável; sem o `golem.toml`, vale a `economico` e o
+`test_golem.py` já falha na cópia limpa; o `git archive` não serve antes do commit do grupo), rodando na cópia
 `"$PY" -m pytest .claude/tests/test_conciliar.py .claude/tests/test_golem.py -o addopts= -q -p no:cacheprovider`.
 Cada item parte da cópia limpa:
 
