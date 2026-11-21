@@ -99,6 +99,9 @@ não é fim de turno: com o próximo grupo liberado, a conversa segue no mesmo t
   as opções, atualizar `requirements.md` e `plan.md` (com a linha em "Alterações de escopo"), e só
   então voltar ao código.
 
+Com os papéis, a pergunta de produto desses pontos vai à EST no cartão, com o texto original, e
+não direto ao usuário (`docs/operacao-das-conversas.md`, "O fluxo das decisões").
+
 Achado fora do escopo não se corrige no meio da fase: vira lição (se cumprir um dos quatro
 motivos da regra 7), aviso à gerente ou um item na caixa de achados
 (`docs/operacao-das-conversas.md`).
