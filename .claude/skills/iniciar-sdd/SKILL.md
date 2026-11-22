@@ -58,7 +58,7 @@ falta nele, em vez de registrar de novo.
 ```bash
 pasta=$(mkdir -p "<caminho>" && cd "<caminho>" && { pwd -W 2>/dev/null || pwd; })   # sem pasta: "${GOLEM_CENTRAL:-$HOME/Golem}/jogos/<nome>"
 echo "pasta: $pasta"
-topo=$(cd "$(git -C "$pasta" rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null && { pwd -W 2>/dev/null || pwd; })
+topo=$(t=$(git -C "$pasta" rev-parse --show-toplevel 2>/dev/null) && cd "$t" && { pwd -W 2>/dev/null || pwd; })
 echo "raiz do git: ${topo:-não é um repositório git}"
 ```
 

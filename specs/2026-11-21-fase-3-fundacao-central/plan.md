@@ -125,19 +125,20 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
 
 ## G5 — A lista do que viaja, o mapa e o `README.md` (R5)
 
-- [ ] `README.md`: "Instalar o Golem (uma vez)", "Registrar um jogo", a cópia em "Usando com o
+- [x] `README.md`: "Instalar o Golem (uma vez)", "Registrar um jogo", a cópia em "Usando com o
   Codex" com a lista corrigida (sem a `.claude/tests/` e sem o `docs/plano-produto.md`), e o
   "Mapa das pastas" com o "onde mora".
-- [ ] Os documentos que viajam ao jogo (R5): `docs/licoes/README.md`, `WORKFLOW.md`,
+- [x] Os documentos que viajam ao jogo (R5): `docs/licoes/README.md`, `WORKFLOW.md`,
   `docs/operacao-das-conversas.md` e a seção "Licença e crédito" do `README.md`, pela busca
   `grep -nE '\.claude/(regua|golem|instalar_codex)\.py|\.claude/(hooks|skills|agents)/|\.claude/LICENSE' docs/licoes/README.md WORKFLOW.md docs/operacao-das-conversas.md README.md`.
   Cada linha diz o que vale no jogo com o plugin, ou se justifica no PR.
-- [ ] A busca do que fala da instalação por cópia como a única:
+- [x] A busca do que fala da instalação por cópia como a única:
   `grep -rnE "Copie para a raiz|a pasta \`\.claude/\` inteira|a pasta \`docs/\`|Instalar num projeto" --include=*.md --include=*.py .`
   (fora de `specs/`, que guarda o histórico). Cada ocorrência corrigida ou justificada no PR.
-- [ ] `docs/plano-produto.md`: a nota da seção 6 e a linha da fase 3 na seção 7 só pelo
-  `validar-fase` (o roteiro); nada de decisão nova sem o autor do kit.
-- [ ] `python .claude/regua.py --conferir` e a suíte inteira.
+- [x] `docs/plano-produto.md`: nada neste grupo. A nota da seção 6 e a linha da fase 3 na seção 7
+  ficam para a `validar-fase` (o roteiro); nada de decisão nova sem o autor do kit.
+- [x] `python .claude/regua.py --conferir` (`ok`) e a suíte inteira: `166 passed`, sem pulados (o
+  G5 não traz teste).
 
 **Revisão:** como o G5 é só de documentação, o caminho rápido: só o revisor, que confere fato por
 fato contra a fonte. Se ganhar código, volta ao caminho completo.

@@ -1,8 +1,9 @@
 # Guia de configuração do Golem
 
-O Golem trabalha conforme o `golem.toml`, na raiz do projeto. Sem o arquivo, vale a receita
-`economico`. O jeito mais fácil de mudar é pedir **"configurar o Golem"** e responder aos botões:
-a skill `configurar` escreve o arquivo e roda o `aplicar`. A configuração nova vale numa conversa
+O Golem trabalha conforme o `golem.toml`: o da raiz do projeto ou, no Golem central, o do
+`~/Golem` (que vale em todos os jogos), com o do jogo, se houver, por cima, linha a linha. Sem
+nenhum, vale a receita `economico`. O jeito mais fácil de mudar é pedir **"configurar o Golem"** e
+responder aos botões: a skill `configurar` escreve o arquivo e roda o `aplicar`. A configuração nova vale numa conversa
 nova.
 
 ## As três receitas
@@ -66,12 +67,20 @@ do `validation.md` continuam rodando.
 Abra o `golem.toml`, tire o `#` da linha que quiser mudar (ou escreva-a) e rode:
 
 ```bash
-python3 .claude/golem.py aplicar
+python3 .claude/golem.py aplicar                          # na cópia (o kit dentro do projeto)
+python3 <pasta do kit>/.claude/golem.py aplicar --todos   # no Golem central: todos os jogos
+python3 <pasta do kit>/.claude/golem.py aplicar           # no central, só o jogo da pasta
 ```
+
+No Golem central, o `golem.toml` é o de `~/Golem`, e vale em todos os jogos; o `golem.toml` de um
+jogo, se houver, vale por cima, linha a linha, e o `aplicar --todos` refaz o bloco de cada jogo do
+registro. O `python3 <pasta do kit>/.claude/golem.py onde`, rodado num jogo, diz de onde vem cada
+linha.
 
 No Windows, `python` ou `py -3` no lugar de `python3`. Um valor errado faz o `aplicar` parar sem
 escrever nada e dizer a linha. O `aplicar` escreve o bloco "Como o Golem trabalha aqui" do
-`AGENTS.md` e o `model:` dos agentes; não edite esses trechos à mão (sem Python, o `aplicar` fica
+`AGENTS.md` e, na cópia, o `model:` dos agentes (no plugin, o modelo vai na chamada, como diz o
+bloco); não edite esses trechos à mão (sem Python, o `aplicar` fica
 pendente: veja a skill `configurar`).
 
 ```toml

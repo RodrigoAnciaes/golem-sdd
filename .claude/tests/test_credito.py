@@ -1,8 +1,9 @@
 # Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """O crédito do kit: o `.claude/LICENSE` existe, e cada arquivo do kit traz a linha de crédito.
 
-A condição da MIT é manter o aviso de copyright e o texto da licença em toda cópia do kit. A
-instalação copia a pasta `.claude/` inteira, e o `LICENSE` vai dentro dela.
+A condição da MIT é manter o aviso de copyright e o texto da licença em toda cópia do kit. Na
+instalação por cópia, o `LICENSE` vai dentro da `.claude/`; no Golem central, a `iniciar-sdd` o
+copia a cada jogo, junto do `AGENTS.md` e das lições de exemplo.
 
 `ARQUIVOS_DO_KIT` é uma lista fechada de propósito. As skills, os agentes e os scripts que o
 usuário cria no próprio projeto são dele e não levam o crédito do kit. Um arquivo da lista que o
