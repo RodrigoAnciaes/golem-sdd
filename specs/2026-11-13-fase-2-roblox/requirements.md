@@ -97,9 +97,16 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     `game.ReplicatedStorage`, `game.ReplicatedFirst`, `game.StarterPlayer`, `game.StarterGui`,
     `game.Workspace`; o `ReplicatedFirst` entrou no G3, achado do revisor), na área
     `codigo`. Na forma com `game.`, uma pasta comum chamada `Workspace` num caminho de arquivo não
-    acende `codigo`. O `POR_COMANDO` não muda: uma lição com `gatilhos:` só chega quando um gatilho
-    casa, e não pela área (`licoes_relevantes.py:20-24`, `:276-280`); a lição do resumo dos testes
-    no place é a lição de exemplo do R7, com o gatilho na chamada do executor.
+    acende `codigo`. **Mudou no G6:** o agente também cria um script num `execute_luau` só, com
+    `Instance.new` e `Source =`, sem caminho (verificação manual 1, conferência 4), e o `POR_COMANDO`
+    ganhou o Luau que cria instância ou escreve `.Source` na área `codigo` (lição
+    `o-agente-cria-script-pelo-execute-luau-sem-caminho`). Os limites conhecidos estão no
+    comentário da entrada (`:113-119` no G6): ela vale para todo comando, e não pega `:Clone()`,
+    `UpdateSourceAsync`, `["Source"] =`, `Instance.fromExisting` nem um `Instance.new` entre
+    apóstrofos de comentário; nenhum foi visto no uso (regra 10). Fora isso, o `POR_COMANDO` não
+    mudou: uma lição com `gatilhos:` só chega quando um gatilho casa, e não pela área
+    (`licoes_relevantes.py:23-27` e `:285-300`, no G6); a lição do resumo dos testes no place é a
+    lição de exemplo do R7, com o gatilho na chamada do executor.
   - **Os testes** na suíte do ferramental, no padrão de `.claude/tests/test_gancho.py`:
     1. um `tool_input` de `multi_edit` num script de `game.ServerScriptService` entrega uma lição
        da área `codigo`;
@@ -111,7 +118,9 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
        uma lista de nomes exatos; qualquer outro caractere faz uma expressão regular de JavaScript
        sem âncora;
     4. a entrada nova tem o mesmo `command`, `timeout` e `statusMessage` das outras duas;
-    5. um `Edit` de `C:/x/Workspace/notas.md` não acende `codigo`.
+    5. um `Edit` de `C:/x/Workspace/notas.md` não acende `codigo`;
+    6. (G6) um `execute_luau` com `Instance.new` ou `.Source =` acende `codigo`, e a chamada do
+       executor e uma comparação `.Source ==` não acendem.
 - **R4. O revisor e o validador leem o place.**
   - **O revisor** ganha no `tools:` as ferramentas de leitura do Studio MCP: `script_read`,
     `script_grep`, `script_search`, `search_game_tree`, `inspect_instance`, `get_console_output`
@@ -123,9 +132,24 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     `get_studio_state`, para rodar o executor em modo de jogo (R6).
   - **O texto dos dois** ganha o caminho sem Rojo, curto: sem diff no git, o revisor recebe da
     conversa a lista dos scripts que o grupo mexeu e os lê pelo `script_read`; o validador roda o
-    executor e lê a linha de resumo no console. **No place, o validador não faz mutação**: não há
-    cópia descartável, e o `execute_luau` mudaria o place do usuário. Ele diz numa linha que a
-    mutação foi pulada por isso. O `execute_luau` do validador só roda o executor e leituras.
+    executor e lê a linha de resumo no console. **O validador nunca muda o place**: não há cópia
+    descartável. Antes de ligar o jogo, ele procura `DataStore` no place (`script_grep`):
+    - **sem `DataStore`**, com o jogo ligado, ele pode chamar as funções do código e fazer a
+      mutação **em memória** (trocar as funções da tabela que o `require` devolve, rodar o
+      executor e restaurar);
+    - **com `DataStore`**, só o executor e leituras, e a mutação pulada, dita numa linha.
+
+    O caminho até aqui, no G6:
+    1. Na verificação manual 1, o validador fez a mutação em memória, contra o texto de então
+       ("no place, a mutação não se faz").
+    2. O usuário decidiu proibir também esse caminho ("Ok, vamos seguir sua proposta.",
+       2026-11-21), pelo risco de, com o jogo ligado, gravar dado errado no `DataStore`.
+    3. Ele perguntou se o risco era real num place de desenvolvimento. A documentação da Roblox
+       diz que o Studio só acessa o `DataStore` com "Enable Studio Access to API Services"
+       ligado, desligado por padrão, e que isso se liga numa versão de teste, e não no jogo ao
+       vivo ([data stores](https://create.roblox.com/docs/cloud-services/data-stores)). Com o
+       acesso ligado, ele é o mesmo do jogo publicado, e é por experiência.
+    4. Decisão do usuário em 2026-11-21: "Liberar sem DataStore (Recomendado)".
   - Num projeto sem o Studio MCP, as entradas `mcp__` não resolvem e o resto do `tools:` continua
     valendo (a documentação dos subagentes diz que o agente só falha se **nenhuma** entrada
     resolver, ver "Contexto"). O G4 confere isso numa pasta sem o servidor.
@@ -167,8 +191,9 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - um teste se pula com o nome começando por `pular: `, e conta como `skipped`;
   - sem nenhum teste, a linha sai `0 passed, 0 failed, 0 skipped` e mais uma linha
     "nenhum teste encontrado", para que zero coletado não pareça verde (regra 8);
-  - o executor e o exemplo não chamam o `DataStore`: no Studio, ele é o de verdade, e escrever nele
-    muda o dado dos jogadores (ver "Contexto");
+  - o executor e o exemplo não chamam o `DataStore`: com o acesso do Studio às APIs ligado, ele é o
+    do jogo publicado, e escrever nele muda o dado dos jogadores (ver "Contexto"; o acesso vem
+    desligado por padrão, conferido no G6);
   - o executor é **modelo do kit**, não dependência: o código fica em `templates/roblox/`, com a
     linha de crédito (`-- Golem SDD · ...`), e o usuário pode trocá-lo por um framework na
     migração.
@@ -183,12 +208,14 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     agente (G2, resposta 7).
   - **A lista de riscos do Roblox** (pedido da conversa de estratégia, confirmado pelo autor do
     kit): `templates/roblox/regras-de-area.md`, de 5 a 8 regras no formato que o gancho entende
-    (`## Regra N — Título`, a linha `areas: codigo`, o corpo; `licoes_relevantes.py:31-33`,
-    `:284-310`). Cada regra diz o risco e o porquê em uma linha, com o link da documentação do
+    (`## Regra N — Título`, a linha `areas: codigo`, o corpo; `licoes_relevantes.py:34-36` e
+    `:303` em diante, no G6). Cada regra diz o risco e o porquê em uma linha, com o link da documentação do
     Roblox que o sustenta, e o comportamento **"avisar e deixar"**: o agente faz o que o usuário
     pediu, e põe uma linha de aviso no resumo da parte (ou no fim do grupo), com três saídas:
     corrigir, deixar assim, me explica. Não bloqueia. O que o agente escreve por conta própria já
-    sai do jeito seguro. Candidatas, cada uma **a conferir** na documentação no G5; a que não
+    sai do jeito seguro. Cada regra nomeia as três saídas, porque o gancho entrega só o bloco da
+    regra, sem a introdução do arquivo (G6, lição `a-regra-de-area-chega-sem-a-introducao-do-arquivo`).
+    Candidatas, cada uma **a conferir** na documentação no G5; a que não
     tiver fonte sai:
     1. o servidor não confia no que o cliente manda por um `RemoteEvent` ou `RemoteFunction`
        (valida os argumentos);
@@ -219,23 +246,26 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
     Permissões MCP, na interface em português), seção por
     seção: cada jogo começa no nível "Balanced", com os escopos de risco baixo e moderado ligados,
     e o "Safe" ainda deixa algumas ligadas; o kit não usa o `open_cloud_invoke` (ver "Contexto");
-  - o aviso de que, no Studio, o `DataStore` é o de verdade: um teste que escreve nele muda o dado
-    dos jogadores;
+  - o aviso de que, com o acesso do Studio às APIs ligado (desligado por padrão, G6), o
+    `DataStore` é o do jogo publicado: um teste que escreve nele muda o dado dos jogadores, e a
+    Roblox recomenda ligar o acesso só numa versão de teste;
   - **salvar o place no Roblox antes da primeira fase** (File ⟩ Save to Roblox): num place local,
     não há histórico de versões;
   - a pasta do projeto com git ao lado do place (uma pasta por jogo, como sugestão); copiar os
     modelos do R5 e do R7 (as lições para `docs/licoes/`, a lista de riscos para
     `docs/regras-de-area.md`), fazer o `git add` deles e rodar `regua.py --gerar`, porque o gancho
-    lê o índice e só cai no Markdown sem ele (`licoes_relevantes.py:197-210`, `:269-272`), e a
+    lê o índice e só cai no Markdown sem ele (`licoes_relevantes.py:216` e `:288-291`, no G6), e a
     régua só indexa o que o git conhece (`.claude/regua.py:26-28`). Como o kit chega à pasta muda
     quando o kit virar plugin (fase de instalação; decisão do Golem central, 2026-11-21, pela
     EST); o guia diz o caminho de hoje, o kit copiado;
   - pedir ao agente que ponha o executor; rodar os testes;
   - o desfazer: o agente salva uma versão (`save_place`) antes de cada fase, e volta-se à versão
     salva pelo histórico, com os passos do Studio e do Creator Dashboard, o aviso de que restaurar
-    não publica, e o de que, depois do "Abrir cópia local" e do "Salvar na Roblox como" (na
-    interface em português), a sessão antiga se fecha sem salvar, para não gravar por cima da volta;
-  - o que fica mais fraco sem Rojo (sem diff, sem mutação, sem git do código), com o caminho para
+    não publica, e o de que, depois do "Abrir cópia local" (na interface em português), a sessão
+    antiga se fecha sem salvar **antes** do "Salvar na Roblox como" da cópia: com ela aberta, o
+    Studio recusa o salvamento (G6, lição `o-studio-recusa-salvar-a-copia-com-a-sessao-antiga-aberta`);
+  - o que fica mais fraco sem Rojo (sem diff, a mutação só em memória e só num place sem
+    `DataStore`, sem git do código), com o caminho para
     migrar depois;
   - **o Ctrl+Z não desfaz o que o agente escreve:** ele desfaz a criação de um script pelo agente,
     mas não a troca de texto (G2, resposta 7); o desfazer é o histórico de versões;
@@ -351,7 +381,9 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   leva a exceção à seção 8.
 - **Leituras do agente, para aprovar com a spec:**
   - **O validador não faz mutação no place** (R4): sem cópia descartável, a mutação mudaria o
-    place do usuário. Na receita `economico`, o validador já não roda (fase 1, R3).
+    place do usuário. Na receita `economico`, o validador já não roda (fase 1, R3). **Mudou no
+    G6:** ele nunca muda o place, mas faz a mutação em memória, com o jogo ligado, num place sem
+    `DataStore` (R4).
   - **O executor imprime no formato do TestEZ** (`N passed, N failed, N skipped`): a lição da
     linha de resumo e o hábito de quem migrar continuam valendo.
   - **A linha nova do `settings.json` entra como terceira entrada**, sem mexer nas duas de hoje,
@@ -359,7 +391,8 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   - **Os modelos, as lições e a lista de riscos ficam em `templates/roblox/`**, e não em
     `docs/`: são do projeto do usuário; o kit não é um projeto Roblox.
   - **O `POR_COMANDO` não muda** (R3): a área não traz lição com gatilho, e a lição do resumo no
-    place vem pelo gatilho dela.
+    place vem pelo gatilho dela. **Mudou no G6:** ganhou o Luau que cria instância ou escreve
+    `.Source`, na área `codigo` (R3).
   - **A branch se chama `fase-2-roblox`**, no padrão das fases 0 e 1, renomeada da que o app criou
     para o worktree.
 
@@ -388,7 +421,12 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
   key", só com as permissões ligadas para o jogo, em MCP ⟩ MCP Permissions; "Each game starts at
   Balanced" (escopos de risco baixo e moderado); o nível "Full access" inclui o que pode "publish
   to your live game"; e o aviso: "Studio uses your live data stores. Writes from your client change
-  real player data".
+  real player data". No G6, a mesma página lida de novo: o aviso está na seção "Data stores and
+  memory stores", sobre o `DataStoreService` no `execute_luau`, depois do passo de ligar "Enable
+  Studio Access to API Services", que "is separate from your MCP permissions"; e a página
+  [data stores](https://create.roblox.com/docs/cloud-services/data-stores) diz que essa opção vem
+  desligada ("By default, games tested in Studio can't access data stores"). O aviso vale, então,
+  com a opção ligada; o `open_cloud_invoke` depende só das permissões MCP.
 - **O `matcher` dos ganchos** ([documentação](https://code.claude.com/docs/en/hooks.md), "Matcher
   patterns", lida em 2026-11-13): só com letras, dígitos, `_`, `-`, espaço, `,` e `|`, é "Exact
   string, or list of exact strings"; com qualquer outro caractere, "JavaScript regular expression,
@@ -445,7 +483,7 @@ ter muita experiência com controle de versões ainda" (palavras do autor do kit
 - **O `tech-stack.md` de Roblox** segue `templates/constituicao/tech-stack.md`, seção por seção.
 - **As lições de exemplo** seguem o formato de `docs/licoes/README.md` e uma lição real, como
   `docs/licoes/suite-verde-so-vale-com-a-linha-de-resumo.md`.
-- **A lista de riscos** segue o formato que o `regras_para` lê (`licoes_relevantes.py:284-310`).
+- **A lista de riscos** segue o formato que o `regras_para` lê (`licoes_relevantes.py:303` em diante, no G6).
 - **O guia** segue o `docs/guia-configuracao.md` da fase 1: uma página, palavras simples, nenhuma
   sigla sem dizer o que é (`docs/plano-produto.md:549-550`).
 

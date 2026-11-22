@@ -110,6 +110,13 @@ POR_COMANDO = [
     (r"\bgit\s+(push|merge|rebase|reset|checkout)\b", ["processo"]),
     (r"\bpytest\b|\bpython\b.*-m\s+pytest|\bnpm\s+(run\s+)?test\b", ["processo"]),
     (r"\bcurl\b|\bhttpie\b|\bhttp\s+(get|post|put|patch|delete)\b", ["contrato"]),
+    # O Luau do `execute_luau` que cria uma instância ou escreve o texto de um script: o agente
+    # também cria scripts assim, sem `multi_edit` e sem caminho (fase 2, verificação manual 1).
+    # Com maiúsculas exatas e sem o `==` da comparação. Vale para todo comando (um `grep
+    # Instance.new` também acende). Não pega: `:Clone()`, `UpdateSourceAsync`, `["Source"] =`,
+    # `Instance.fromExisting`, nem um `Instance.new` entre dois apóstrofos de comentário, que o
+    # `sem_texto` apaga como texto entre aspas; nenhum foi visto no uso.
+    (r"(?-i:\bInstance\.new\b)|(?-i:\.Source)\s*=(?!=)", ["codigo"]),
 ]
 
 

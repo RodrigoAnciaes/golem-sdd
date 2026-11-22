@@ -5,7 +5,8 @@ Num jogo do Roblox sem Rojo, não há comando de terminal: tudo passa pelo Studi
 `list_roblox_studios` dá; ele também diz `"persistedToCloud": true` quando o place está salvo no
 Roblox.
 
-**Antes de começar cada fase:** chame o `save_place` e anote no `plan.md` a hora e a versão que ele
+**Antes de começar cada fase:** chame o `save_place` e anote no `plan.md` (no formato curto, no
+`requirements.md`) a hora e a versão que ele
 devolveu (`"version": N`). Ela é o ponto de volta pelo histórico de versões. Se o place estiver
 aberto de um arquivo local (`.rbxl`), o `save_place` grava por cima do arquivo e não cria versão:
 pare e peça ao usuário que salve o place no Roblox (Arquivo ⟩ Salvar na Roblox) antes da fase.
@@ -19,7 +20,9 @@ pare e peça ao usuário que salve o place no Roblox (Arquivo ⟩ Salvar na Robl
 3. `get_console_output`: leia a linha `N passed, N failed, N skipped` e as linhas `FALHOU`.
 4. `start_stop_play` com `is_start: false`.
 
-Ligar o jogo roda também os scripts do jogo. Se eles usam `DataStore`, o dado é o de verdade.
+Ligar o jogo roda também os scripts do jogo. Se eles usam `DataStore` e o acesso do Studio às APIs
+está ligado ("Enable Studio Access to API Services", em Arquivo ⟩ Configurações de experiência;
+desligado por padrão), o dado é o do jogo publicado.
 
 **Ao chamar o revisor ou o validador:** sem diff no git, passe na chamada os caminhos dos scripts
 que o grupo mexeu pelo `multi_edit` (por exemplo, `game.ServerStorage.Moedas`). É por eles que o

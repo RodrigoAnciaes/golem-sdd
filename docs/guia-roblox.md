@@ -39,6 +39,9 @@ no Studio e deixa um programa de fora conversar com ele.
 Uma pasta por jogo, com `git init`. Dentro dela, o kit e os modelos de Roblox. Hoje, o kit se copia
 para a pasta; isto muda quando o kit virar plugin (fase de instalação). Com o kit copiado:
 
+- copie também a pasta `templates/roblox/` do kit para `templates/roblox/` no projeto: o README
+  chama a `templates/` de opcional, mas para um jogo ela não é, porque o agente tira dela o
+  `Executor.luau` quando você pede o executor de testes;
 - troque o bloco "Comandos reais" do `AGENTS.md` pelo `templates/roblox/comandos-reais.md`;
 - copie `templates/roblox/tech-stack.md` para `specs/tech-stack.md` e ajuste ao seu jogo;
 - copie as lições de `templates/roblox/licoes/` para `docs/licoes/`, e o
@@ -56,9 +59,14 @@ para a pasta; isto muda quando o kit virar plugin (fase de instalação). Com o 
   ligado**, porque com o jogo parado o Studio usa a versão antiga de um script editado. A linha
   `N passed, N failed, N skipped` no console é o resultado; "nenhum teste encontrado" quer dizer
   zero testes, e não verde.
-- **Rodar os testes liga o jogo, e os scripts do jogo rodam junto.** No Studio, o `DataStore` é o de
-  verdade: um script que salva dados de jogador salva de verdade. Os testes do kit não usam
-  `DataStore`.
+- **Rodar os testes liga o jogo, e os scripts do jogo rodam junto.** Por padrão, o Studio não
+  acessa o `DataStore`: a gravação dá erro. Se você ligar "Enable Studio Access to API Services"
+  (em Arquivo ⟩ Configurações de experiência, na parte de segurança; o rótulo em português fica a
+  conferir), o Studio grava nos mesmos dados do jogo publicado, porque os dados são da experiência,
+  e não do place. A Roblox recomenda ligar isso só numa versão de teste do jogo, e não no jogo ao
+  vivo. Fonte: [data stores](https://create.roblox.com/docs/cloud-services/data-stores).
+  Os testes do kit não usam `DataStore`. Num place que usa `DataStore`, o validador não chama as
+  funções do código nem quebra nada de propósito com o jogo ligado.
 - **Antes de cada fase**, o agente salva uma versão do place no Roblox e anota qual foi.
 
 ## 4. Voltar atrás
@@ -67,12 +75,15 @@ para a pasta; isto muda quando o kit virar plugin (fase de instalação). Com o 
   mas não a troca de texto dentro de um script (a criação, vista pelo menu Editar ⟩ Desfazer; a
   troca de texto, uma vez, pelo Ctrl+Z com o foco na janela 3D).
 - **Para voltar a uma versão:** no Studio, Janela ⟩ Histórico da versão ⟩ ⋮ ao lado da versão ⟩
-  Abrir cópia local; na cópia que abre, Arquivo ⟩ Salvar na Roblox como, sobre o mesmo place. Com a
-  Criação em equipe ligada, o histórico também mostra os salvamentos automáticos; a versão do
-  agente é a que ele anotou no `plan.md`. Depois,
-  **feche a sessão antiga sem salvar**, para ela não gravar por cima da volta, e reabra o place pelo
-  Roblox. Pelo site: Creator Dashboard ⟩ Creations ⟩ o jogo ⟩ Configurations ⟩ Places ⟩ Version
-  History ⟩ Restore. Restaurar cria uma versão nova e **não publica**: para o jogo ao vivo mudar,
+  Abrir cópia local. Com a Criação em equipe ligada, o histórico também mostra os salvamentos
+  automáticos; a versão do agente é a do número que ele anotou na spec da fase (o `vN` da lista), e
+  ela mesma pode aparecer com o rótulo "Salvamento automático". A cópia abre numa janela nova.
+  **Antes de salvar a cópia, feche a janela antiga do place, sem salvar:** com ela aberta, o Studio
+  avisa de uma sessão de Criação em equipe aberta (a sua) e recusa o salvamento ("Falha no
+  salvamento"). Depois, na cópia, Arquivo ⟩ Salvar na Roblox como ⟩ o jogo ⟩ o place que já
+  existe ⟩ Substituir, e reabra o place pelo Roblox (Arquivo ⟩ Abrir da Roblox). Pelo site:
+  Creator Dashboard ⟩ Creations ⟩ o jogo ⟩ Configurations ⟩ Places ⟩ Version History ⟩ Restore.
+  Restaurar cria uma versão nova e **não publica**: para o jogo ao vivo mudar,
   publique depois. Fonte: [histórico de versões](https://create.roblox.com/docs/projects/version-history).
 
 ## 5. Quando algo não responde
@@ -84,6 +95,7 @@ para a pasta; isto muda quando o kit virar plugin (fase de instalação). Com o 
 ## 6. O que fica mais fraco sem Rojo
 
 Sem Rojo, o código não está no git: não há diff do que mudou, o revisor lê o script como está agora,
-e o validador não quebra o código de propósito para testar os testes (isso mudaria o seu jogo). O
+e o validador só quebra o código de propósito para testar os testes em memória, com o jogo ligado,
+e só num place sem `DataStore` (mudar o código mudaria o seu jogo). O
 desfazer é o histórico de versões. Quando o projeto crescer, o caminho é migrar para o Rojo, que
 põe o código em arquivos; essa migração é uma fase futura do kit.

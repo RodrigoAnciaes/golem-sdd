@@ -989,6 +989,22 @@ def test_execute_luau_chega_aos_gatilhos(acervo, sessao):
     assert ids_de(acervo.invocar(entrada, sessao)) == ["do-executor"]
 
 
+def test_execute_luau_que_cria_script_acende_codigo(acervo, tmp_path):
+    """O agente também cria um script pelo `execute_luau`, sem caminho (verificação manual 1)."""
+    acervo.licao("da-area-codigo", "codigo")
+    acervo.gerar()
+    casos = [('local s = Instance.new("Script")\ns.Name = "Loja"', ["da-area-codigo"]),
+             ('game.ServerScriptService.Loja.Source = "print(1)"', ["da-area-codigo"]),
+             ("return require(game.ServerStorage.GolemTestes.Executor).rodar()", []),
+             ("if game.ServerStorage.Moedas.Source == x then return 1 end", []),
+             ('python -c "obj.source = 1"', [])]
+    for n, (codigo, esperado) in enumerate(casos):
+        nova = tmp_path / f"sessao-{n}"
+        nova.mkdir()
+        entrada = {"code": codigo, "datamodel_type": "Edit", "studio_id": "x"}
+        assert ids_de(acervo.invocar(entrada, nova)) == esperado, codigo
+
+
 def test_matcher_do_studio_casa_so_com_edicao_e_execucao():
     matcher = _entrada_do_studio()["matcher"]
     for ferramenta in ("mcp__Roblox_Studio__multi_edit", "mcp__Roblox_Studio__execute_luau"):

@@ -166,7 +166,9 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
 
 O commit desses arquivos é seu: faça quando quiser, junto com o que mais estiver pendente.
 
-A pasta `templates/` é opcional: são os modelos de cada documento, com um exemplo por seção, para
+A pasta `templates/` é opcional (num jogo do Roblox, não: o executor de testes sai de
+`templates/roblox/`, como diz o `docs/guia-roblox.md`): são os modelos de cada documento, com um
+exemplo por seção, para
 quem quer ver a forma sem rodar a skill. A skill `iniciar-sdd` usa três deles (o do PR, o do
 `CHANGELOG.md` e o do ADR); se `templates/` não estiver no projeto, ela pergunta onde está o kit.
 

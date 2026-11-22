@@ -19,8 +19,9 @@ no place, salvo no Roblox; a pasta do projeto ao lado, com git local, guarda as 
 
 ## Dados
 
-Os dados dos jogadores ficam no `DataStore` do Roblox. No Studio, o `DataStore` é o de verdade: um
-teste ou um script que escreve nele muda o dado dos jogadores. Os testes não usam `DataStore`.
+Os dados dos jogadores ficam no `DataStore` do Roblox. Por padrão, o Studio não acessa o
+`DataStore`; com o acesso às APIs ligado, ele é o do jogo publicado, e um teste ou um script que
+escreve nele muda o dado dos jogadores. Os testes não usam `DataStore`.
 
 ## Testes e qualidade
 

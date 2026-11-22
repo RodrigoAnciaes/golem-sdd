@@ -266,8 +266,15 @@ Pelo `claude -p`, com a prova em `fase-2-g5-prova/`, na pasta de notas da GER:
 
 ## G6 — Verificação
 
-- [ ] Percorrer o `validation.md` inteiro, com a saída real de cada comando.
-- [ ] A verificação manual 1 (o "pronto"), com o autor do kit, onde ele disse no G2. Com as
+- [x] Percorrer o `validation.md` inteiro, com a saída real de cada comando: os automatizados no
+  "Resultado das verificações automatizadas" e os manuais no "Resultado das verificações manuais"
+  (2026-11-21).
+- [x] A verificação manual 1 (o "pronto") e as conferências 2 a 4, em 2026-11-21: o resultado,
+  item a item, está no `validation.md` ("Resultado das verificações manuais"). O Negar salvo no
+  place novo antes do passo 3, e o `script_read` e o `multi_edit` funcionaram; o caminho da falha
+  rodou com o executor final (passo 8); a conversa nova foi só pelo terminal (`claude -p`), e o app
+  desktop ficou sem conferir. O texto original do item:
+  A verificação manual 1 (o "pronto"), com o autor do kit, onde ele disse no G2. Com as
   permissões de Open Cloud em Negar, salvas no place novo, conferir que o `script_read` e o
   `multi_edit` funcionam. No place de teste do G2 ao G5 isso já se viu: o Negar ficou salvo às
   16:39 (`fase-2-g5-prova/interface/permissoes-negar-salvas.jpg`: "Personalizado", Negar em
@@ -275,7 +282,9 @@ Pelo `claude -p`, com a prova em `fase-2-g5-prova/`, na pasta de notas da GER:
   todas as rodadas depois leram e editaram scripts. Conferir também o caminho da falha com o
   executor final (o g5a rodou o executor anterior) e se a conversa nova é do app desktop ou do
   terminal (o G2 só provou no terminal; achados do guardião).
-- [ ] O guardião sobre o diff inteiro do PR.
+- [x] O guardião sobre o diff inteiro do PR: quatro rodadas em 2026-11-21. As três primeiras
+  deram "com bloqueio" (o R8 e a cronologia; o "validada" antes da hora; o critério 3 e o item
+  12 pela regra revogada), e cada achado foi corrigido. A quarta deu "sem bloqueio".
 
 ## Alterações de escopo durante a fase
 
@@ -293,3 +302,7 @@ Pelo `claude -p`, com a prova em `fase-2-g5-prova/`, na pasta de notas da GER:
 | 2026-11-21 | O guia (R8) usa os nomes da interface em português (Permissões MCP, Negar, Equilibrado, Seguro, Abrir cópia local, Salvar na Roblox como), com prints guardados em `fase-2-g5-prova/interface/`; o passo 10 da verificação manual 1 acompanha | a interface do Studio do autor do kit é em português | achado do revisor do G5 |
 | 2026-11-21 | O executor avisa "nenhum teste encontrado" quando nenhum teste roda, e não só sem módulo `_spec`; a lista de riscos corrige a Regra 6 (o objeto destruído se desconecta sozinho) e põe as fontes que faltavam nas regras 3 e 4; o guia manda o `git add` antes do `--gerar` | achados do revisor do G5 | detalhe de implementação |
 | 2026-11-21 | O `test_aplicar_escreve_o_model_dos_dois_agentes` (`.claude/tests/test_golem.py`, da fase 1) lê a linha `tools:` do próprio revisor, em vez de fixar `Read, Grep, Glob, Bash`; assim ele prova também que o `aplicar` mantém o `tools:` novo | o teste fixava a lista antiga e falhou com o G4 | detalhe de implementação (o R4 pede que o `aplicar` não colida com o `tools:`) |
+| 2026-11-21 | O validador não faz mutação no place nem em memória, com o jogo ligado (R4 e `validador.md`) | na verificação manual 1, ele trocou as funções do módulo dentro da jogada; com o jogo ligado, os scripts do jogo podem gravar o resultado quebrado no `DataStore` de verdade | "Ok, vamos seguir sua proposta." (2026-11-21), sobre "proibir também" |
+| 2026-11-21 | O guia (R8) manda copiar a `templates/roblox/` para o projeto; avisa que a versão do agente pode aparecer como "Salvamento automático"; e, na volta a uma versão, fecha a sessão antiga antes de salvar a cópia (o passo 10 da verificação manual 1 acompanha) | achados da verificação manual 1 (passos 3, 5 e 10) | detalhe de implementação, conferido no Studio |
+| 2026-11-21 | O validador (R4) faz a mutação em memória e chama as funções do código, com o jogo ligado, quando nenhum script do place usa `DataStore`; com `DataStore`, só o executor e leituras. O guia, os modelos e o R5/R8 dizem que o Studio só acessa o `DataStore` com o acesso às APIs ligado, desligado por padrão | o usuário perguntou se o risco do `DataStore` era real num place de desenvolvimento, e a documentação da Roblox diz que não, por padrão (lição `o-studio-nao-acessa-o-datastore-por-padrao`) | "Liberar sem DataStore (Recomendado)" (2026-11-21), que substitui o "proibir também" da linha anterior |
+| 2026-11-21 | As regras de risco (R7) nomeiam as três saídas em cada regra; o gancho (R3) dá `codigo` ao Luau do `execute_luau` com `Instance.new` ou `.Source =`, com o teste `test_execute_luau_que_cria_script_acende_codigo` (a suíte vai a 134) | na conferência 4, o aviso veio sem o "me explica" (a regra chega sem a introdução do arquivo) e, quando o agente criou o script pelo `execute_luau`, sem regra nenhuma | detalhe de implementação, achado na verificação |
