@@ -115,7 +115,8 @@ Receita `completo`; o guia é `docs/guia-configuracao.md`.
   divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no
   projeto dele (`README.md` do kit, "Usando com o Codex").
 - Nenhum nome de cliente, de outro projeto ou de pessoa entra no kit, fora do crédito (a linha de
-  crédito, o `LICENSE` e a seção "Licença e crédito" do `README.md`).
+  crédito, o `LICENSE`, o `author` e o `owner` dos manifestos em `.claude-plugin/` e a seção
+  "Licença e crédito" do `README.md`).
 
 ---
 

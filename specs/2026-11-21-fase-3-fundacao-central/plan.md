@@ -51,18 +51,19 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
 
 ## G2 — O esqueleto do plugin (R1)
 
-- [ ] `.claude-plugin/plugin.json` e `.claude-plugin/marketplace.json`, como no R1 (o formato das
+- [x] `.claude-plugin/plugin.json` e `.claude-plugin/marketplace.json`, como no R1 (o formato das
   provas P1 e P2, com `author`, `license` e `homepage`).
-- [ ] `.claude/hooks/hooks.json`, com o lançador em `${CLAUDE_PLUGIN_ROOT}`.
-- [ ] Testes novos:
+- [x] `.claude/hooks/hooks.json`, com o lançador em `${CLAUDE_PLUGIN_ROOT}`.
+- [x] Testes novos:
   - os caminhos do `plugin.json` existem, e as skills e os agentes que ele aponta são todos os de
     `.claude/skills/` e `.claude/agents/`;
   - o `hooks.json` e o `.claude/settings.json` têm os mesmos `matcher`, `timeout` e a mesma queda,
     com o lançador trocado;
   - o `plugin.json` traz o crédito (`author`, `license`, `homepage`) e o `"defaultEnabled": false`;
   - o `marketplace.json` lista o plugin `golem` em `"./"`.
-- [ ] `claude plugin validate <kit>` passa (sem erro; os avisos lidos e anotados).
-- [ ] A suíte inteira.
+- [x] `claude plugin validate <kit>` passa ("Validation passed with warnings"): o `version` é o `0.0.1` do P1, como o R1 pede (o
+  formato das versões fica para a fase 9); os avisos são o `CLAUDE.md` da raiz (não é lido; é o do desenvolvimento do kit), sem ícone e sem `network.hosts` (avisos do catálogo, que não mudam o resultado). Antecipado do S1: instalado do worktree numa configuração isolada, o plugin nasce desligado e aparece só no projeto com o "ligado" (`fase-3-provas/g2-*`: o `validate` inteiro em `g2-validate.txt`, o "ligado" no `.claude/settings.local.json`, uma rodada por projeto; o validador do G2 refez duas).
+- [x] A suíte inteira: `154 passed`, sem pulados (150 + 4 do `test_plugin.py`).
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 
@@ -151,4 +152,4 @@ fato contra a fonte. Se ganhar código, volta ao caminho completo.
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
-| 2026-11-22 | O modo plugin pede também que a pasta do kit seja o plugin (tenha o manifesto), e não só que a raiz seja outra | o revisor do G1: sem isso, um módulo do kit chamado com outra raiz (a suíte, a cópia do Codex) leria o central; a cópia e o kit não mudam, como o R2 já dizia | o agente, dentro do R2 (detalhe de implementação) |
+| 2026-11-22 | O modo plugin pede também que a pasta do kit seja o plugin (tenha o manifesto), e não só que a raiz seja outra | o revisor do G1: sem isso, a cópia do Codex, sem o manifesto, entraria no modo plugin ao ser chamada com outra raiz; a cópia e o kit não mudam, como o R2 já dizia. Na suíte, o kit tem o manifesto depois do G2, e quem a protege do central da máquina é o `GOLEM_CENTRAL` do `conftest.py` | o agente, dentro do R2 (detalhe de implementação) |

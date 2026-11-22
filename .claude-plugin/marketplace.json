@@ -1,0 +1,13 @@
+{
+  "name": "golem",
+  "owner": {
+    "name": "Rodrigo Anciães Patelli"
+  },
+  "description": "Golem SDD: spec-driven development para o Claude Code, pensado para quem começa no Roblox. Instale uma vez; ele liga só nos jogos registrados.",
+  "plugins": [
+    {
+      "name": "golem",
+      "source": "./"
+    }
+  ]
+}

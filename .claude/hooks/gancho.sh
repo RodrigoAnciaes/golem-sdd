@@ -38,7 +38,8 @@
 # ⚠️ Nada de junction/symlink de `.venv` dentro do worktree: um `git clean -x` pode atravessar o
 # link e apagar o venv da pasta principal. A resolução é por caminho.
 # ⚠️ Este arquivo tem de ter fim de linha LF. No `.gitattributes`: `*.sh text eol=lf`. Com CRLF o
-# `sh` quebra antes de chegar aqui, e aí quem avisa é o `|| printf` do settings.json.
+# `sh` quebra antes de chegar aqui, e aí quem avisa é o `|| printf` do settings.json (ou do
+# `.claude/hooks/hooks.json`, no plugin).
 
 aqui=$(cd "$(dirname "$0")" && pwd)
 kit=$(cd "$aqui/../.." && pwd)

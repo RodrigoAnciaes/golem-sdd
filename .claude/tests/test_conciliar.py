@@ -108,7 +108,8 @@ PERMITIDAS = [
      "só o repositório do kit deixa de versionar as cópias do Codex"),
     ("- << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>",
      "- Nenhum nome de cliente, de outro projeto ou de pessoa entra no kit, fora do crédito (a linha de\n"
-     "  crédito, o `LICENSE` e a seção \"Licença e crédito\" do `README.md`).",
+     "  crédito, o `LICENSE`, o `author` e o `owner` dos manifestos em `.claude-plugin/` e a seção\n"
+     "  \"Licença e crédito\" do `README.md`).",
      "a convenção do kit sobre nomes"),
     ("Algo fora de `specs/tech-stack.md`,\n   inclusive",
      "Algo fora da linha **Stack** dos\n   \"Comandos reais\", inclusive",
