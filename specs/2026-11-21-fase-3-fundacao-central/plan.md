@@ -145,15 +145,16 @@ fato contra a fonte. Se ganhar código, volta ao caminho completo.
 
 ## G6 — Verificação
 
-- [ ] O `validation.md` inteiro, com a saída de cada comando anotada.
-- [ ] As rodadas sem login (o plugin da branch, numa configuração isolada).
-- [ ] As rodadas com login, depois da pergunta ao autor do kit (`requirements.md`, "Perguntas em
+- [x] O `validation.md` inteiro, com a saída de cada comando anotada.
+- [x] As rodadas sem login (o plugin da branch, numa configuração isolada).
+- [x] As rodadas com login, depois da pergunta ao autor do kit (`requirements.md`, "Perguntas em
   aberto").
-- [ ] A limpeza da configuração isolada (apagar a pasta; com login, antes o `/logout`).
+- [x] A limpeza da configuração isolada (apagar a pasta; com login, antes o `/logout`).
 
 ## Alterações de escopo durante a fase
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
+| 2026-11-22 | A L4 deu o contrário do que a spec esperava: o `CLAUDE.md` do central não chega aos jogos (4 rodadas). A decisão do R3 (o central sem `CLAUDE.md`) fica, e o achado vira a lição `o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo` | a regra 7: hipótese refutada por evidência | o agente (a lição); nenhuma mudança de escopo |
 | 2026-11-22 | A `diagnostico` e a `configurar` sabem o modo por uma conferência em `sh` (a pasta do kit tem o manifesto e é outra que a raiz), e não pelo `onde`; o `onde` fica na `configurar`, depois do `aplicar`, para mostrar ao usuário de onde vem cada linha | a `diagnostico` roda justamente quando o Python falta, e o `onde` pede Python; a `configurar` acha o Python só no passo 4 | o agente, dentro do R3 e do R4 (detalhe de implementação) |
 | 2026-11-22 | O modo plugin pede também que a pasta do kit seja o plugin (tenha o manifesto), e não só que a raiz seja outra | o revisor do G1: sem isso, a cópia do Codex, sem o manifesto, entraria no modo plugin ao ser chamada com outra raiz; a cópia e o kit não mudam, como o R2 já dizia. Na suíte, o kit tem o manifesto depois do G2, e quem a protege do central da máquina é o `GOLEM_CENTRAL` do `conftest.py` | o agente, dentro do R2 (detalhe de implementação) |

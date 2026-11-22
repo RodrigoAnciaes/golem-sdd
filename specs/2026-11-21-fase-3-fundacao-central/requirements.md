@@ -243,7 +243,7 @@ Novos comandos do `golem.py` (a skill chama; quem não tem Python faz à mão, p
 |---|---|
 | O arquivo do "ligado" | provado sem login (P3, P4); escolhido o `settings.local.json` (cartão 1) |
 | O `CLAUDE_PLUGIN_ROOT` | aponta para a pasta do kit (a documentação e o P6). Nada do central nem do jogo mora nele (o log do gancho fica na `.claude/` do jogo, `gancho.sh:85-86`). A rodada com login confere o gancho rodando (validation.md) |
-| A subida do `CLAUDE.md` | a documentação diz que sobe além do git. Por isso o central nunca tem `CLAUDE.md` (R3), e um teste confere. Uma rodada com login confere o caso dos jogos em `~/Golem/jogos/` |
+| A subida do `CLAUDE.md` | a documentação diz que sobe além do git. Por isso o central nunca tem `CLAUDE.md` (R3), e um teste confere. Uma rodada com login confere o caso dos jogos em `~/Golem/jogos/`. **Resultado (2026-11-22):** o contrário, em 4 rodadas: o `CLAUDE.md` do central não chegou a nenhum jogo (validation.md, L4; lição `o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo`). A decisão do R3 fica |
 | O gancho fora do Golem | a rodada com login, num projeto sem o "ligado": nenhuma linha do gancho do plugin na transcrição |
 | O modo interativo (o diálogo de confiança) | a rodada com login, interativa: a primeira abertura de um jogo pede a confiança na pasta, e depois dela o plugin liga. A documentação diz que o plugin de projeto espera essa confiança |
 | A `iniciar-sdd` de ponta a ponta e o que chega ao jogo | a rodada com login, no central (L6) |
