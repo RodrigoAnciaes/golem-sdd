@@ -9,8 +9,9 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 **Lê:** `docs/licoes/` (para não duplicar) e `docs/licoes/README.md` (o formato).
 **Escreve:** `docs/licoes/<id>.md`; **e obrigatoriamente** `.claude/indice/licoes.yaml`, pelo
 `--gerar`. Lição fora do índice chega pelo gancho só lida do Markdown, com o aviso de índice
-defasado em toda sessão. Se a lição implicar ação obrigatória, escreve também a regra no
-`AGENTS.md`.
+defasado em toda sessão. Se a lição implicar ação obrigatória, escreve também a regra: no
+`AGENTS.md`, se ela vale para toda tarefa; no `docs/regras-de-area.md`, se ela só muda a decisão de
+quem mexe numa área (passo 3).
 **Decide:** se é lição mesmo: os quatro motivos abaixo, e nada além deles.
 
 ## Antes de escrever: isto é mesmo uma lição?
@@ -49,8 +50,8 @@ area: <uma das áreas listadas no README>
 tipo: premissa-falsa | armadilha | erro-de-diagnostico | custo-escondido
 custo: "uma linha: tempo, rodada, deploy, dinheiro"
 gatilho: "em que circunstância apareceu"
-refs:
-  - caminho/do/arquivo.py:123
+refs:                                 # entre aspas simples, como os gatilhos
+  - 'caminho/do/arquivo.py:123 `def a_funcao_citada`'
 gatilhos:                             # opcional: em que ação o gancho entrega
   - '\bpytest\b'
 ---
@@ -64,7 +65,15 @@ gatilhos:                             # opcional: em que ação o gancho entrega
 
 Regras de escrita:
 
-- **`refs` com linha**, sempre que houver código. `agenda.py` não ajuda; `agenda.py:142` ajuda.
+- **`refs` com linha e âncora**, sempre que houver código: o caminho, a linha e, entre crases, um
+  trecho que está naquela linha (`` agenda.py:142 `def horarios_livres` ``). A régua confere que o
+  trecho continua na linha citada e, quando ele muda de lugar, avisa a linha nova. `agenda.py` não
+  ajuda; `agenda.py:142` sem o trecho a régua não confere. Ponha o item entre aspas simples: sem
+  elas, um ` #` na âncora (o tamanho de uma tabela no Luau, um comentário) corta o item. A aspa
+  simples dentro da âncora vai dobrada (`print(''oi'')`); sem isso, a régua pula a ref sem
+  avisar. A ref em
+  prosa (sem caminho no começo) vale, e a régua a pula; o caminho de um script do place
+  (`game.ServerScriptService.…`) também, porque a régua não lê o place.
 - **Evidência, não impressão.** "Ficou lento" não; "a busca de horários foi de 120 ms para 3,1 s
   com 10 mil consultas no banco" sim.
 - **"Como perceber" é a seção que vale.** Um sinal observável, não um conselho. "Tome cuidado com
@@ -88,9 +97,9 @@ Os nomes se parecem; o papel não.
   quando um casa, e na frente das outras.
   - Lista em bloco, um item por linha, **entre aspas simples** (`  - '\bgit\s+push\b'`): entre
     aspas duplas, `\b` vira outro caractere e a regex nunca casa (a régua acusa).
-  - O gatilho descreve a ação em que o erro acontece: `\bgit\s+push\b`, não `git`. Antes de
-    gravar, pense em três ações comuns que **não** deveriam receber a lição e confira que nenhuma
-    casa.
+  - **O gatilho casa com a ação, não com a ferramenta:** com a ação em que o erro acontece, e não
+    com a ferramenta que o revelou. `\bgit\s+push\b`, não `git`. Antes de gravar, pense em três
+    ações comuns que **não** deveriam receber a lição e confira que nenhuma casa.
   - O detalhe está em `docs/licoes/README.md`, "`gatilhos:` — em que ação a lição chega".
 
 E nenhum dos dois é um dos **quatro motivos** (o que justifica escrever a lição, acima): os motivos
@@ -99,8 +108,30 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 
 ## 3. Propagar, se for o caso
 
-- **Implica ação obrigatória daqui para frente?** Acrescente a regra no `AGENTS.md`, curta e
-  imperativa, **citando** a lição. A regra manda; a lição explica.
+- **Implica ação obrigatória daqui para frente?** Escreva a regra, curta e imperativa,
+  **citando** a lição. A regra manda; a lição explica. Ela vai a um de dois lugares:
+  - **vale para toda tarefa** → o `AGENTS.md`, que entra inteiro em toda conversa;
+  - **só muda a decisão de quem mexe numa área** → o `docs/regras-de-area.md`. O gancho o
+    entrega regra a regra: cada uma inteira, sem a introdução do arquivo, uma vez por sessão, a
+    quem toca uma das áreas dela. **Cada regra se basta:** o que a introdução disser não chega com
+    ela (lição `a-regra-de-area-chega-sem-a-introducao-do-arquivo`). O formato é o que o gancho
+    lê: um título `## Regra N — Título`, com travessão (—), e a linha `areas:` logo abaixo, com
+    áreas do README:
+
+    ```markdown
+    ## Regra 3 — Título curto do que fazer
+    areas: codigo
+
+    O que fazer e por quê, citando a lição (`docs/licoes/<id>.md`).
+    ```
+
+    Se o arquivo não existe, crie-o com um título e uma linha que diga, a quem o abre, o que ele é
+    ("as regras que só valem para quem mexe numa área; o gancho entrega cada uma a quem a toca").
+    Essa linha não chega a quem age. O número é o próximo livre. A régua confere o formato no
+    `--gerar` e no `--conferir`.
+
+  O `AGENTS.md` tem teto de palavras (`agents_teto`, no `golem.toml`), e a régua avisa quando ele
+  passa.
 - **Contradiz uma spec ou um ADR?** Diga ao usuário. Não corrija spec fechada por conta própria.
 - **É preferência do usuário ou estado do projeto?** Não é lição: vai para a memória do agente.
 
@@ -110,7 +141,7 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 `git add` a lição fica de fora sem erro nenhum.
 
 ```bash
-git add docs/licoes/<id>.md
+git add docs/licoes/<id>.md        # e o AGENTS.md ou o docs/regras-de-area.md, se o passo 3 mudou
 python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --gerar      # no Windows, python ou py -3
 python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir
 ```
@@ -155,7 +186,8 @@ o aviso vai à conversa gerente. A própria MET, quando registra, não se avisa.
 ## 6. Fechar
 
 Commit em português, com a lição no corpo da mensagem **e o `licoes.yaml` regerado junto**: os dois
-no mesmo commit, senão o índice chega defasado na `main`. Sem Python, o commit leva só a lição, e a
+no mesmo commit, senão o índice chega defasado na `main`. A regra do passo 3 (no `AGENTS.md` ou no
+`docs/regras-de-area.md`) vai no mesmo commit. Sem Python, o commit leva só a lição, e a
 mensagem diz que o índice ficou para depois. Se a lição nasceu de uma correção do
 usuário, **cite a frase dele**: é o que torna o registro verificável depois.
 

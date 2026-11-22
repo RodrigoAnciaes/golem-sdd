@@ -815,8 +815,50 @@ fase 3, a "fase 4" dos dois acervos, da raiz do gancho e do cliente marcado é a
       local, sem GitHub (o teste do plugin usou um marketplace numa pasta local). O git local
       continua necessário. O formato das versões, as notas e o "atualizar sem perder nada" ficam
       na fase 9.
-13. **Reservada:** o D1 da fase 4 (o princípio do índice), aprovado na spec dela; o texto entra com
-    o merge da fase 4.
+13. **O princípio do índice, em 2026-11-22.** É o D1 da fase 4, que ele aprovou com a spec dela
+    ("Aprovo", 2026-11-22), com o teto do `AGENTS.md` que ele escolheu configurável ("C:
+    configurável").
+    - **Contexto:** o acervo cresce com o uso, e o agente não relê tudo antes de cada ação. Até a
+      fase 3, três coisas cresciam sem aviso:
+      - a lição escrita fora do índice gerado não chegava pelo gancho, e nada avisava;
+      - as `refs:` das lições envelheciam (8 das 10 refs com linha do kit apontavam a linha
+        errada);
+      - o `AGENTS.md`, que entra inteiro em toda conversa, crescia sem medida.
+    - **Opções consideradas** (as opções, o gatilho e a evidência abaixo são da conversa da fase,
+      dentro do D1 aprovado, e não decisão dele):
+      - o índice gerado para tudo: barato a cada ação, mas o documento vivo envelhece entre uma
+        regeração e outra;
+      - a busca na hora para tudo, sem índice: sempre em dia, mas lê o acervo inteiro a cada ação,
+        e cada lição nova deixa o gancho mais lento;
+      - o índice gerado para o que muda pouco e a busca na hora para o documento vivo: cada um no
+        custo que lhe cabe, com a régua e o aviso do gancho para o índice não envelhecer calado.
+    - **Decisão:** a terceira opção. O índice gerado e versionado serve ao acervo que muda pouco e
+      tem chave estável, como as lições: a régua o confere, e o gancho percebe a lição que falta
+      nele. O documento vivo usa o índice calculado na hora. **Todo documento que cresce com o uso
+      nasce com busca.**
+    - **Consequências, documento por documento:**
+
+      | Documento | Como cresce | A busca |
+      |---|---|---|
+      | as lições | uma por armadilha | o índice gerado, e o gancho percebe a que falta nele |
+      | as regras de área | uma por lição que vira regra de área | o gancho lê o arquivo na hora |
+      | o registro dos jogos | um jogo por registro | a tabela, lida na hora (fase 3) |
+      | o catálogo | uma peça por reaproveitamento | nasce com busca, na fase 6 |
+      | as specs | uma pasta por fase | a ordem de leitura abre só a pasta da fase |
+      | o `AGENTS.md` | regras e combinados | o teto medido (a linha `agents_teto`); a busca na hora, se o teto não bastar |
+
+    - **Gatilho de revisão:** qualquer um destes:
+      - um documento que cresce com o uso entra no kit sem busca;
+      - o gancho leva mais de 1 s numa ação, medido, por causa da listagem de `docs/licoes/`;
+      - o `AGENTS.md` de um jogo passa do teto mesmo depois de as regras de área irem ao
+        `docs/regras-de-area.md`.
+    - **Evidência de uso:** o que vai mostrar que funciona, a conferir no primeiro jogo que usar a
+      fase 4:
+      - o aviso "índice defasado" aparece depois de uma lição escrita sem regerar e some depois do
+        `--gerar`;
+      - a régua avisa a linha nova de uma ref deslocada, em vez de a lição seguir citando a linha
+        errada;
+      - o `AGENTS.md` do jogo fica abaixo do teto.
 14. **O acervo geral numa fase própria, em 2026-11-22.** Na spec da fase 4, a conversa de estratégia
     levou a ele o cartão sobre levar o acervo geral a esta fase ou a uma fase própria. As palavras
     dele: "A: fase própria (Recomendado)". O motivo: com os dois acervos, a fase 4 passaria a G, e a

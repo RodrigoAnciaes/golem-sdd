@@ -78,22 +78,22 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 Só documentação: caminho rápido, só o revisor.
 
-- [ ] `.claude/skills/licao/SKILL.md`:
+- [x] `.claude/skills/licao/SKILL.md`:
   - o "Escreve:" e o passo 3, com os dois destinos da regra (o `AGENTS.md` e o
     `docs/regras-de-area.md`) e o formato da regra de área;
   - a frase "o gatilho casa com a ação, não com a ferramenta";
   - o formato das refs, com a âncora.
-- [ ] `docs/licoes/README.md`:
+- [x] `docs/licoes/README.md`:
   - a tabela "Onde cada coisa mora" e a frase de quando a lição vira regra;
   - a frase do gatilho;
   - o esqueleto das refs.
-- [ ] A regra 7 no `AGENTS.md` e no `templates/AGENTS.md`, com o mesmo texto. O conciliador tem de
+- [x] A regra 7 no `AGENTS.md` e no `templates/AGENTS.md`, com o mesmo texto. O conciliador tem de
   passar sem entrada nova em `PERMITIDAS`.
-- [ ] `docs/plano-produto.md`, seção 8: a decisão 13, o princípio do índice, com os campos do ADR e
+- [x] `docs/plano-produto.md`, seção 8: a decisão 13, o princípio do índice, com os campos do ADR e
   a tabela do R5. O PR do roteiro da GER (a fase 4b, decisão 14) entra antes e deixa na seção 8 o
   item "13. **Reservada:** …": o texto da 13 entra **no lugar dele**, entre a 12 e a 14, sem item
   novo. Antes do G3, a branch traz a `main` com esse PR (a GER, 2026-11-22).
-- [ ] **Quem muda, varre:** buscar `regra no \`AGENTS.md\``, `acrescente aqui uma regra`, `refs:` e
+- [x] **Quem muda, varre:** buscar `regra no \`AGENTS.md\``, `acrescente aqui uma regra`, `refs:` e
   `não lê os arquivos de lição` em `.claude/`, `docs/`, `templates/`, `WORKFLOW.md` e `README.md`, e
   corrigir o que repete o texto velho.
 
