@@ -1,0 +1,154 @@
+# Fase 3: a fundação do Golem central — Plano
+
+O fluxo é o da receita `completo` do kit (`AGENTS.md`, "Como o Golem trabalha aqui"): revisor e
+validador a cada grupo, no Opus (o `model: opus` passado na chamada), sem parada entre os grupos,
+e o guardião sobre o diff inteiro do PR antes do PEDIDO de merge. Um commit por grupo, na branch
+da fase: aprovado junto com a spec, "Aprovo" (2026-11-22).
+
+**Antes do G1:** a spec aprovada pelo autor do kit, com as respostas dos cartões 1 e 2 dentro; a
+branch trazida para a `main` do momento, se ela tiver andado, e as linhas citadas reconferidas.
+
+## G1 — A raiz do projeto, o modo plugin e a configuração em dois níveis (R2)
+
+- [ ] `.claude/golem.py`:
+  - a raiz do projeto (a posição, ou o git da pasta corrente quando a posição é o plugin) e o modo
+    plugin;
+  - o central (`GOLEM_CENTRAL`, senão `$HOME/Golem`, senão o `Path.home()`);
+  - a `configuracao` com o `golem.toml` do central por baixo do do jogo, só no modo plugin. A
+    `teto_do_gancho` segue a mesma conta.
+- [ ] `.claude/hooks/gancho.sh`:
+  - a raiz pelo `CLAUDE_PROJECT_DIR`, quando ele existe e é uma pasta; sem ele, a posição, salvo
+    quando a posição é o plugin (o git da pasta corrente); e o `CLAUDE_PROJECT_DIR` exportado com
+    essa raiz para o `.py`;
+  - no modo plugin, a linha `gancho` do `golem.toml` do central antes da do jogo (vale a última),
+    e a linha `python` do `golem.local.toml` do central depois das duas de hoje;
+  - o cabeçalho do arquivo dizendo a ordem nova.
+- [ ] `.claude/hooks/licoes_relevantes.py`: a raiz pelo `CLAUDE_PROJECT_DIR`, senão a posição; o
+  teto pelo `golem.py` com essa raiz. O `golem.py` continua carregado pela posição (`:74`).
+- [ ] `.claude/regua.py`: a raiz como no `golem.py`; o gancho continua carregado pela posição
+  (`:43`, `:129`).
+- [ ] `.claude/tests/conftest.py`: o `AMBIENTE` sem `CLAUDE_PROJECT_DIR` e com o `GOLEM_CENTRAL`
+  numa pasta vazia.
+- [ ] Testes novos (em `test_golem.py` e `test_gancho.py`), sobre um "kit" com
+  `.claude-plugin/plugin.json` e um "jogo" à parte, numa árvore descartável:
+  - o gancho rodado da pasta do kit com o `CLAUDE_PROJECT_DIR` do jogo entrega a lição **do jogo**,
+    e não a do kit;
+  - o gancho do "kit" rodado **sem** o `CLAUDE_PROJECT_DIR`, com a pasta corrente no jogo (como
+    as skills o rodam pelo Bash), também entrega a lição do jogo;
+  - no modo plugin, `gancho = "desligado"` no central cala o gancho, e o `ligado` no jogo o religa;
+  - no modo plugin, a linha `python` só no `golem.local.toml` do central é usada;
+  - a `configuracao` do jogo: uma linha do central vale; a mesma chave no jogo vence; a receita do
+    jogo vence a do central;
+  - fora do modo plugin (o kit, a cópia), o `golem.toml` do central é ignorado;
+  - a régua e o `golem.py` rodados da pasta do kit com a pasta corrente no jogo trabalham no jogo,
+    e o jogo não tem nenhum script do kit;
+  - o `licoes_relevantes.py` rodado com o `CLAUDE_PROJECT_DIR` do jogo lê as lições do jogo;
+  - o central: com o `HOME` numa pasta e o `USERPROFILE` noutra, sem `GOLEM_CENTRAL`, o `gancho.sh`
+    e o `golem.py` acham o mesmo `$HOME/Golem`.
+- [ ] A suíte inteira, com a linha de resumo lida.
+
+**Revisão:** revisor e validador sobre o diff do grupo.
+
+## G2 — O esqueleto do plugin (R1)
+
+- [ ] `.claude-plugin/plugin.json` e `.claude-plugin/marketplace.json`, como no R1 (o formato das
+  provas P1 e P2, com `author`, `license` e `homepage`).
+- [ ] `.claude/hooks/hooks.json`, com o lançador em `${CLAUDE_PLUGIN_ROOT}`.
+- [ ] Testes novos:
+  - os caminhos do `plugin.json` existem, e as skills e os agentes que ele aponta são todos os de
+    `.claude/skills/` e `.claude/agents/`;
+  - o `hooks.json` e o `.claude/settings.json` têm os mesmos `matcher`, `timeout` e a mesma queda,
+    com o lançador trocado;
+  - o `plugin.json` traz o crédito (`author`, `license`, `homepage`) e o `"defaultEnabled": false`;
+  - o `marketplace.json` lista o plugin `golem` em `"./"`.
+- [ ] `claude plugin validate <kit>` passa (sem erro; os avisos lidos e anotados).
+- [ ] A suíte inteira.
+
+**Revisão:** revisor e validador sobre o diff do grupo.
+
+## G3 — O central e o registro dos jogos (R3)
+
+- [ ] `.claude/golem.py`: os comandos `central`, `registrar <pasta> [--nome]`, `aplicar --todos`
+  e `onde`, e o `USO` com os cinco.
+  - o "ligado" juntado ao `.claude/settings.local.json` (cartão 1), guardando o que ele já tem; o JSON quebrado falha
+    com a mensagem e sem escrever;
+  - o `jogos.md` criado com o cabeçalho, uma linha por jogo, sem duplicar a pasta;
+  - o central nunca ganha `CLAUDE.md`.
+- [ ] Testes novos, com o `GOLEM_CENTRAL` numa pasta descartável:
+  - o `central` cria as quatro peças, e a segunda rodada diz "nada mudou";
+  - o `registrar` põe a linha no `jogos.md` e o "ligado" no jogo; a segunda rodada não duplica;
+  - o `registrar` num repositório que já tem `.gitignore`
+    sem a linha a acrescenta, uma vez, e o `git check-ignore .claude/settings.local.json` confirma;
+    num repositório sem `.gitignore`, ele o cria com a linha;
+  - o `registrar` num jogo que já tem o arquivo do "ligado" com outras chaves guarda as outras;
+  - o arquivo do "ligado" com JSON quebrado: o `registrar` falha, diz o arquivo e não escreve
+    nada;
+  - o nome com `|`: recusado;
+  - o `aplicar --todos` escreve o bloco em dois jogos, e avisa e segue quando a pasta de um sumiu;
+  - o `onde` diz o modo e de onde vem uma linha (do central, do jogo);
+  - nenhum `CLAUDE.md` no central depois do `central` e do `registrar`.
+- [ ] A suíte inteira.
+
+**Revisão:** revisor e validador sobre o diff do grupo.
+
+## G4 — As skills, os agentes e o modelo do `AGENTS.md` (R4)
+
+- [ ] A busca do que trocar, pelo arquivo e não pelo jeito de chamar:
+  `grep -rnE '\.claude/(golem|regua|instalar_codex)\.py|\.claude/hooks/|templates/|docs/guia-' .claude/skills .claude/agents`.
+  Cada ocorrência que aponta um arquivo do kit passa ao `${CLAUDE_SKILL_DIR}`; o que mora no jogo
+  fica, e cada linha que sobrar se justifica no PR.
+- [ ] `.claude/skills/iniciar-sdd/SKILL.md`: o fluxo no central (R4) e a variante da cópia.
+- [ ] `.claude/skills/configurar/SKILL.md`: o `onde` para saber o modo; no modo plugin, o central
+  por padrão, o `aplicar --todos`, o "só neste jogo" e a linha `python` lida também do central.
+- [ ] `.claude/skills/diagnostico/SKILL.md`: o `onde` para saber o modo; a linha `python` no
+  central, no modo plugin.
+- [ ] `.claude/skills/implementar-fase/SKILL.md` e `validar-fase/SKILL.md`: o modelo do bloco
+  passado na chamada do revisor e do validador, e o agente pelo nome que a sessão lista
+  (`golem:revisor` no plugin).
+- [ ] `.claude/golem.py`: o `bloco` no modo plugin aponta o guia pelo pedido, e o comentário
+  gerado (`:154`) sai sem o caminho; o `aplicar`, no modo plugin, diz que o modelo vai na chamada
+  em vez de "pulado … não existe neste projeto".
+- [ ] `templates/AGENTS.md` e `AGENTS.md`: a regra 11 (o modelo na chamada) e as linhas do R4, o
+  mesmo texto nos dois; a `PERMITIDAS` do conciliador, se alguma diferença permitida mudar.
+- [ ] `.claude/instalar_codex.py`: a troca do `${CLAUDE_SKILL_DIR}` nas cópias, e o teste.
+- [ ] Testes: o `${CLAUDE_SKILL_DIR}` só aparece na forma `…/../../` ou `…/../../../` e aponta para
+  um arquivo que existe no kit; nenhuma skill nem agente cita `.claude/golem.py`,
+  `.claude/regua.py`, `.claude/instalar_codex.py` ou `.claude/hooks/` sem o `${CLAUDE_SKILL_DIR}`
+  na frente.
+- [ ] `python .claude/instalar_codex.py --conferir`, numa cópia com as cópias geradas, e a suíte
+  inteira.
+
+**Revisão:** revisor e validador sobre o diff do grupo.
+
+## G5 — A lista do que viaja, o mapa e o `README.md` (R5)
+
+- [ ] `README.md`: "Instalar o Golem (uma vez)", "Registrar um jogo", a cópia em "Usando com o
+  Codex" com a lista corrigida (sem a `.claude/tests/` e sem o `docs/plano-produto.md`), e o
+  "Mapa das pastas" com o "onde mora".
+- [ ] Os documentos que viajam ao jogo (R5): `docs/licoes/README.md`, `WORKFLOW.md`,
+  `docs/operacao-das-conversas.md` e a seção "Licença e crédito" do `README.md`, pela busca
+  `grep -nE '\.claude/(regua|golem|instalar_codex)\.py|\.claude/(hooks|skills|agents)/|\.claude/LICENSE' docs/licoes/README.md WORKFLOW.md docs/operacao-das-conversas.md README.md`.
+  Cada linha diz o que vale no jogo com o plugin, ou se justifica no PR.
+- [ ] A busca do que fala da instalação por cópia como a única:
+  `grep -rnE "Copie para a raiz|a pasta \`\.claude/\` inteira|a pasta \`docs/\`|Instalar num projeto" --include=*.md --include=*.py .`
+  (fora de `specs/`, que guarda o histórico). Cada ocorrência corrigida ou justificada no PR.
+- [ ] `docs/plano-produto.md`: a nota da seção 6 e a linha da fase 3 na seção 7 só pelo
+  `validar-fase` (o roteiro); nada de decisão nova sem o autor do kit.
+- [ ] `python .claude/regua.py --conferir` e a suíte inteira.
+
+**Revisão:** como o G5 é só de documentação, o caminho rápido: só o revisor, que confere fato por
+fato contra a fonte. Se ganhar código, volta ao caminho completo.
+
+## G6 — Verificação
+
+- [ ] O `validation.md` inteiro, com a saída de cada comando anotada.
+- [ ] As rodadas sem login (o plugin da branch, numa configuração isolada).
+- [ ] As rodadas com login, depois da pergunta ao autor do kit (`requirements.md`, "Perguntas em
+  aberto").
+- [ ] A limpeza da configuração isolada (apagar a pasta; com login, antes o `/logout`).
+
+## Alterações de escopo durante a fase
+
+| Data | O que mudou | Por quê | Quem aprovou |
+|---|---|---|---|
+| | | | |
