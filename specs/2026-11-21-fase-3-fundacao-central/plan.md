@@ -62,20 +62,20 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
   - o `plugin.json` traz o crédito (`author`, `license`, `homepage`) e o `"defaultEnabled": false`;
   - o `marketplace.json` lista o plugin `golem` em `"./"`.
 - [x] `claude plugin validate <kit>` passa ("Validation passed with warnings"): o `version` é o `0.0.1` do P1, como o R1 pede (o
-  formato das versões fica para a fase 9); os avisos são o `CLAUDE.md` da raiz (não é lido; é o do desenvolvimento do kit), sem ícone e sem `network.hosts` (avisos do catálogo, que não mudam o resultado). Antecipado do S1: instalado do worktree numa configuração isolada, o plugin nasce desligado e aparece só no projeto com o "ligado" (`fase-3-provas/g2-*`: o `validate` inteiro em `g2-validate.txt`, o "ligado" no `.claude/settings.local.json`, uma rodada por projeto; o validador do G2 refez duas).
+  formato das versões fica para a fase 9); os avisos são o `CLAUDE.md` da raiz (não é lido; é o do desenvolvimento do kit), sem ícone e sem `network.hosts` (avisos do catálogo, que não mudam o resultado). Antecipado do S1: instalado do worktree numa configuração isolada, o plugin nasce desligado e aparece só no projeto com o "ligado" (`fase-3-provas/g2-*`: o `validate` inteiro em `g2-validate.txt`, o "ligado" no `.claude/settings.local.json`, uma rodada por projeto; as duas por projeto estão no relatório do validador do G2, que não se arquivou: refazem-se no S3 e no S4 do G6).
 - [x] A suíte inteira: `154 passed`, sem pulados (150 + 4 do `test_plugin.py`).
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 
 ## G3 — O central e o registro dos jogos (R3)
 
-- [ ] `.claude/golem.py`: os comandos `central`, `registrar <pasta> [--nome]`, `aplicar --todos`
+- [x] `.claude/golem.py`: os comandos `central`, `registrar <pasta> [--nome]`, `aplicar --todos`
   e `onde`, e o `USO` com os cinco.
   - o "ligado" juntado ao `.claude/settings.local.json` (cartão 1), guardando o que ele já tem; o JSON quebrado falha
     com a mensagem e sem escrever;
   - o `jogos.md` criado com o cabeçalho, uma linha por jogo, sem duplicar a pasta;
   - o central nunca ganha `CLAUDE.md`.
-- [ ] Testes novos, com o `GOLEM_CENTRAL` numa pasta descartável:
+- [x] Testes novos, com o `GOLEM_CENTRAL` numa pasta descartável:
   - o `central` cria as quatro peças, e a segunda rodada diz "nada mudou";
   - o `registrar` põe a linha no `jogos.md` e o "ligado" no jogo; a segunda rodada não duplica;
   - o `registrar` num repositório que já tem `.gitignore`
@@ -88,7 +88,7 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
   - o `aplicar --todos` escreve o bloco em dois jogos, e avisa e segue quando a pasta de um sumiu;
   - o `onde` diz o modo e de onde vem uma linha (do central, do jogo);
   - nenhum `CLAUDE.md` no central depois do `central` e do `registrar`.
-- [ ] A suíte inteira.
+- [x] A suíte inteira: `164 passed`, sem pulados (154 + 10 do G3, no `test_golem.py`).
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 

@@ -1,6 +1,8 @@
 # Golem SDD · © 2026 Rodrigo Anciães Patelli · licença MIT (.claude/LICENSE) · https://github.com/RodrigoAnciaes/golem-sdd
 """A configuração do Golem: o leitor do `golem.toml`, as receitas e o `golem.py aplicar`."""
 import itertools
+import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -317,3 +319,136 @@ def test_o_central_segue_o_golem_central_senao_o_home(monkeypatch, tmp_path):
     assert golem.central() == tmp_path / "casa" / "Golem"
     monkeypatch.delenv("HOME")
     assert golem.central() == Path.home() / "Golem"
+
+
+# ------------------------------------------- o central e o registro dos jogos (fase 3, G3)
+
+
+def _git(pasta: Path, *args) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=pasta, capture_output=True, text=True,
+                          encoding="utf-8")
+
+
+def test_o_central_nasce_com_as_quatro_pecas_e_sem_claude_md(plugin):
+    r = plugin.rodar("golem.py", "central")
+    assert r.returncode == 0 and "4 arquivo(s) mudaram" in r.stdout, r.stdout + r.stderr
+    c = plugin.central
+    assert (c / "golem.toml").is_file() and (c / "jogos").is_dir()
+    assert "| Jogo | Pasta | Registrado em |" in (c / "jogos.md").read_text(encoding="utf-8")
+    ligado = json.loads((c / ".claude" / "settings.local.json").read_text(encoding="utf-8"))
+    assert ligado == {"enabledPlugins": {"golem@golem": True}}
+    assert not list(c.rglob("CLAUDE.md")), "o CLAUDE.md do central subiria para todo jogo"
+    r = plugin.rodar("golem.py", "central")
+    assert r.returncode == 0 and "nada mudou" in r.stdout, r.stdout
+
+
+def test_o_registrar_poe_o_jogo_no_registro_e_o_liga_uma_vez(plugin):
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "Meu Jogo")
+    assert r.returncode == 0, r.stdout + r.stderr
+    linhas = [l for l in (plugin.central / "jogos.md").read_text(encoding="utf-8").splitlines()
+              if l.startswith("| Meu Jogo |")]
+    assert len(linhas) == 1 and plugin.jogo.resolve().as_posix() in linhas[0], linhas
+    ligado = json.loads((plugin.jogo / ".claude" / "settings.local.json").read_text(encoding="utf-8"))
+    assert ligado["enabledPlugins"]["golem@golem"] is True
+    assert not list(plugin.central.rglob("CLAUDE.md"))
+    antes = (plugin.central / "jogos.md").read_bytes()
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo))
+    assert r.returncode == 0 and "nada mudou" in r.stdout, r.stdout
+    assert (plugin.central / "jogos.md").read_bytes() == antes
+
+
+def test_o_registrar_tira_o_ligado_do_git_do_jogo(plugin, tmp_path):
+    """Sem `.gitignore`, ele o cria; com um sem a linha, a acrescenta uma vez só."""
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert _git(plugin.jogo, "check-ignore", ".claude/settings.local.json").returncode == 0
+
+    outro = tmp_path / "outro"
+    outro.mkdir()
+    _git(outro, "init", "-q")
+    (outro / ".gitignore").write_text("node_modules/", encoding="utf-8")   # sem \n no fim
+    for _ in range(2):
+        assert plugin.rodar("golem.py", "registrar", str(outro)).returncode == 0
+    texto = (outro / ".gitignore").read_text(encoding="utf-8")
+    assert texto.startswith("node_modules/\n") and texto.count(".claude/settings.local.json") == 1
+    assert _git(outro, "check-ignore", ".claude/settings.local.json").returncode == 0
+
+
+def test_um_jogo_chamado_jogo_nao_e_lido_como_o_cabecalho(plugin, tmp_path):
+    pasta = tmp_path / "outros" / "Jogo"   # a "jogo" do fixture é a mesma pasta no Windows
+    pasta.mkdir(parents=True)
+    for _ in range(2):
+        assert plugin.rodar("golem.py", "registrar", str(pasta)).returncode == 0
+    texto = (plugin.central / "jogos.md").read_text(encoding="utf-8")
+    assert texto.count(f"| Jogo | {pasta.resolve().as_posix()} |") == 1, texto
+    (pasta / "AGENTS.md").write_text("# Regras\n", encoding="utf-8")
+    r = plugin.rodar("golem.py", "aplicar", "--todos")
+    assert f"== Jogo ({pasta.resolve().as_posix()})" in r.stdout, r.stdout
+
+
+def test_o_registrar_guarda_o_fim_de_linha_do_gitignore(plugin):
+    (plugin.jogo / ".gitignore").write_bytes(b"node_modules/\r\n*.log\r\n")
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    bruto = (plugin.jogo / ".gitignore").read_bytes()
+    assert bruto.startswith(b"node_modules/\r\n*.log\r\n") and b".claude/settings.local.json\r\n" in bruto
+    assert b"\n" not in bruto.replace(b"\r\n", b""), "uma linha ficou em LF"
+
+
+def test_o_registrar_guarda_as_outras_chaves_do_settings_local(plugin):
+    arquivo = plugin.jogo / ".claude" / "settings.local.json"
+    arquivo.parent.mkdir(exist_ok=True)
+    arquivo.write_text(json.dumps({"permissions": {"allow": ["Bash(ls)"]},
+                                   "enabledPlugins": {"outro@mkt": False}}), encoding="utf-8")
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    dados = json.loads(arquivo.read_text(encoding="utf-8"))
+    assert dados["permissions"] == {"allow": ["Bash(ls)"]}
+    assert dados["enabledPlugins"] == {"outro@mkt": False, "golem@golem": True}
+
+
+def test_o_registrar_com_o_settings_local_quebrado_nao_escreve_nada(plugin):
+    arquivo = plugin.jogo / ".claude" / "settings.local.json"
+    arquivo.parent.mkdir(exist_ok=True)
+    arquivo.write_text("{ quebrado", encoding="utf-8")
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo))
+    assert r.returncode == 1 and "settings.local.json" in r.stdout and "Nada foi escrito" in r.stdout
+    assert arquivo.read_text(encoding="utf-8") == "{ quebrado"
+    assert not plugin.central.exists() and not (plugin.jogo / ".gitignore").exists()
+
+
+def test_o_registrar_recusa_o_nome_com_barra_vertical(plugin):
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "um|dois")
+    assert r.returncode == 1 and "`|`" in r.stdout, r.stdout
+    assert not plugin.central.exists()
+
+
+def test_o_aplicar_todos_passa_em_cada_jogo_e_segue_sem_o_que_sumiu(plugin, tmp_path):
+    jogos = []
+    for nome in ("a", "sumiu", "b"):
+        pasta = tmp_path / f"jogo-{nome}"
+        pasta.mkdir()
+        (pasta / "AGENTS.md").write_text("# Regras\n", encoding="utf-8")
+        assert plugin.rodar("golem.py", "registrar", str(pasta)).returncode == 0
+        jogos.append(pasta)
+    shutil.rmtree(jogos[1])
+    (plugin.central / "golem.toml").write_text('revisor = "nunca"\n', encoding="utf-8")
+    r = plugin.rodar("golem.py", "aplicar", "--todos")
+    assert r.returncode == 0, r.stdout + r.stderr
+    for pasta in (jogos[0], jogos[2]):      # o de depois do sumido também
+        assert "- **Revisor:** nunca." in (pasta / "AGENTS.md").read_text(encoding="utf-8")
+    assert "pulado   jogo-sumiu" in r.stdout, r.stdout
+
+
+def test_o_onde_diz_o_modo_e_de_onde_vem_cada_linha(plugin, copia_do_kit):
+    plugin.central.mkdir()
+    (plugin.central / "golem.toml").write_text('revisor = "nunca"\n', encoding="utf-8")
+    (plugin.jogo / "golem.toml").write_text('validador = "sempre"\n', encoding="utf-8")
+    r = plugin.rodar("golem.py", "onde")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "modo     plugin" in r.stdout and plugin.central.as_posix() in r.stdout
+    assert "revisor: nunca (do central)" in r.stdout
+    assert "validador: sempre (deste projeto)" in r.stdout
+    assert "guardiao: nunca (da receita)" in r.stdout
+    r = subprocess.run([sys.executable, str(copia_do_kit / ".claude" / "golem.py"), "onde"],
+                       capture_output=True, text=True, encoding="utf-8", cwd=copia_do_kit,
+                       env=plugin.env)
+    assert "modo     cópia" in r.stdout and "revisor: sempre (da receita)" in r.stdout, r.stdout
