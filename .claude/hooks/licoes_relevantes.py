@@ -168,8 +168,10 @@ def como_perceber(texto: str) -> str:
     return "\n".join(linhas).strip()
 
 
-def ler_gatilhos(texto: str) -> list:
+def ler_gatilhos(texto: str, nome: str = "gatilhos") -> list:
     """Os itens de `gatilhos:` no frontmatter, como texto. [] = a lição não tem o campo.
+
+    `nome` lê outra lista em bloco do mesmo formato: a régua lê as `refs:` por aqui (fase 4).
 
     Só a lista em bloco, um item por linha (`  - '\\bgit\\s+push\\b'`). Aspas simples são o jeito
     recomendado (nada é escape lá dentro); aspas duplas seguem os escapes de JSON, que para regex
@@ -182,7 +184,8 @@ def ler_gatilhos(texto: str) -> list:
     if not m:
         return []
     linhas = m.group(1).splitlines()
-    inicio = next((i for i, l in enumerate(linhas) if re.match(r"gatilhos:\s*(#.*)?$", l)), None)
+    inicio = next((i for i, l in enumerate(linhas)
+                   if re.match(rf"{re.escape(nome)}:\s*(#.*)?$", l)), None)
     if inicio is None:
         return []
     itens = []

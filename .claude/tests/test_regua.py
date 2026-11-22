@@ -7,7 +7,7 @@ import sys
 
 import pytest
 
-from conftest import AMBIENTE, RAIZ
+from conftest import AMBIENTE, RAIZ, carregar
 
 
 def rodar(raiz, *args) -> subprocess.CompletedProcess:
@@ -258,3 +258,179 @@ def test_gerar_aceita_o_indice_vazio_quando_nao_ha_licao(acervo):
     r = acervo.rodar_regua("--gerar")
     assert r.returncode == 0, r.stdout + r.stderr
     assert acervo.indice.read_text(encoding="utf-8").rstrip().endswith("total: 0")
+
+
+# --------------------------------------------------------------- as refs das lições (fase 4, D2)
+
+ALVO = "linha um\nlinha dois\nlinha tres\nlinha dois de novo\n"
+
+
+def _com_refs(acervo, ident: str, refs: list) -> None:
+    """Uma lição com as `refs:` dadas (os itens já com as aspas), e o arquivo `alvo.py` citado."""
+    (acervo.raiz / "alvo.py").write_text(ALVO, encoding="utf-8")
+    arq = acervo.licao(ident)
+    texto = arq.read_text(encoding="utf-8")
+    arq.write_text(texto.replace("refs:\n  - x\n", "refs:\n" + "".join(f"  - {r}\n" for r in refs)),
+                   encoding="utf-8")
+
+
+@pytest.mark.parametrize("item, esperado", [
+    ("nao-existe.py:3 `x`", "o arquivo não existe"),
+    ("alvo.py:99", "a linha 99 não existe"),
+    ("alvo.py:2", "linha sem âncora"),
+    ("alvo.py:2 `nada disso`", "a âncora `nada disso` não está no arquivo"),
+    ("alvo.py `nada disso`", "a âncora `nada disso` não está no arquivo"),
+    ("alvo.py:1 `linha tres`", "a âncora `linha tres` está agora na :3"),
+    # Mais de uma linha com a âncora: a primeira depois da citada; sem ela, a primeira do arquivo.
+    ("alvo.py:3 `linha dois`", "a âncora `linha dois` está agora na :4"),
+    ("alvo.py:4-4 `linha um`", "a âncora `linha um` está agora na :1"),
+    # O caminho seguido de dois pontos, ponto ou `#` também se confere (não é prosa).
+    ("nao-existe.py: a descrição", "o arquivo não existe"),
+    ("alvo.py:2: a descrição", "linha sem âncora"),
+    ("alvo.py:99.", "a linha 99 não existe"),
+    ("nao-existe.md#secao", "o arquivo não existe"),
+])
+def test_a_ref_que_nao_bate_da_o_aviso(acervo, item, esperado):
+    _com_refs(acervo, "com-ref", [f"'{item}'"])
+    problemas = acervo.regua().problemas_de_refs()
+    assert len(problemas) == 1 and esperado in problemas[0], problemas
+    assert problemas[0].startswith("com-ref: a ref "), problemas
+
+
+@pytest.mark.parametrize("item", [
+    "alvo.py:2 `linha dois` (a descrição)",
+    "alvo.py:1-3 `linha tres`",
+    "alvo.py `linha um`",
+    "alvo.py, a descrição sem linha",
+    "a correção do usuário, 2026-11-21: «alvo.py:99»",
+    "pytest: -q diminui a verbosidade",
+    "game.ServerStorage.Moedas (o script do place)",
+])
+def test_a_ref_em_dia_e_a_prosa_nao_dao_aviso(acervo, item):
+    _com_refs(acervo, "com-ref", [f"'{item}'"])
+    assert acervo.regua().problemas_de_refs() == []
+
+
+def test_o_aviso_de_ref_nao_muda_o_codigo_de_saida(acervo):
+    _com_refs(acervo, "com-ref", ["'alvo.py:1 `linha tres`'"])
+    r = acervo.rodar_regua("--gerar")
+    assert r.returncode == 0 and "AVISO    com-ref: a ref alvo.py:1:" in r.stderr, r.stderr
+    r = acervo.rodar_regua("--conferir")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "está agora na :3" in r.stderr and "ok       .claude/indice/licoes.yaml" in r.stdout
+
+
+def test_as_refs_das_licoes_do_kit_estao_em_dia(regua):
+    """No kit, sem folga: quem muda um arquivo citado por uma lição, muda a ref junto. Estrito: o
+    arquivo ausente conta também nas lições do kit."""
+    assert regua.problemas_de_refs(estrito=True) == []
+
+
+def test_toda_licao_do_kit_traz_a_origem_kit(regua):
+    """A marca que cala o arquivo ausente na cópia do jogo. Lição nova no kit leva `origem: kit`."""
+    sem = [a.name for a in regua.arquivos_de_licao(todos=True)
+           if regua.campo(regua.ler(a), "origem") != "kit"]
+    assert sem == [], f"ponha `origem: kit` no frontmatter (logo abaixo do `tipo:`): {sem}"
+
+
+def test_na_licao_do_kit_o_arquivo_ausente_cala_e_a_linha_mudada_avisa(acervo):
+    _com_refs(acervo, "do-kit", ["'nao-existe.py:3 `x`'", "'alvo.py:1 `linha tres`'"])
+    arq = acervo.raiz / "docs" / "licoes" / "do-kit.md"
+    arq.write_text(arq.read_text(encoding="utf-8").replace("tipo: armadilha\n",
+                                                           "tipo: armadilha\norigem: kit\n"),
+                   encoding="utf-8")
+    regua = acervo.regua()
+    problemas = regua.problemas_de_refs()
+    assert len(problemas) == 1 and "está agora na :3" in problemas[0], problemas
+    assert any("o arquivo não existe" in p for p in regua.problemas_de_refs(estrito=True))
+
+
+def test_a_copia_do_kit_nasce_sem_aviso_de_ref(copia_do_kit):
+    """A instalação por cópia leva as lições do kit, e não os testes nem as specs que elas citam."""
+    assert not (copia_do_kit / "specs").exists() and not (copia_do_kit / ".claude" / "tests").exists()
+    r = rodar(copia_do_kit, "--conferir")
+    assert r.returncode == 0 and "a ref" not in r.stderr, r.stderr
+
+
+def test_no_plugin_a_ref_a_um_arquivo_do_kit_nao_da_aviso(plugin):
+    """As lições do kit chegam ao jogo pela cópia e citam arquivos que só existem no kit."""
+    licao = plugin.jogo / "docs" / "licoes" / "licao-do-jogo.md"
+    texto = licao.read_text(encoding="utf-8").replace(
+        "refs:\n  - x\n", "refs:\n  - '.claude/golem.py `def teto_do_agents`'\n"
+                         "  - '.claude/so-no-jogo.py'\n")
+    licao.write_text(texto, encoding="utf-8")
+    r = plugin.rodar("regua.py", "--conferir")
+    assert ".claude/golem.py" not in r.stderr, r.stderr
+    assert "so-no-jogo.py: o arquivo não existe" in r.stderr, r.stderr
+
+
+# --------------------------------------------------------------- o teto do AGENTS.md (fase 4, D3)
+
+
+def _agents(acervo, palavras: int) -> None:
+    (acervo.raiz / "AGENTS.md").write_text(" ".join(["palavra"] * palavras) + "\n",
+                                           encoding="utf-8")
+
+
+def test_o_agents_acima_do_teto_da_o_aviso_e_abaixo_nao(acervo):
+    _agents(acervo, 3000)
+    assert acervo.regua().aviso_do_teto() is None
+    _agents(acervo, 3001)
+    aviso = acervo.regua().aviso_do_teto()
+    assert "3001 palavras" in aviso and "teto de 3000" in aviso, aviso
+    assert "docs/regras-de-area.md" in aviso and "agents_teto" in aviso, aviso
+    r = acervo.rodar_regua("--gerar")
+    assert r.returncode == 0 and "AVISO    AGENTS.md tem 3001 palavras" in r.stderr, r.stderr
+    r = acervo.rodar_regua("--conferir")
+    assert r.returncode == 0 and "AVISO    AGENTS.md tem 3001 palavras" in r.stderr, r.stderr
+
+
+def test_no_plugin_o_teto_do_central_vale_e_o_do_jogo_vence(plugin):
+    (plugin.jogo / "AGENTS.md").write_text(" ".join(["palavra"] * 11) + "\n", encoding="utf-8")
+    plugin.central.mkdir()
+    (plugin.central / "golem.toml").write_text("agents_teto = 10\n", encoding="utf-8")
+    r = plugin.rodar("regua.py", "--conferir")
+    assert "AGENTS.md tem 11 palavras, acima do teto de 10" in r.stderr, r.stderr
+    (plugin.jogo / "golem.toml").write_text("agents_teto = 20\n", encoding="utf-8")
+    r = plugin.rodar("regua.py", "--conferir")
+    assert "AGENTS.md tem" not in r.stderr, r.stderr
+
+
+def test_o_teto_vem_da_linha_agents_teto(acervo):
+    _agents(acervo, 3001)
+    (acervo.raiz / "golem.toml").write_text("agents_teto = 4000\n", encoding="utf-8")
+    assert acervo.regua().aviso_do_teto() is None
+    # O golem.toml com erro: o teto padrão, e quem acusa o erro é o aplicar.
+    (acervo.raiz / "golem.toml").write_text('agents_teto = "muito"\n', encoding="utf-8")
+    assert "teto de 3000" in acervo.regua().aviso_do_teto()
+
+
+@pytest.mark.parametrize("quebra", ["sem", "sintaxe"])
+def test_sem_o_golem_py_o_teto_e_o_padrao(acervo, quebra):
+    """Sem o golem.py, ou com ele sem carregar, a régua usa os 3.000 e não cai."""
+    _agents(acervo, 3001)
+    (acervo.raiz / "golem.toml").write_text("agents_teto = 5000\n", encoding="utf-8")
+    golem = acervo.raiz / ".claude" / "golem.py"
+    if quebra == "sem":
+        golem.unlink()
+    else:
+        golem.write_text("isto nao e python (\n", encoding="utf-8")
+    assert "teto de 3000" in acervo.regua().aviso_do_teto()
+    r = acervo.rodar_regua("--gerar")
+    assert r.returncode == 0 and "teto de 3000" in r.stderr, r.stdout + r.stderr
+
+
+def test_sem_agents_nao_ha_aviso_do_teto(acervo):
+    assert acervo.regua().aviso_do_teto() is None
+
+
+def test_o_teto_padrao_da_regua_e_o_do_golem(regua):
+    golem = carregar("golem_do_teto", RAIZ / ".claude" / "golem.py")
+    assert regua.AGENTS_TETO_PADRAO == golem.AGENTS_TETO
+
+
+def test_o_modelo_do_agents_cabe_no_teto_padrao(regua):
+    """O jogo não nasce com o aviso: o modelo que ele copia fica abaixo do teto."""
+    palavras = len((RAIZ / "templates" / "AGENTS.md").read_text(encoding="utf-8").split())
+    assert palavras <= regua.AGENTS_TETO_PADRAO, palavras
+    assert regua.aviso_do_teto() is None, "o AGENTS.md do kit passou do teto"

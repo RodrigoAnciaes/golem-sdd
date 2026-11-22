@@ -14,6 +14,9 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
 - [ ] `"$PY" -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs` → `N passed`, sem
   falhas nem puladas. **N** é 166 (a contagem em `746ebf7`) mais os testes novos dos G1 e G2,
   anotados aqui ao fim de cada grupo. Se a `main` andar, a contagem dela entra no lugar do 166.
+  - G1: 8 testes novos, 174 no total (`174 passed in 72.66s`).
+  - G2: 34 testes novos, 208 no total (`208 passed in 80.53s`), com as correções do revisor e do
+    validador e o cartão 5.
 - [ ] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`,
   sai 0, e o stderr não traz nenhuma linha `AVISO` de ref nem do teto (as refs do kit em dia, e o
   `AGENTS.md` do kit abaixo do teto).
@@ -61,6 +64,11 @@ Quem executa: o agente, pelo Git Bash, com a saída colada aqui.
    3. Rode `"$PYR" "$TMP/kit/.claude/regua.py" --conferir` com a pasta corrente em `$TMP/jogo`.
 
    **Não deve sair** nenhum `AVISO` de ref que aponte um arquivo do kit.
+5. **A instalação por cópia (R2, cartão 5).** Copie para `$TMP/copia` o que o `README.md` manda
+   copiar ("Instalar por cópia": a `.claude/` sem a `.claude/tests/`, a `docs/licoes/` e o
+   `templates/AGENTS.md` como `AGENTS.md`), rode `git init`, `git add -A` e o `--conferir` ali.
+   **Não deve sair** nenhum `AVISO` de ref. Depois, numa lição do jogo (sem `origem: kit`), ponha a
+   ref `'.claude/tests/x.py'` e rode o `--conferir`: **deve sair** o `AVISO` "o arquivo não existe".
 
 ## Casos de borda
 

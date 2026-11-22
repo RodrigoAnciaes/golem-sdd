@@ -30,8 +30,8 @@ o define assim:
   cortado (`:229-231`, `:266-267`). A lição escrita fora de fase, à mão ou sem Python fica fora do
   índice, e o gancho a cala.
 - **As `refs:` envelhecem sem aviso.** A régua valida o `id`, a `area`, o `tipo` e os `gatilhos`
-  (`regua.py:195-226`), e não as `refs:`. Nesta `main`, 8 refs das lições do kit têm número de
-  linha, e 6 delas apontam para uma linha que ainda existe, mas não é mais a citada (Contexto, "As
+  (`regua.py:195-226`), e não as `refs:`. Nesta `main`, 10 refs das lições do kit têm número de
+  linha, e 8 delas apontam para uma linha que ainda existe, mas não é mais a citada (Contexto, "As
   refs deslocadas hoje").
 - **O `AGENTS.md` entra inteiro em toda conversa** (`CLAUDE.md:1`, `@AGENTS.md`), e nada mede o
   tamanho dele. O do outro projeto, que inspirou a proposta, foi de 7,5 mil a 25 mil palavras em
@@ -100,6 +100,12 @@ O formato, com a âncora, e o aviso em vez da falha são os cartões 2 e 3 ("Dec
 - **Onde o arquivo é procurado:** na raiz do projeto e, no modo plugin, também na pasta do kit. As
   lições do kit chegam ao jogo pela cópia da `iniciar-sdd` (`iniciar-sdd/SKILL.md:94`) e citam
   arquivos do kit (`.claude/tests/…`, as `specs/` do kit), que não existem no jogo.
+- **A lição do kit, na instalação por cópia** (cartão 5): a cópia leva as lições do kit e não os
+  testes nem as specs que elas citam (`README.md:178-184`), e aí a pasta do kit é a do jogo. As
+  lições do kit trazem a linha `origem: kit` no frontmatter, e nelas o arquivo que não existe não
+  dá aviso. A linha ou a âncora que mudou continua avisando em todas, e nas lições do jogo o
+  arquivo ausente também. No kit, um teste exige a marca em toda lição e confere as refs sem a
+  folga (todo arquivo citado existe). O índice não guarda o campo.
 - **Aviso, e não erro.** A conferência roda no `--gerar` e no `--conferir`, com uma linha `AVISO`
   no stderr por ref, sem mudar o código de saída. É o mesmo comportamento do "não está no git" de
   hoje (`regua.py:126-134`). Uma ref velha nunca impede o índice de sair, nem a lição de chegar.
@@ -216,7 +222,7 @@ O teto configurável e o aviso em vez da falha são os cartões 4 e 3 ("Decisõe
    (Recomendado)". A GER recebeu o pedido de replanejar o roteiro. Descartado: os dois acervos
    nesta fase, que a levaria do tamanho M ao G.
 2. **A ref leva o arquivo, a linha e a âncora:** "A: arquivo, linha e âncora (Recomendado)".
-   Descartado: conferir só o arquivo e a linha, que passaria as 8 refs deslocadas de hoje.
+   Descartado: conferir só o arquivo e a linha, que passaria as refs deslocadas de hoje.
 3. **A ref velha e o teto passado dão aviso, não falha:** "A: aviso (Recomendado)". No kit, um
    teste segura as refs em dia. Descartado: a falha, que pararia o índice de quem usa o kit por uma
    citação velha.
@@ -224,6 +230,14 @@ O teto configurável e o aviso em vez da falha são os cartões 4 e 3 ("Decisõe
    3.000 palavras por padrão. Ele não escolheu a recomendada (o teto fixo). A ressalva do cartão, a
    chave nova sem pedido (regra 10), deixa de valer, porque agora o pedido é dele. Descartado: o
    teto fixo de 3.000 na régua.
+
+5. **Na instalação por cópia, só as refs das lições do kit calam o arquivo ausente:** "D: só as do
+   kit calam (Recomendado)" (2026-11-22). O D é da EST; a recomendação desta conversa era a A (o
+   arquivo ausente não avisa em lição nenhuma). Achado do revisor do G2: a cópia nascia com 12
+   avisos. Descartados: a A, que calaria também o arquivo apagado ou renomeado nas lições do jogo;
+   a B, o jogo nascendo com os avisos; a C, a cópia levando os arquivos citados, que poria as fases
+   do kit na `specs/` do jogo. A marca é a linha `origem: kit` (detalhe do agente: uma lista na
+   régua não separaria as lições na cópia, em que a pasta do kit é a do jogo).
 
 A premissa dos "dois acervos" do pedido à fase estava errada: o gancho lê só o acervo do jogo. A EST
 registrou que o erro estava no pedido dela à GER.
@@ -266,13 +280,17 @@ sem lição ("Do agente", abaixo).
     agora na descrição do botão Nunca", que está na `:78-81`, e a `:85-88` cita "o arquivo, agora
     no texto da pergunta de gravar", que está na `:111-112`;
   - `sem-python-no-path-nao-e-maquina-sem-python`: a `diagnostico/SKILL.md:37-46 e :82-95` cita "a
-    pergunta onde está o Python", que está na `:62`.
+    pergunta onde está o Python", que está na `:62`;
+  - `trocar-o-localappdata-nao-esconde-o-python-do-agente`: a `diagnostico/SKILL.md:69-76` cita "a
+    busca, que lê o $LOCALAPPDATA", que está na `:95-96`, e a `:96-102` cita "o winget", que está
+    na `:124`. Essas duas faltavam na primeira versão desta lista, que dizia 8 refs em 5 lições; a
+    régua do G2 as achou (2026-11-22).
 
-  As 8 refs com linha estão em 5 lições. As outras duas estão em dia: a
+  As 10 refs com linha estão em 6 lições. As outras duas estão em dia: a
   `.claude/agents/revisor.md:3` (a `description`) e a `implementar-fase/SKILL.md:24-28`. Uma
-  conferência só de "o arquivo e a linha existem" passaria as 8.
+  conferência só de "o arquivo e a linha existem" passaria as 8 deslocadas.
 - **O formato das refs hoje é livre:**
-  - uma parte é caminho com linha (as 9 acima);
+  - uma parte é caminho com linha (as 10 acima);
   - uma parte é caminho e uma descrição entre parênteses
     (`docs/guia-roblox.md (seção 4, Voltar atrás)`);
   - uma parte é prosa, sem caminho (`conferir-e-agir-em-chamadas-separadas.md:12-14`,

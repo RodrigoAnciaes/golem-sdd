@@ -54,11 +54,12 @@ def test_le_arquivo_em_crlf(tmp_path):
 
 def test_sem_golem_toml_vale_a_economico(tmp_path):
     c = golem.configuracao(tmp_path)
-    # A tabela do R3 da spec da fase 1, escrita aqui por extenso de propósito.
+    # A tabela do R3 da spec da fase 1, escrita aqui por extenso de propósito (com o
+    # `agents_teto` do R3 da fase 4).
     assert c == {"receita": "economico", "revisor": "sempre", "revisor_quando": "por_fase",
                  "modelo_revisor": "sonnet", "validador": "nunca", "modelo_validador": "opus",
                  "guardiao": "nunca", "parar_a_cada_parte": "sempre", "conversas": "uma",
-                 "gancho": "ligado", "gancho_teto": 2}
+                 "gancho": "ligado", "gancho_teto": 2, "agents_teto": 3000}
 
 
 def test_linha_vale_mais_que_a_receita(tmp_path):
@@ -102,6 +103,14 @@ def test_valor_fora_da_tabela_falha_e_lista_os_aceitos():
     assert "1 a 10" in erro_de("gancho_teto = 11\n")
     assert "1 a 10" in erro_de('gancho_teto = "2"\n')
     assert "entre aspas" in erro_de("revisor = 3\n")
+
+
+def test_agents_teto_aceita_um_inteiro_e_recusa_texto_e_zero():
+    assert golem.ler_texto("agents_teto = 4500\n") == {"agents_teto": 4500}
+    msg = erro_de('receita = "so-eu"\nagents_teto = "muito"\n')
+    assert "golem.toml:2" in msg and "1 em diante" in msg, msg
+    assert "golem.toml:1" in erro_de("agents_teto = 0\n")
+    assert all(r["agents_teto"] == golem.AGENTS_TETO == 3000 for r in golem.RECEITAS.values())
 
 
 def test_linha_mal_formada_falha_com_o_numero_da_linha():

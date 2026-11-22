@@ -3,10 +3,11 @@ id: o-grep-do-git-for-windows-aborta-com-i-e-varios-e
 data: 2026-11-13
 area: processo
 tipo: erro-de-diagnostico
+origem: kit
 custo: "cinco grep.exe.stackdump na fase 1, buscas refeitas por quatro subagentes e uma busca de lições perdida numa sessão de teste"
 gatilho: "a implementar-fase passou a mandar buscar lições com grep -il, e uma sessão rodou grep -il -e python -e teste"
 refs:
-  - ".claude/skills/implementar-fase/SKILL.md:24-28 (a busca das lições)"
+  - ".claude/skills/implementar-fase/SKILL.md:24-28 `Busque as lições da área que vai tocar` (a busca das lições)"
 gatilhos:
   - '(?<!git )\bgrep\b[^|;&\n]*\s-e\s[^|;&\n]*\s-e\s'
   - 'stackdump'

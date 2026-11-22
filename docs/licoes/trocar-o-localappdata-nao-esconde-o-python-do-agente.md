@@ -3,11 +3,12 @@ id: trocar-o-localappdata-nao-esconde-o-python-do-agente
 data: 2026-11-13
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "três tentativas do usuário de abrir a sessão de teste, e o resultado esperado não apareceu"
 gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
 refs:
-  - ".claude/skills/diagnostico/SKILL.md:69-76 (a busca, que lê o $LOCALAPPDATA)"
-  - ".claude/skills/diagnostico/SKILL.md:96-102 (o winget, quando nada é achado)"
+  - ".claude/skills/diagnostico/SKILL.md:95-96 `/Programs/Python/Python3*/python.exe` (a busca, que lê o $LOCALAPPDATA)"
+  - ".claude/skills/diagnostico/SKILL.md:124 `winget install -e --id Python.Python` (o winget, quando nada é achado)"
 gatilhos:
   - '\bLOCALAPPDATA=\S'
   - '\$env:LOCALAPPDATA\s*='

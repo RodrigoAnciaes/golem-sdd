@@ -3,6 +3,7 @@ id: o-agente-cria-script-pelo-execute-luau-sem-caminho
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "duas rodadas da conferência 4 da verificação manual 1 da fase 2 sem regra de risco nenhuma no contexto"
 gatilho: "pedir ao agente, num place do Roblox, um script novo, com o gancho das lições acendendo a área codigo só pelo caminho do multi_edit"
 refs:

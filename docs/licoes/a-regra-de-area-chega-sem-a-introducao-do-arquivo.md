@@ -3,6 +3,7 @@ id: a-regra-de-area-chega-sem-a-introducao-do-arquivo
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "a rodada A da conferência 4 da verificação manual 1 da fase 2 sem o \"me explica\", e as rodadas seguintes até provar o conserto (E e F)"
 gatilho: "escrever uma regra de área que se apoia num texto da introdução do docs/regras-de-area.md (o modelo templates/roblox/regras-de-area.md da fase 2)"
 refs:

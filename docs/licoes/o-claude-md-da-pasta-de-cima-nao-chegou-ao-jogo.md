@@ -3,6 +3,7 @@ id: o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo
 data: 2026-11-22
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "uma premissa da spec da fase 3, apoiada na documentação, refutada por 4 rodadas com login (a decisão ficou)"
 gatilho: "a spec da fase 3 leu na documentação que o CLAUDE.md sobe a toda pasta acima e tirou disso que o do Golem central chegaria a cada jogo de ~/Golem/jogos/"
 refs:

@@ -3,6 +3,7 @@ id: o-studio-recusa-salvar-a-copia-com-a-sessao-antiga-aberta
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "uma rodada do passo 10 da verificação manual 1 da fase 2, e a ordem do guia escrita ao contrário"
 gatilho: "voltar um place do Roblox a uma versão anterior pela cópia local do histórico, seguindo o docs/guia-roblox.md da fase 2"
 refs:

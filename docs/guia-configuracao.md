@@ -22,6 +22,7 @@ As receitas são os recomendados do kit. Cada linha escrita no `golem.toml` vale
 | `conversas` | `uma` | `uma` | `papeis` |
 | `gancho` | `ligado` | `ligado` | `ligado` |
 | `gancho_teto` | `2` | `2` | `4` |
+| `agents_teto` | `3000` | `3000` | `3000` |
 
 - **`so-eu`:** para quem não quer revisão. Nenhuma conversa extra.
 - **`economico`:** o padrão, pensado para o plano Pro. Uma conversa extra por fase: um revisor no
@@ -55,6 +56,10 @@ As receitas são os recomendados do kit. Cada linha escrita no `golem.toml` vale
   lições se buscam à mão em `docs/licoes/` (o modo sem Python, abaixo).
 - **`gancho_teto`** (de 1 a 10): quantas lições novas o gancho entrega por ação. Cada lição custa
   uns 550 bytes, cerca de 150 tokens.
+- **`agents_teto`** (de 1 em diante): quantas palavras o `AGENTS.md` pode ter antes de a régua
+  (`regua.py --gerar` e `--conferir`) avisar. O arquivo entra inteiro em toda conversa. Acima do
+  teto, a regra que só vale para quem mexe numa área sai para o `docs/regras-de-area.md` (a skill
+  `licao` diz como). O aviso não muda o código de saída da régua.
 
 ## O que nenhuma receita corta
 
@@ -99,6 +104,7 @@ receita = "economico"            # so-eu | economico | completo
 # conversas        = "uma"         # uma | papeis
 # gancho           = "ligado"      # ligado | desligado (máquina sem Python)
 # gancho_teto      = 2             # lições novas por ação, de 1 a 10
+# agents_teto      = 3000          # palavras do AGENTS.md antes do aviso da régua
 ```
 
 ## Sem Python

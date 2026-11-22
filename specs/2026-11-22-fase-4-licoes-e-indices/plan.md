@@ -39,13 +39,13 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G2 — A régua confere as `refs:` e o tamanho do `AGENTS.md` (R2, R3)
 
-- [ ] `.claude/hooks/licoes_relevantes.py`: o `ler_gatilhos` recebe o nome do campo (o padrão
+- [x] `.claude/hooks/licoes_relevantes.py`: o `ler_gatilhos` recebe o nome do campo (o padrão
   continua `gatilhos`), para a régua ler as `refs:` com o mesmo leitor.
-- [ ] `.claude/golem.py`: a chave `agents_teto` (um inteiro de 1 em diante), com 3.000 nas três
+- [x] `.claude/golem.py`: a chave `agents_teto` (um inteiro de 1 em diante), com 3.000 nas três
   receitas, e a função que a lê para a régua, como o `teto_do_gancho`.
-- [ ] `docs/guia-configuracao.md`: a linha `agents_teto` na tabela das receitas, na lista das
+- [x] `docs/guia-configuracao.md`: a linha `agents_teto` na tabela das receitas, na lista das
   chaves e no exemplo de `golem.toml`.
-- [ ] `.claude/regua.py`:
+- [x] `.claude/regua.py`:
   - a conferência das refs: quais itens se conferem, a âncora, a linha e a busca na pasta do kit no
     modo plugin, como na tabela do R2;
   - o teto do `AGENTS.md`, lido pelo `golem.py` (a chave `agents_teto`, com 3.000 se o
@@ -53,10 +53,10 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
   - os dois saem como `AVISO` no stderr, no `--gerar` e no `--conferir`, sem mudar o código de
     saída;
   - a docstring do arquivo, na lista do que a régua confere.
-- [ ] As lições do kit: as refs com linha ganham a âncora e a linha certa (as 8 do `requirements.md`,
+- [x] As lições do kit: as refs com linha ganham a âncora e a linha certa (as 10 do `requirements.md`,
   "Contexto"). O índice não guarda as `refs:` (`regua.py:266-293`): o `--conferir` tem de dar `ok`
   sem regerar.
-- [ ] Testes novos em `.claude/tests/test_regua.py`:
+- [x] Testes novos em `.claude/tests/test_regua.py`:
   - cada linha da tabela do R2, com uma lição descartável: o arquivo que não existe, a linha que
     não existe, a linha sem âncora, a âncora fora do arquivo e a âncora que mudou de linha (o aviso
     diz a linha nova);
@@ -67,8 +67,12 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
   - o `AGENTS.md` acima do teto dá o aviso, e abaixo dele, não;
   - com `agents_teto` no `golem.toml`, vale o número dele; com o `golem.toml` com erro, os 3.000;
   - o `templates/AGENTS.md` está abaixo do teto padrão.
-- [ ] Testes novos em `.claude/tests/test_golem.py`: a `agents_teto` aceita um inteiro e recusa o
-  texto e o zero, com o número da linha.
+- [x] O cartão 5: a linha `origem: kit` nas 16 lições do kit e, nelas, o arquivo ausente sem
+  aviso; o `--conferir` estrito no teste do kit, o teste da marca, o da cópia do kit e a linha no
+  `docs/licoes/README.md`.
+- [x] Testes novos em `.claude/tests/test_golem.py`: a `agents_teto` aceita um inteiro e recusa o
+  texto e o zero, com o número da linha. O teste da tabela da economico (`test_sem_golem_toml_vale_a_economico`)
+  ganha a chave nova.
 
 ## G3 — A regra de área, a frase do gatilho e o princípio do índice (R4, R5)
 
@@ -108,3 +112,4 @@ Só documentação: caminho rápido, só o revisor.
 |---|---|---|---|
 | 2026-11-22 | O G1 corrige também a `licao` e a `diagnostico` (a lição fora do índice "nunca chega"), que estavam no G3 | O G1 tornou as frases falsas, e a varredura do G3 não as acharia (achado do revisor) | o agente: detalhe de implementação, dentro do R1 |
 | 2026-11-22 | O gancho só lê arquivo em `docs/licoes/` (`is_file`) | Uma pasta `x.md` derrubava o gancho a cada ação, visto pelo validador; já caía na varredura de hoje | o agente: falha vista, dentro do R1 |
+| 2026-11-22 | As lições do kit ganham `origem: kit`, e nelas o arquivo ausente não avisa | Na instalação por cópia o jogo nascia com 12 avisos de ref (achado do revisor do G2) | o autor do kit, pela EST: "D: só as do kit calam (Recomendado)" |
