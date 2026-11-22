@@ -14,10 +14,11 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G1 — O gancho lê os dois acervos (R1, R2)
 
-- [ ] `.claude/hooks/gancho.sh`: no modo plugin, exporta o `GOLEM_CENTRAL` com o central que já
-  calcula (`:63-66`), junto do `CLAUDE_PROJECT_DIR` (`:321-322`); fora dele, tira a variável do
-  ambiente do `.py`. O comentário do topo (passo 1) diz isso.
-- [ ] `.claude/hooks/licoes_relevantes.py`:
+- [x] `.claude/hooks/gancho.sh`: no modo plugin, exporta o `GOLEM_CENTRAL` com o central que já
+  calcula (`:63-66`), junto do `CLAUDE_PROJECT_DIR` (`:321-322`); fora dele, quem não lê o geral
+  é o `.py`, que confere o modo (tirar a variável no `sh` seria uma segunda conferência sem falha
+  vista: a mutação dela não muda nada que se veja). O comentário do topo (passo 1) diz isso.
+- [x] `.claude/hooks/licoes_relevantes.py`:
   - a leitura de um acervo (o índice, a lição fora dele, a varredura do Markdown) passa a receber a
     pasta, no lugar das constantes `LICOES` e `INDICE`;
   - o acervo geral: o `GOLEM_CENTRAL`, só no modo plugin (o `.claude-plugin/plugin.json` no kit e a
@@ -29,7 +30,7 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
   - a degradação e o aviso "índice defasado" por acervo, com uma marca própria para o do geral e o
     texto apontando a pasta e o comando certos;
   - a docstring (o topo e a "Degradação").
-- [ ] Testes novos em `.claude/tests/test_gancho.py`, sobre a árvore `Plugin` (o gancho pelo
+- [x] Testes novos em `.claude/tests/test_gancho.py`, sobre a árvore `Plugin` (o gancho pelo
   `gancho.sh`, com o `CLAUDE_PROJECT_DIR` no jogo e o `GOLEM_CENTRAL` no central):
   - a lição só do geral chega na ação que casa com o gatilho dela, no bloco do geral, com o sinal
     lido do Markdown do geral;
@@ -42,8 +43,11 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
   - sem a pasta do geral: a saída é igual à de hoje;
   - fora do modo plugin (o kit sem `.claude-plugin/`), com o `GOLEM_CENTRAL` no ambiente e lições
     no geral, nenhuma geral chega;
-  - a sessão aberta no próprio central: um acervo só, sem bloco do geral.
-- [ ] Um teste da régua (`test_regua.py`): rodada com a pasta corrente num central sem git, o
+  - a sessão aberta no próprio central: um acervo só, sem bloco do geral;
+  - da revisão do G1: a geral de mesmo id fica de fora mesmo quando só ela casa (e sem a marca da
+    sessão); a geral por gatilho vem antes da do jogo pela área; os dois acervos defasados dão os
+    dois avisos; sem o `GOLEM_CENTRAL` no ambiente, o central é o `$HOME/Golem`.
+- [x] Um teste da régua (`test_regua.py`): rodada com a pasta corrente num central sem git, o
   `--gerar` indexa as lições do disco, e o `--conferir` passa.
 
 ## G2 — A marca de jogo para terceiros e o comando de subir (R3, R4)

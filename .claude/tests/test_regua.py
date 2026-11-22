@@ -7,7 +7,7 @@ import sys
 
 import pytest
 
-from conftest import AMBIENTE, RAIZ, carregar
+from conftest import AMBIENTE, RAIZ, carregar, escrever_licao
 
 
 def rodar(raiz, *args) -> subprocess.CompletedProcess:
@@ -442,3 +442,17 @@ def test_o_modelo_do_agents_cabe_no_teto_padrao(regua):
     palavras = len((RAIZ / "templates" / "AGENTS.md").read_text(encoding="utf-8").split())
     assert palavras <= regua.AGENTS_TETO_PADRAO, palavras
     assert regua.aviso_do_teto() is None, "o AGENTS.md do kit passou do teto"
+
+
+def test_no_central_sem_git_a_regua_indexa_o_disco(plugin):
+    """O acervo geral (fase 4b): a régua do kit, com a pasta corrente no central, que não é git,
+    gera o índice do central com as lições do disco, e o `--conferir` passa."""
+    escrever_licao(plugin.central, "licao-geral", r"'\bcomando-geral\b'")
+    r = plugin.rodar("regua.py", "--gerar", cwd=plugin.central)
+    assert r.returncode == 0, r.stdout + r.stderr
+    indice = (plugin.central / ".claude" / "indice" / "licoes.yaml").read_text(encoding="utf-8")
+    assert "  licao-geral:" in indice and "total: 1" in indice
+    assert not (plugin.jogo / ".claude" / "indice" / "licoes.yaml").read_text(
+        encoding="utf-8").count("licao-geral"), "o índice do jogo não muda"
+    r = plugin.rodar("regua.py", "--conferir", cwd=plugin.central)
+    assert r.returncode == 0, r.stdout + r.stderr

@@ -11,7 +11,9 @@
 #      uma pasta; sem ele, `../..` daqui (a posição), salvo quando a posição é o plugin do Golem
 #      (tem `.claude-plugin/plugin.json`): aí, o git da pasta corrente, como as skills o rodam pelo
 #      Bash. No modo plugin (o kit é o plugin e o projeto é outro), vale também o Golem central
-#      (`$GOLEM_CENTRAL`, senão `$HOME/Golem`, a mesma regra do `golem.py`). Com
+#      (`$GOLEM_CENTRAL`, senão `$HOME/Golem`, a mesma regra do `golem.py`), que vai ao `.py` no
+#      `GOLEM_CENTRAL` para ele ler o acervo geral de lições (fora do modo plugin, o `.py` não o
+#      lê). Com
 #      `gancho = "desligado"` no golem.toml (o do central por baixo do da raiz; vale a última
 #      linha), sai calado aqui (o modo sem Python);
 #   2. procura um Python, nesta ordem, e só aceita o candidato que RODA um Python 3.8+ de verdade
@@ -320,6 +322,12 @@ fi
 # leva o caminho do `.py`; sem ela (`MSYS_NO_PATHCONV=1`), o `.py` nem é achado, e o aviso sai.
 CLAUDE_PROJECT_DIR=$raiz
 export CLAUDE_PROJECT_DIR
+# O central vai junto, no modo plugin: é dele o acervo geral. Fora do modo plugin, quem não lê o
+# geral é o `.py`, que confere o modo de novo (a variável pode vir do ambiente).
+if [ -n "$central" ]; then
+    GOLEM_CENTRAL=$central
+    export GOLEM_CENTRAL
+fi
 saida=$("$py" $py_arg "$aqui/licoes_relevantes.py")
 codigo=$?
 [ "$codigo" -eq 0 ] || avisar "licoes_relevantes.py saiu com código $codigo"

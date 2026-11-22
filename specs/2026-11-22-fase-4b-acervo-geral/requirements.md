@@ -58,8 +58,8 @@ pergunta a mais, uma vez (R3), e nada muda no resto do fluxo dele.
 
 - **A raiz do gancho vale para os dois.** O `gancho.sh` já decide a raiz do jogo e, no modo plugin,
   o central (`gancho.sh:56-66`). Ele passa a exportar o central ao `.py` no `GOLEM_CENTRAL`, como
-  já passa a raiz no `CLAUDE_PROJECT_DIR` (`gancho.sh:321-322`). Fora do modo plugin, ele não passa
-  central nenhum.
+  já passa a raiz no `CLAUDE_PROJECT_DIR` (`gancho.sh:321-322`). Fora do modo plugin, ele não
+  calcula central nenhum, e o `.py` não lê o geral (abaixo).
 - **O `.py` lê o acervo geral só no modo plugin:** a pasta do kit tem o
   `.claude-plugin/plugin.json`, a raiz do jogo é outra, e o `GOLEM_CENTRAL` aponta uma pasta que
   não é a raiz do jogo. A sessão aberta no próprio central lê só um acervo, o dele.
