@@ -87,6 +87,10 @@ FIM = "<!-- golem:fim -->"
 ETAPA = ("sempre", "perguntar", "nunca")
 MODELOS = ("sonnet", "opus", "haiku", "inherit")
 TETO_MIN, TETO_MAX = 1, 10
+# O teto de palavras do AGENTS.md, que entra inteiro em toda conversa (a régua avisa acima dele).
+AGENTS_TETO = 3000
+# As chaves de número: o mínimo e o máximo (None = sem máximo).
+INTEIROS = {"gancho_teto": (TETO_MIN, TETO_MAX), "agents_teto": (1, None)}
 VALORES = {
     "receita": ("so-eu", "economico", "completo"),
     "revisor": ETAPA,
@@ -99,6 +103,7 @@ VALORES = {
     "conversas": ("uma", "papeis"),
     "gancho": ("ligado", "desligado"),
     "gancho_teto": None,  # um inteiro de TETO_MIN a TETO_MAX
+    "agents_teto": None,  # um inteiro de 1 em diante
 }
 
 # Os recomendados do kit (docs/guia-configuracao.md mostra esta tabela).
@@ -107,16 +112,19 @@ RECEITAS = {
         "revisor": "nunca", "revisor_quando": "por_fase", "modelo_revisor": "sonnet",
         "validador": "nunca", "modelo_validador": "opus", "guardiao": "nunca",
         "parar_a_cada_parte": "sempre", "conversas": "uma", "gancho": "ligado", "gancho_teto": 2,
+        "agents_teto": AGENTS_TETO,
     },
     "economico": {
         "revisor": "sempre", "revisor_quando": "por_fase", "modelo_revisor": "sonnet",
         "validador": "nunca", "modelo_validador": "opus", "guardiao": "nunca",
         "parar_a_cada_parte": "sempre", "conversas": "uma", "gancho": "ligado", "gancho_teto": 2,
+        "agents_teto": AGENTS_TETO,
     },
     "completo": {
         "revisor": "sempre", "revisor_quando": "por_grupo", "modelo_revisor": "opus",
         "validador": "sempre", "modelo_validador": "opus", "guardiao": "sempre",
         "parar_a_cada_parte": "nunca", "conversas": "papeis", "gancho": "ligado", "gancho_teto": 4,
+        "agents_teto": AGENTS_TETO,
     },
 }
 
@@ -152,11 +160,14 @@ def ler_texto(texto: str, origem: str = "golem.toml") -> dict:
         else:
             valor = m.group(2) if m.group(2) is not None else m.group(3)
         aceitos = VALORES[chave]
-        if aceitos is None:
-            if not isinstance(valor, int) or not TETO_MIN <= valor <= TETO_MAX:
+        if chave in INTEIROS:
+            minimo, maximo = INTEIROS[chave]
+            if (not isinstance(valor, int) or valor < minimo
+                    or (maximo is not None and valor > maximo)):
+                faixa = f"de {minimo} a {maximo}" if maximo is not None else f"de {minimo} em diante"
                 raise ErroDeConfiguracao(
-                    f"{origem}:{n}: `{chave}` vale {valor!r}; o aceito é um número de "
-                    f"{TETO_MIN} a {TETO_MAX}, sem aspas")
+                    f"{origem}:{n}: `{chave}` vale {valor!r}; o aceito é um número {faixa}, "
+                    f"sem aspas")
         elif valor not in aceitos:
             raise ErroDeConfiguracao(
                 f"{origem}:{n}: `{chave}` vale {valor!r}; os aceitos são "
@@ -196,6 +207,14 @@ def teto_do_gancho(raiz: Path = RAIZ) -> int:
         return configuracao(raiz)["gancho_teto"]
     except (ErroDeConfiguracao, OSError, UnicodeDecodeError):
         return RECEITAS[PADRAO]["gancho_teto"]
+
+
+def teto_do_agents(raiz: Path = RAIZ) -> int:
+    """O teto de palavras do AGENTS.md, para a régua. Com o `golem.toml` com erro, o padrão."""
+    try:
+        return configuracao(raiz)["agents_teto"]
+    except (ErroDeConfiguracao, OSError, UnicodeDecodeError):
+        return AGENTS_TETO
 
 
 # ---------------------------------------------------------------- o que o aplicar escreve

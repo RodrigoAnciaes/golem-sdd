@@ -53,7 +53,7 @@ copiada. Abaixo, `templates/roblox/` quer dizer `<pasta do kit>/templates/roblox
 - rode `git add docs/licoes docs/regras-de-area.md` e depois a régua (`python .claude/regua.py
   --gerar` na cópia; no Golem central, `python <pasta do kit>/.claude/regua.py --gerar`): o
   gancho lê as lições pelo índice, a régua só indexa o que o git conhece, e uma lição copiada sem
-  esses dois passos não chega.
+  esses dois passos chega lida do Markdown, mas com o aviso de índice defasado em toda sessão.
 
 ## 3. No dia a dia
 

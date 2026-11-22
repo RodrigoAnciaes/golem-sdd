@@ -3,6 +3,7 @@ id: num-produto-a-falha-vista-vem-do-uso
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "uma melhoria para os projetos de quem usa o kit (a busca nos documentos que crescem) rebaixada por falta de caso no repositório do kit, até o usuário corrigir"
 gatilho: "a regra 10 («sem uma falha vista que a justifique») aplicada a um kit que outras pessoas vão usar, ao classificar os aprendizados de outro projeto com o mesmo método"
 gatilhos:

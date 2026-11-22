@@ -3,11 +3,12 @@ id: frontmatter-invalido-some-com-o-agente-sem-aviso
 data: 2026-11-13
 area: processo
 tipo: armadilha
+origem: kit
 custo: "uma verificação manual inteira refeita; o revisor e o validador do grupo que quebrou o arquivo não viram nada"
 gatilho: "a fase 1 reescreveu a description do revisor.md com um ': ' no meio, e numa sessão nova o agente revisor não existia mais"
 refs:
-  - ".claude/agents/revisor.md:3 (a description; no commit 48970f9, \"do AGENTS.md: por grupo\")"
-  - ".claude/tests/test_codex.py:276 (test_o_frontmatter_dos_agentes_e_das_skills_e_yaml_valido)"
+  - ".claude/agents/revisor.md:3 `description: Revisa uma entrega` (a description; no commit 48970f9, \"do AGENTS.md: por grupo\")"
+  - ".claude/tests/test_codex.py:283 `def test_o_frontmatter_dos_agentes_e_das_skills_e_yaml_valido`"
 gatilhos:
   - '\.claude/agents/[^/]+\.md$'
   - '/SKILL\.md$'

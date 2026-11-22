@@ -242,6 +242,7 @@ receita = "economico"            # so-eu | economico | completo
 # conversas        = "uma"         # uma | papeis
 # gancho           = "ligado"      # ligado | desligado (máquina sem Python)
 # gancho_teto      = 2             # lições novas por ação (antes da fase 1, fixo em 4)
+# agents_teto      = 3000          # palavras do AGENTS.md antes do aviso da régua (fase 4)
 ```
 
 ```toml
@@ -257,7 +258,9 @@ usuário informou ou confirmou (o pedido do autor do kit, abaixo, em "Primeiro p
 procurar"). Ele mora num arquivo à parte porque é desta máquina: um caminho como
 `C:\Users\<nome>\...` está errado em qualquer outra e expõe o nome do usuário. O `gancho_teto`
 custa pouco (o gancho injeta no máximo ~600 tokens por ação), mas é o que controla quanto contexto
-o gancho injeta, um dos itens do critério "customizável", e é uma linha. O gancho continua
+o gancho injeta, um dos itens do critério "customizável", e é uma linha. O `agents_teto` (fase
+4, decisão 13) é o teto de palavras do `AGENTS.md`, que entra inteiro em toda conversa; ele é
+configurável a pedido do autor do kit ("C: configurável"). O gancho continua
 rodando antes de comandos em todas as receitas: as lições do kit disparam por comando, e quem
 roda os comandos do `validation.md` (a conversa, e o validador quando ele existe) precisa delas.
 
@@ -614,7 +617,7 @@ fase 3, a "fase 4" dos dois acervos, da raiz do gancho e do cliente marcado é a
 | **2. Roblox mínimo, sem Rojo** (feita: validada em 2026-11-21, branch `fase-2-roblox`, spec em `specs/2026-11-13-fase-2-roblox/`) | o caminho sem Rojo: o gancho lendo a edição pelo Studio MCP; o revisor e o validador lendo o place (o validador com a mutação só em memória, num place sem `DataStore`); um executor mínimo de testes; os modelos de tech-stack e de comandos, duas lições e uma lista de riscos de exemplo em `templates/roblox/`; e o guia `docs/guia-roblox.md` | 4 | M | num place de exemplo, sem Rojo, com o Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de exemplo nessa edição; os testes rodam pelo executor, e a linha `N passed, N failed, N skipped` é lida no console; um teste quebrado de propósito aparece como `failed`; e, no fim, uma volta pelo histórico de versões é feita seguindo só o guia |
 | **Separar o método do produto** (sem número; feita: validada em 2026-11-21, PR 9, merge `d637f52`, spec em `specs/2026-11-21-separar-metodo-produto/`) | o modelo do usuário em `templates/AGENTS.md`; o `AGENTS.md` da raiz e o `golem.toml` do próprio kit, na receita `completo`; o conciliador (`.claude/tests/test_conciliar.py`); e a instalação copiando o modelo e rodando o `golem.py aplicar` | — (decisão 9) | P–M | feita; o "pronto" está no `validation.md` da fase |
 | **3. Fundação do Golem central** (feita: validada em 2026-11-22, branch `fase-3-fundacao-central`, spec em `specs/2026-11-21-fase-3-fundacao-central/`; decisões 9, 11 e 12) | o esqueleto do plugin; a configuração do central, feita uma vez e válida em todos os jogos (onde a fase 5 grava a preferência dos emojis); o plugin desligado por padrão no usuário e ligado só nos jogos, pela linha `true` que o kit escreve no projeto ao registrar o jogo; o registro dos jogos; o gancho achando o jogo pelo `CLAUDE_PROJECT_DIR`; os itens a conferir da decisão 11 (o modo interativo, o gancho fora do Golem, o arquivo do "ligado", o `CLAUDE_PLUGIN_ROOT` e a subida do `CLAUDE.md`); e as três partes adiadas da separação: a lista do que viaja, o mapa das pastas e a `iniciar-sdd` | 7 (a base) | M–G | feita; o "pronto" está no `validation.md` da fase (num jogo registrado, as skills e os agentes `golem:*` aparecem e o gancho entrega a lição, provado com login; num projeto fora do registro, nenhum aparece) |
-| **4. Lições e índices** (nova; seção 8, decisões 10 e 14) | cinco itens da proposta da conversa de método sobre os aprendizados de outro projeto: o gancho percebe a lição que falta no índice e avisa uma vez por sessão (A1); a régua confere as `refs:` das lições (D2); a régua mede o tamanho do `AGENTS.md` e avisa (D3); a `licao` manda a regra de área ao `docs/regras-de-area.md`, e não ao `AGENTS.md` (C); e o princípio "índice gerado para o acervo estável, calculado na hora para o documento vivo", na decisão 13 (D1). Tudo sobre o acervo do jogo, com a pasta das lições num só lugar no código, para a 4b trocar; o acervo geral é da fase 4b (decisão 14) | — | a conferir | a definir na spec da fase |
+| **4. Lições e índices** (feita: validada em 2026-11-22, branch `fase-4-licoes-e-indices`, spec em `specs/2026-11-22-fase-4-licoes-e-indices/`; seção 8, decisões 10, 13 e 14) | cinco itens da proposta da conversa de método sobre os aprendizados de outro projeto: o gancho percebe a lição que falta no índice e avisa uma vez por sessão (A1); a régua confere as `refs:` das lições (D2); a régua mede o tamanho do `AGENTS.md` e avisa (D3); a `licao` manda a regra de área ao `docs/regras-de-area.md`, e não ao `AGENTS.md` (C); e o princípio "índice gerado para o acervo estável, calculado na hora para o documento vivo", na decisão 13 (D1). Tudo sobre o acervo do jogo, com a pasta das lições num só lugar no código, para a 4b trocar; o acervo geral é da fase 4b (decisão 14) | — | M | feita; o "pronto" está no `validation.md` da fase (a lição fora do índice chega com o aviso uma vez por sessão; a ref deslocada sai na régua com a linha nova; o `AGENTS.md` acima do teto sai na régua com o aviso; o texto novo está na `licao`, no README das lições, na regra 7 e na decisão 13) |
 | **4b. O acervo geral de lições** (nova; decisão 14) | no Golem central, o acervo geral de lições, ao lado do acervo do jogo: o gancho lê os dois, com a raiz do gancho para os dois; a `licao` oferece subir a lição ao acervo geral, com o ok do usuário e sem citar o projeto; e o projeto de cliente fica marcado e não sobe nada | — | a conferir | a definir na spec da fase |
 | **5. Como o kit fala com o usuário** (nova; decisões 10 e 12) | a pergunta das respostas com emojis, gravada na configuração do Golem central, que vale em todos os jogos (decisão 12); os links de todo documento criado ou mudado; toda mudança se explica (T2); o resumo antes de gravar (T3); a linha da etapa (P1) e reler a etapa (P2) | — | a conferir | a definir na spec da fase |
 | **6. Estilo e reaproveitamento** (antes: 3) | a skill de estilo, o catálogo (gerado e conferido, como a régua faz com as lições), a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento; o gosto × risco com `riscos = "avisar" \| "perguntar"`, os combinados (o `deny` de permissão a avaliar) e a lição contada ao usuário; no Golem central, o estilo em dois níveis | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
@@ -815,8 +818,50 @@ fase 3, a "fase 4" dos dois acervos, da raiz do gancho e do cliente marcado é a
       local, sem GitHub (o teste do plugin usou um marketplace numa pasta local). O git local
       continua necessário. O formato das versões, as notas e o "atualizar sem perder nada" ficam
       na fase 9.
-13. **Reservada:** o D1 da fase 4 (o princípio do índice), aprovado na spec dela; o texto entra com
-    o merge da fase 4.
+13. **O princípio do índice, em 2026-11-22.** É o D1 da fase 4, que ele aprovou com a spec dela
+    ("Aprovo", 2026-11-22), com o teto do `AGENTS.md` que ele escolheu configurável ("C:
+    configurável").
+    - **Contexto:** o acervo cresce com o uso, e o agente não relê tudo antes de cada ação. Até a
+      fase 3, três coisas cresciam sem aviso:
+      - a lição escrita fora do índice gerado não chegava pelo gancho, e nada avisava;
+      - as `refs:` das lições envelheciam (8 das 10 refs com linha do kit apontavam a linha
+        errada);
+      - o `AGENTS.md`, que entra inteiro em toda conversa, crescia sem medida.
+    - **Opções consideradas** (as opções, o gatilho e a evidência abaixo são da conversa da fase,
+      dentro do D1 aprovado, e não decisão dele):
+      - o índice gerado para tudo: barato a cada ação, mas o documento vivo envelhece entre uma
+        regeração e outra;
+      - a busca na hora para tudo, sem índice: sempre em dia, mas lê o acervo inteiro a cada ação,
+        e cada lição nova deixa o gancho mais lento;
+      - o índice gerado para o que muda pouco e a busca na hora para o documento vivo: cada um no
+        custo que lhe cabe, com a régua e o aviso do gancho para o índice não envelhecer calado.
+    - **Decisão:** a terceira opção. O índice gerado e versionado serve ao acervo que muda pouco e
+      tem chave estável, como as lições: a régua o confere, e o gancho percebe a lição que falta
+      nele. O documento vivo usa o índice calculado na hora. **Todo documento que cresce com o uso
+      nasce com busca.**
+    - **Consequências, documento por documento:**
+
+      | Documento | Como cresce | A busca |
+      |---|---|---|
+      | as lições | uma por armadilha | o índice gerado, e o gancho percebe a que falta nele |
+      | as regras de área | uma por lição que vira regra de área | o gancho lê o arquivo na hora |
+      | o registro dos jogos | um jogo por registro | a tabela, lida na hora (fase 3) |
+      | o catálogo | uma peça por reaproveitamento | nasce com busca, na fase 6 |
+      | as specs | uma pasta por fase | a ordem de leitura abre só a pasta da fase |
+      | o `AGENTS.md` | regras e combinados | o teto medido (a linha `agents_teto`); a busca na hora, se o teto não bastar |
+
+    - **Gatilho de revisão:** qualquer um destes:
+      - um documento que cresce com o uso entra no kit sem busca;
+      - o gancho leva mais de 1 s numa ação, medido, por causa da listagem de `docs/licoes/`;
+      - o `AGENTS.md` de um jogo passa do teto mesmo depois de as regras de área irem ao
+        `docs/regras-de-area.md`.
+    - **Evidência de uso:** o que vai mostrar que funciona, a conferir no primeiro jogo que usar a
+      fase 4:
+      - o aviso "índice defasado" aparece depois de uma lição escrita sem regerar e some depois do
+        `--gerar`;
+      - a régua avisa a linha nova de uma ref deslocada, em vez de a lição seguir citando a linha
+        errada;
+      - o `AGENTS.md` do jogo fica abaixo do teto.
 14. **O acervo geral numa fase própria, em 2026-11-22.** Na spec da fase 4, a conversa de estratégia
     levou a ele o cartão sobre levar o acervo geral a esta fase ou a uma fase própria. As palavras
     dele: "A: fase própria (Recomendado)". O motivo: com os dois acervos, a fase 4 passaria a G, e a

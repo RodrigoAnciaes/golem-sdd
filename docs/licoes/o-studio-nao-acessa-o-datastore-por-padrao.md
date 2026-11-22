@@ -3,6 +3,7 @@ id: o-studio-nao-acessa-o-datastore-por-padrao
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "uma decisão do usuário sobre o validador tomada em cima da premissa e refeita no mesmo dia, mais o guia, os modelos e a spec da fase 2 corrigidos"
 gatilho: "escrever no kit o risco de rodar código no Studio com o jogo ligado (o guia, os modelos de Roblox e o validador da fase 2)"
 refs:

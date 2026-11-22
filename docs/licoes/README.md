@@ -9,15 +9,17 @@ para a busca e o gancho, e prosa curta para o resto.
 
 | Lugar | O que guarda | Modo |
 |---|---|---|
-| `AGENTS.md` | as regras a seguir | imperativo, curto |
+| `AGENTS.md` | as regras que valem para toda tarefa | imperativo, curto |
+| `docs/regras-de-area.md` | as regras que só valem para quem mexe numa área | imperativo, entregue pelo gancho a quem toca a área |
 | `docs/adr/` | as decisões caras de reverter | contexto, opções, consequências |
 | `specs/` | o que foi construído e por quê | por fase |
 | `CHANGELOG.md` | o que mudou, por data | cronológico |
 | **`docs/licoes/`** | **a armadilha que custou caro descobrir** | o que se achava × o que é |
 
-Uma lição vira **também** regra no `AGENTS.md` quando implica ação obrigatória daqui para frente.
-A regra fica lá, curta, e cita a lição; a lição fica aqui, com o porquê e a evidência. A regra não
-repete a lição.
+Uma lição vira **também** regra quando implica ação obrigatória daqui para frente: no `AGENTS.md`,
+se vale para toda tarefa; no `docs/regras-de-area.md`, se só muda a decisão de quem mexe numa área
+(a skill `licao`, passo 3, traz o formato). A regra fica lá, curta, e cita a lição; a lição fica
+aqui, com o porquê e a evidência. A regra não repete a lição.
 
 ## Quando escrever uma
 
@@ -57,9 +59,9 @@ area: codigo                          # codigo | deploy | contrato | processo
 tipo: armadilha                       # premissa-falsa | armadilha | erro-de-diagnostico | custo-escondido
 custo: "uma linha: tempo, rodadas, deploy, dinheiro"
 gatilho: "em que circunstância apareceu"
-refs:
-  - caminho/do/arquivo.py:123
-  - specs/AAAA-MM-DD-nome/validation.md
+refs:                                 # o caminho, a linha e, entre crases, um trecho dela
+  - 'caminho/do/arquivo.py:123 `def a_funcao_citada`'
+  - 'specs/AAAA-MM-DD-nome/validation.md'
 gatilhos:                             # opcional: em que ação o gancho entrega (ver abaixo)
   - '\bpytest\b'
 ---
@@ -77,6 +79,11 @@ vem vazia só para os médicos cujo expediente passa da meia-noite"*.
 Os dois campos de nome parecido: **`gatilho:`** (singular) é a circunstância, em prosa, em que a
 armadilha apareceu, para quem lê; **`gatilhos:`** (plural, opcional) é a lista de expressões
 regulares que dizem ao gancho em que ação entregar a lição (abaixo).
+
+As lições de `docs/licoes/` que vêm com o kit trazem também **`origem: kit`**, logo abaixo do
+`tipo:`. Não ponha esse campo nas suas: numa lição do kit, a régua não avisa da ref a um arquivo que
+não existe, porque o jogo recebe as lições do kit, e não os testes e as specs que elas citam. (No
+repositório do próprio kit é o contrário: toda lição leva o campo, e um teste confere.)
 
 **Depois do "Como perceber", nenhum rótulo em negrito terminado em dois pontos no começo de
 linha.** O gancho entrega a seção até o próximo rótulo assim, e o que vem depois não chega. Uma
@@ -110,7 +117,8 @@ para todos os jogos.
 O gancho do kit (`.claude/hooks/`) roda antes de uma ação do agente (editar ou escrever um arquivo,
 rodar um comando) e põe no contexto o "Como perceber da próxima vez" das lições que importam para
 aquela ação. Ele não lê os arquivos de lição um a um: lê o **índice** que a régua gera
-(`.claude/indice/licoes.yaml`). Por isso, **depois de criar ou editar uma lição, rode:**
+(`.claude/indice/licoes.yaml`) e confere, pelos nomes em `docs/licoes/`, se falta alguma lição nele.
+Por isso, **depois de criar ou editar uma lição, rode:**
 
 ```bash
 git add docs/licoes/<id>.md          # a régua só indexa o que o git conhece
@@ -121,8 +129,10 @@ Esse é o comando na cópia (o kit dentro do projeto). No Golem central, a régu
 skill `licao`, que diz o comando com o caminho do kit, ou rode `python3 <pasta do kit>/.claude/regua.py
 --gerar` na pasta do jogo.
 
-Lição fora do índice não é entregue a ninguém. Confira: o id novo tem de aparecer no diff do
-índice. Se não aparecer, o arquivo não foi visto (faltou o `git add`).
+A lição que falta no índice ainda chega: o gancho a lê do Markdown e avisa, uma vez por sessão e
+por agente, que o índice está defasado, com o id dela. O aviso é para regerar, e não um jeito de
+dispensar a régua. Confira: o id novo tem de aparecer no diff do índice. Se não aparecer, o arquivo
+não foi visto (faltou o `git add`).
 
 ### `gatilhos:` — em que ação a lição chega
 
@@ -140,9 +150,10 @@ vieram só pela área. A `area` continua obrigatória: é ela que a busca usa.
 - **Lista em bloco, um item por linha, entre aspas simples** (`  - '\bpytest\b'`): dentro delas,
   nada é escape. Entre aspas duplas, o YAML come a barra (`"\b"` vira outro caractere).
 - **Não ponha gatilho que case com tudo.** `.`, `.*`, `git`, `py` ou `docs/` casam com quase toda
-  ação e trazem de volta o ruído. O gatilho descreve a ação em que o erro acontece:
-  `\bgit\s+push\b`, não `git`. Antes de gravar, pense em três ações comuns que **não** deveriam
-  receber a lição e confira que nenhuma casa.
+  ação e trazem de volta o ruído. **O gatilho casa com a ação, não com a ferramenta:** com a ação
+  em que o erro acontece, e não com a ferramenta que o revelou. `\bgit\s+push\b`, não `git`. Antes
+  de gravar, pense em três ações comuns que **não** deveriam receber a lição e confira que nenhuma
+  casa.
 - Regex inválida não derruba o gancho: ele a ignora. Quem acusa é a régua, no `--gerar`.
 
 ## Como buscar

@@ -19,6 +19,16 @@ Valida o frontmatter de cada lição:
   caractere de controle (entre aspas duplas, `\\b` vira backspace e a regex nunca casa).
 E, se existir `docs/regras-de-area.md`, que todo `## Regra N` tenha a linha `areas:` e áreas válidas.
 
+Avisa no stderr, sem mudar o código de saída (fase 4), no `--gerar` e no `--conferir`:
+- a ref das lições (`refs:`) que começa por um caminho e não bate com ele: o arquivo que não
+  existe, a linha que não existe ou a âncora (o primeiro trecho entre crases depois do caminho)
+  que não está na linha citada. No plugin, o arquivo se procura também na pasta do kit, porque as
+  lições do kit chegam ao jogo pela cópia e citam arquivos do kit. Na lição com `origem: kit`, o
+  arquivo que não existe não avisa: a instalação por cópia não leva o que elas citam (o teste do
+  kit confere sem essa folga, com `estrito`). A prosa e o `game.…` não se conferem;
+- o `AGENTS.md` da raiz acima do teto de palavras: a linha `agents_teto` do `golem.toml`, lida
+  pelo `golem.py`, com 3.000 por padrão.
+
 ONDE MUDAR O VOCABULÁRIO: `AREAS_VALIDAS` e `TIPOS_VALIDOS`, logo abaixo. Ao mudar uma área,
 ajuste junto o `POR_CAMINHO` e o `POR_COMANDO` de `.claude/hooks/licoes_relevantes.py` (o teste
 `test_areas_do_gancho_sao_validas` confere) e a lista do `docs/licoes/README.md`.
@@ -65,6 +75,10 @@ REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
 # O vocabulário controlado. Valor novo só com motivo, e atualize o README das lições junto.
 AREAS_VALIDAS = ("codigo", "deploy", "contrato", "processo")
 TIPOS_VALIDOS = ("premissa-falsa", "armadilha", "erro-de-diagnostico", "custo-escondido")
+
+# O teto de palavras do AGENTS.md quando o golem.py não se lê: o mesmo `AGENTS_TETO` dele (um
+# teste confere). O teto de verdade é a linha `agents_teto` do golem.toml.
+AGENTS_TETO_PADRAO = 3000
 
 
 def ler(caminho: Path) -> str:
@@ -260,6 +274,115 @@ def validar_tudo() -> list:
     return validar_licoes() + validar_regras_de_area()
 
 
+# ---------------------------------------------------------------- as refs e o teto (fase 4)
+
+# O caminho com extensão no começo do item, com `:N` ou `:N-M`; o resto é descrição.
+_REF = re.compile(r"([\w.-]+(?:/[\w.-]+)*\.[A-Za-z0-9]+)(?::(\d+)(?:-(\d+))?)?(?![\w/])")
+_ANCORA = re.compile(r"`([^`]+)`")
+
+
+def onde_procurar() -> list:
+    """A raiz do projeto e, no plugin, a pasta do kit (as lições do kit citam arquivos dele)."""
+    return [RAIZ] if KIT.resolve() == RAIZ.resolve() else [RAIZ, KIT]
+
+
+def problema_da_ref(item, do_kit: bool = False) -> str | None:
+    """O que não bate numa ref, ou None: em dia, ou um item que a régua não confere (prosa, um
+    caminho `game.…` do place do Roblox, o item entre aspas que não se lê).
+
+    `do_kit`: a lição veio do kit (`origem: kit`). Nela, o arquivo que não existe não é aviso: a
+    instalação por cópia leva as lições do kit, e não os testes e as specs que elas citam (decisão
+    do autor do kit, 2026-11-22). A linha que mudou continua avisando.
+    """
+    if not isinstance(item, str) or item.startswith("game."):
+        return None
+    m = _REF.match(item)
+    if not m:
+        return None
+    caminho, inicio, fim = m.group(1), m.group(2), m.group(3)
+    arq = next((p / caminho for p in onde_procurar() if (p / caminho).is_file()), None)
+    if arq is None:
+        return None if do_kit else "o arquivo não existe"
+    ma = _ANCORA.search(item, m.end())
+    ancora = ma.group(1) if ma else None
+    linhas = ler(arq).splitlines()
+    if inicio is None:
+        if ancora is not None and not any(ancora in l for l in linhas):
+            return f"a âncora `{ancora}` não está no arquivo"
+        return None
+    n, k = int(inicio), int(fim or inicio)
+    if ancora is None:
+        if n > len(linhas):
+            return f"a linha {n} não existe (o arquivo tem {len(linhas)})"
+        return ("linha sem âncora: a régua não confere o que ela cita. Ponha entre crases, depois "
+                "do caminho, um trecho da linha")
+    if any(ancora in l for l in linhas[n - 1:k]):
+        return None
+    achadas = [i for i, l in enumerate(linhas, 1) if ancora in l]
+    if not achadas:
+        return f"a âncora `{ancora}` não está no arquivo"
+    depois = [i for i in achadas if i > k]
+    return f"a âncora `{ancora}` está agora na :{(depois or achadas)[0]}"
+
+
+def problemas_de_refs(estrito: bool = False) -> list:
+    """Uma linha por ref que não bate, com o id da lição. Vazio = as refs em dia.
+
+    `estrito`: o arquivo ausente é aviso também na lição do kit (o teste do kit usa).
+    """
+    fora = []
+    for arq in arquivos_de_licao():
+        texto = ler(arq)
+        do_kit = not estrito and campo(texto, "origem") == "kit"
+        for item in _gancho().ler_gatilhos(texto, "refs"):
+            if item is None:
+                fora.append(f"{arq.stem}: uma ref entre aspas que não se lê (aspas sem fechar, ou "
+                            f"a aspa simples de dentro sem dobrar): a régua não a confere")
+                continue
+            problema = problema_da_ref(item, do_kit)
+            if problema:
+                fora.append(f"{arq.stem}: a ref {_REF.match(item).group(0)}: {problema}")
+    return fora
+
+
+def teto_do_agents() -> int:
+    """A linha `agents_teto` do golem.toml (no plugin, com o central por baixo), pelo golem.py.
+    Sem ele, ou com o golem.toml com erro, o padrão: quem acusa o erro é o `aplicar`."""
+    sys.dont_write_bytecode = True
+    try:
+        spec = importlib.util.spec_from_file_location("golem", KIT / ".claude" / "golem.py")
+        golem = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(golem)
+        teto = golem.teto_do_agents
+    except (OSError, ImportError, SyntaxError, AttributeError):
+        return AGENTS_TETO_PADRAO        # o golem.py falta ou não carrega
+    return teto(RAIZ)
+
+
+def aviso_do_teto() -> str | None:
+    """O aviso do AGENTS.md da raiz acima do teto, ou None (abaixo dele, ou sem o arquivo)."""
+    arq = RAIZ / "AGENTS.md"
+    if not arq.is_file():
+        return None
+    palavras = len(ler(arq).split())
+    teto = teto_do_agents()
+    if palavras <= teto:
+        return None
+    return (f"AGENTS.md tem {palavras} palavras, acima do teto de {teto}. Ele entra inteiro em "
+            f"toda conversa: a regra que só vale para quem mexe numa área vai ao "
+            f"docs/regras-de-area.md (a regra 7 e a skill `licao`). O teto é a linha "
+            f"`agents_teto` do golem.toml.")
+
+
+def avisar_refs_e_teto() -> None:
+    """Avisos no stderr, sem mudar o código de saída: uma ref velha nunca impede o índice."""
+    for problema in problemas_de_refs():
+        print(f"  AVISO    {problema}", file=sys.stderr)
+    aviso = aviso_do_teto()
+    if aviso:
+        print(f"  AVISO    {aviso}", file=sys.stderr)
+
+
 # ---------------------------------------------------------------- gerar / conferir
 
 
@@ -330,6 +453,7 @@ def comando_gerar() -> int:
         (INDICE / nome).write_text(gerador(), encoding="utf-8", newline="\n")
         print(f"  escrito  .claude/indice/{nome}")
     avisar_nao_rastreados()
+    avisar_refs_e_teto()
     return 0
 
 
@@ -355,6 +479,7 @@ def comando_conferir() -> int:
             print(f"  ok       .claude/indice/{nome}")
     avisar_nao_rastreados()
     avisar_indice_fora_do_stage()
+    avisar_refs_e_teto()
     return 1 if problema else 0
 
 

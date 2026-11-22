@@ -3,6 +3,7 @@ id: o-git-bash-troca-o-barra-c-do-cmd-por-c
 data: 2026-11-21
 area: processo
 tipo: armadilha
+origem: kit
 custo: "uma rodada do G2 da fase 2: o servidor do Studio MCP registrado pelo Git Bash não conectava (timeout de 30 s)"
 gatilho: "registrar o servidor MCP do Roblox Studio no Claude Code com o comando que o quick connect do Studio mostra, rodado pela ferramenta Bash (Git Bash) no Windows"
 refs:

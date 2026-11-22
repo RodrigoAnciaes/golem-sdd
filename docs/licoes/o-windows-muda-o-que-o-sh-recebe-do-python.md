@@ -3,11 +3,12 @@ id: o-windows-muda-o-que-o-sh-recebe-do-python
 data: 2026-11-12
 area: processo
 tipo: armadilha
+origem: kit
 custo: "duas rodadas da fase 0: uma hipótese errada sobre aspas, desfeita, e um teste que passaria sem provar nada"
 gatilho: "testes do gancho.sh que rodam o sh do Git Bash pelo subprocess do Python, no Windows"
 refs:
-  - ".claude/tests/test_gancho.py:400 (_comando_do_lancador: o PROGRAMFILES posto de dentro do sh)"
-  - ".claude/tests/test_codex.py:241 (test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git: o texto passa ao sh -c por um sh)"
+  - ".claude/tests/test_gancho.py:499 `def _comando_do_lancador` (o PROGRAMFILES posto de dentro do sh)"
+  - ".claude/tests/test_codex.py:248 `def test_lancador_sem_o_proprio_caminho_acha_a_raiz_pelo_git` (o texto passa ao sh -c por um sh)"
 gatilhos:
   - '\bPROGRAMFILES\b'
   - '(^|/)\.claude/tests/test_(gancho|codex)\.py$'

@@ -3,6 +3,7 @@ id: conferir-e-agir-em-chamadas-separadas
 data: 2026-11-06
 area: processo
 tipo: armadilha
+origem: kit
 custo: "uma ação irreversível (merge, push, deploy) feita sobre um estado que a conferência, lida depois, mostrava ser outro"
 gatilho: "conferência e ação na mesma chamada de ferramenta (encadeadas com && ou ;) ou em chamadas paralelas da mesma mensagem"
 gatilhos:

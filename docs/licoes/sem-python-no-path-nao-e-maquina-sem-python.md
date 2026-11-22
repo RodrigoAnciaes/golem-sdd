@@ -3,13 +3,15 @@ id: sem-python-no-path-nao-e-maquina-sem-python
 data: 2026-11-12
 area: processo
 tipo: erro-de-diagnostico
+origem: kit
 custo: "uma sessão inteira sem lições injetadas, um diagnóstico errado escrito em mensagens ao usuário e uma proposta de produto apoiada nele"
 gatilho: "no Windows, o gancho avisou 'nenhum Python 3.8+ encontrado' em toda ação, e o agente concluiu que a máquina não tinha Python"
 refs:
   - ".claude/hooks/gancho.sh, achar_venv e achar_no_path (em f912da6, os únicos lugares de procura: o .venv da raiz, o da pasta principal e o PATH)"
   - ".claude/hooks/gancho.sh, o aviso 'nenhum Python 3.8+ encontrado'"
   - ".claude/hooks/gancho.sh, ler_linha_python e achar_no_instalador (o conserto da fase 0)"
-  - ".claude/skills/diagnostico/SKILL.md:37-46 e :82-95 (pergunta onde está o Python e grava a linha python)"
+  - ".claude/skills/diagnostico/SKILL.md:62 `Você tem Python instalado nesta máquina?` (pergunta onde está o Python)"
+  - ".claude/skills/diagnostico/SKILL.md:104 `## 5. Gravar` (grava a linha python)"
   - "instalador oficial do Python no Windows: %LOCALAPPDATA%\\Programs\\Python\\PythonXY\\python.exe e %LOCALAPPDATA%\\Programs\\Python\\Launcher\\py.exe"
 gatilhos:
   - '\b(where(\.exe)?|which|type|command\s+-v|get-command)\s+(python3?|py|claude)\b'

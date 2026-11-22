@@ -3,6 +3,7 @@ id: suite-verde-so-vale-com-a-linha-de-resumo
 data: 2026-11-06
 area: processo
 tipo: armadilha
+origem: kit
 custo: "uma entrega dada por testada em que parte da suíte não rodou: pulada, não coletada ou sem resumo para conferir"
 gatilho: "rodar a suíte com o -q do arquivo de configuração somado ao -q da linha de comando, ou num ambiente sem a variável ou o dado que alguns testes exigem"
 gatilhos:

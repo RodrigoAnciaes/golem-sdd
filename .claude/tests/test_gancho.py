@@ -234,6 +234,103 @@ def test_licoes_voltam_quando_a_entrega_falha(acervo, sessao, monkeypatch):
     assert sobras == [], f"lições ficaram marcadas sem ter sido entregues: {sobras}"
 
 
+# ------------------------------------------- a lição que falta no índice (fase 4, A1)
+
+DEFASADO = "está defasado"
+
+
+def test_licao_fora_do_indice_chega_com_o_aviso_uma_vez(acervo, sessao):
+    acervo.licao("a-antiga", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    acervo.licao("b-nova", gatilhos=[r"'\bcomando-novo\b'"])  # escrita sem regerar
+    texto = acervo.invocar({"command": "comando-novo --x"}, sessao)
+    assert ids_de(texto) == ["b-nova"] and "sinal de b-nova" in texto
+    assert DEFASADO in texto and "(b-nova)" in texto, texto
+    assert "ilegível, cortado ou ausente" not in texto
+    # A segunda ação da sessão: a lição antiga chega, sem o aviso de novo.
+    texto = acervo.invocar({"command": "pytest -q"}, sessao)
+    assert ids_de(texto) == ["a-antiga"] and DEFASADO not in texto
+
+
+def test_aviso_do_indice_defasado_sai_sem_licao_para_a_acao(acervo, sessao):
+    acervo.licao("a-antiga", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    acervo.licao("b-nova", gatilhos=[r"'\bcomando-novo\b'"])
+    texto = acervo.invocar({"command": "ls"}, sessao)
+    assert ids_de(texto) == [] and DEFASADO in texto and "b-nova" in texto
+    assert acervo.invocar({"command": "ls"}, sessao) == ""
+    # Outro agente da mesma sessão recebe o aviso dele.
+    assert DEFASADO in acervo.invocar({"command": "ls"}, sessao, agent_id="sub1")
+
+
+def test_indice_em_dia_nao_avisa(acervo, sessao):
+    acervo.licao("a-antiga", gatilhos=[r"'\bpytest\b'"])
+    acervo.licao("b-nova", gatilhos=[r"'\bcomando-novo\b'"])
+    acervo.gerar()
+    assert acervo.invocar({"command": "ls"}, sessao) == ""
+    texto = acervo.invocar({"command": "comando-novo"}, sessao)
+    assert ids_de(texto) == ["b-nova"] and DEFASADO not in texto
+
+
+def test_indice_cortado_nao_traz_o_aviso_novo(acervo, sessao):
+    acervo.licao("a-primeira", gatilhos=[r"'\bpytest\b'"])
+    acervo.licao("b-segunda", gatilhos=[r"'\bpytest\b'"])
+    texto = acervo.gerar()
+    acervo.indice.write_text(texto.split("  b-segunda:")[0] + "total: 2\n", encoding="utf-8")
+    saida = acervo.invocar({"command": "pytest -q"}, sessao)
+    assert "ilegível, cortado ou ausente" in saida and DEFASADO not in saida
+
+
+def test_o_aviso_volta_a_marca_quando_a_entrega_falha(acervo, sessao, monkeypatch):
+    import io
+    acervo.gerar()
+    acervo.licao("b-nova", gatilhos=[r"'\bcomando-novo\b'"])
+    gancho = acervo.regua().carregar_gancho()
+
+    def explode(*_a, **_k):
+        raise OSError("o stdout fechou")
+
+    monkeypatch.setattr(gancho, "entregar_saida", explode)
+    payload = json.dumps({"session_id": "s", "scratchpad_dir": str(sessao),
+                          "tool_input": {"command": "ls"}})
+    monkeypatch.setattr(sys, "stdin", io.StringIO(payload))
+    with pytest.raises(OSError):
+        gancho.main()
+    pasta = sessao / "licoes-entregues" / "principal"
+    sobras = sorted(p.name for p in pasta.iterdir()) if pasta.is_dir() else []
+    assert sobras == [], f"o aviso ficou marcado sem ter saído: {sobras}"
+
+
+def test_licao_fora_do_indice_com_frontmatter_invalido_nao_derruba(acervo, sessao):
+    acervo.licao("a-antiga", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    (acervo.raiz / "docs" / "licoes" / "binaria.md").write_bytes(b"---\nid: \xff\xfe\x00\n---\n\x00")
+    texto = acervo.invocar({"command": "pytest -q"}, sessao)
+    assert ids_de(texto) == ["a-antiga"] and DEFASADO in texto and "binaria" in texto
+
+
+def test_pasta_com_nome_de_licao_nao_derruba(acervo, sessao):
+    """Uma pasta `x.md` em docs/licoes/ não é lição: nem o índice legível nem a varredura caem."""
+    acervo.licao("a-antiga", gatilhos=[r"'\bpytest\b'"])
+    acervo.gerar()
+    (acervo.raiz / "docs" / "licoes" / "pasta.md").mkdir()
+    assert acervo.invocar({"command": "ls"}, sessao) == ""
+    acervo.indice.unlink()
+    outra = sessao.parent / "outra"
+    outra.mkdir()
+    assert ids_de(acervo.invocar({"command": "pytest -q"}, outra)) == ["a-antiga"]
+
+
+def test_licao_fora_do_indice_vale_pelo_nome_do_arquivo(acervo, sessao):
+    """O `id:` que a régua não conferiu não decide o sinal nem a marca: vale o nome do arquivo."""
+    acervo.gerar()
+    acervo.licao("../../fora", gatilhos=[r"'\bcomando-novo\b'"], arquivo="nome-certo")
+    texto = acervo.invocar({"command": "comando-novo"}, sessao)
+    assert ids_de(texto) == ["nome-certo"] and "sinal de ../../fora" in texto, texto
+    assert not (sessao / "fora").exists() and not (sessao.parent / "fora").exists()
+    assert (sessao / "licoes-entregues" / "principal" / "nome-certo").is_file()
+
+
 # --------------------------------------------------------------- regras de área (opcional)
 
 

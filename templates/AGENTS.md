@@ -157,8 +157,9 @@ Receita `economico`; o guia é `docs/guia-configuracao.md`.
    `docs/licoes/` pela skill `licao`, no formato de `docs/licoes/README.md`, faça o `git add` dela
    e regere o índice pela régua do kit (a skill `licao` diz o comando). Só esses quatro motivos: se
    não dá para escrever "o que se achava", não é lição. Quando a lição implicar ação obrigatória,
-   acrescente aqui uma regra curta que a cite. Preferência do usuário e estado do projeto não são
-   lição: vão para a memória.
+   acrescente aqui uma regra curta que a cite, se ela vale para toda tarefa; a que só muda a decisão
+   de quem mexe numa área vai ao `docs/regras-de-area.md` (a skill `licao` traz o formato).
+   Preferência do usuário e estado do projeto não são lição: vão para a memória.
    *Por quê:* a conversa seguinte não sabe o que esta aprendeu, e o gancho só entrega o que está
    escrito.
 

@@ -3,6 +3,7 @@ id: proibir-pelo-efeito-deixa-a-brecha-do-que-nao-tem-o-efeito
 data: 2026-11-21
 area: processo
 tipo: premissa-falsa
+origem: kit
 custo: "uma decisão do usuário reaberta na verificação manual 1 da fase 2, e o texto do validador e da spec reescritos"
 gatilho: "chamar o agente validador sobre uma fase cujo código mora num place do Roblox Studio"
 refs:
