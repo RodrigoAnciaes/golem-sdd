@@ -37,7 +37,7 @@ no Studio e deixa um programa de fora conversar com ele.
 ## 2. Preparar a pasta do projeto (uma vez)
 
 Uma pasta por jogo, com `git init`. Dentro dela, o kit e os modelos de Roblox. Hoje, o kit se copia
-para a pasta; isto muda quando o kit virar plugin (fase de instalação). Com o kit copiado:
+para a pasta; isto muda quando o kit virar plugin (a fundação do Golem central). Com o kit copiado:
 
 - copie também a pasta `templates/roblox/` do kit para `templates/roblox/` no projeto: o README
   chama a `templates/` de opcional, mas para um jogo ela não é, porque o agente tira dela o

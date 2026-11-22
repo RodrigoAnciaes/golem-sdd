@@ -265,7 +265,7 @@ roda os comandos do `validation.md` (a conversa, e o validador quando ele existe
 (`python .claude/golem.py aplicar`, no molde do `instalar_codex.py`) junta a receita e as linhas
 do usuário e gera duas coisas:
 1. o `model:` no frontmatter de `.claude/agents/*.md`, que o Claude Code respeita (o `effort:` fica
-   para a fase 5);
+   para a fase 8);
 2. um bloco curto e **gerado** no `AGENTS.md`, "Como o Golem trabalha aqui", que as regras 10 e
    11 passam a citar.
 
@@ -278,7 +278,7 @@ Como o `AGENTS.md` já entra em todo turno, o agente sabe a configuração sem a
 sabe em que momento perguntar.
 
 A skill de configurar escreve o `golem.toml` e roda o `aplicar` por ele. Mudou a configuração,
-abre-se uma conversa nova. Com o plugin da fase 4, a skill vira `/golem:configurar`.
+abre-se uma conversa nova. Com o plugin (fase 3), a skill vira `/golem:configurar`.
 
 **Sem Python.** Escrever o `golem.toml` não precisa de Python; aplicá-lo, sim, menos o desligar do
 gancho. Para o `gancho = "desligado"` valer numa máquina sem Python, quem o lê é o próprio
@@ -296,7 +296,7 @@ né? E também tem que dar a possibilidade dele de falar onde, se ele souber."
 
 **Os ajustes do agente, aceitos com o plano (seção 8, decisão 4):**
 - a pergunta vem uma vez, na configuração, porque o gancho roda sozinho e não pode perguntar: na
-  skill de configurar (fase 1) e, com o plugin, no `comecar` e no `diagnostico` (fase 4). Com a
+  skill de configurar (fase 1) e, com o plugin, no `comecar` e no `diagnostico` (fase 7). Com a
   decisão 5 da seção 8, ela nasce antes, na fase 0, numa versão mínima da skill de diagnóstico, e
   a skill de configurar a reaproveita;
 - o botão "Não sei", ao lado do sim e do não;
@@ -366,7 +366,7 @@ isso numa linha, e a escolha é dele.
 **Detalhes a conferir na fase** (a fase de cada item entre parênteses):
 - (fase 1, resolvido) o `tomllib` só existe no Python 3.11+, e o kit pede 3.8+: o `golem.toml`
   usa só `chave = valor`, lido por um leitor próprio, e o mínimo continua 3.8 (seção 8, decisão 7);
-- (fase 6, a paridade do Codex) se o formato de agente do Codex aceita modelo por agente. O
+- (fase 9, a paridade do Codex) se o formato de agente do Codex aceita modelo por agente. O
   `instalar_codex.py` leva só o `name` e o `description` do frontmatter, e os nomes de modelo do
   Codex são outros. Movido da fase 1 em 2026-11-13;
 - (fase 0, resolvido) como o `golem.local.toml` chega a um worktree: o `gancho.sh` o procura
@@ -378,20 +378,20 @@ isso numa linha, e a escolha é dele.
   `$PROGRAMFILES`, em maiúsculas, e o `$LOCALAPPDATA` com esse nome (conferido em 2026-11-12). O
   Windows reescreve o `PROGRAMFILES` de todo processo criado fora do `sh` (lição
   `o-windows-muda-o-que-o-sh-recebe-do-python`);
-- (fase 6, a paridade do Codex) se a entrada de gancho do Codex traz `session_id`. Sem ele, o
+- (fase 9, a paridade do Codex) se a entrada de gancho do Codex traz `session_id`. Sem ele, o
   aviso de falha sai em toda ação, como antes da fase 0;
-- (fase 4, o diagnóstico completo) se o `systemMessage` do gancho de um subagente aparece ao
+- (fase 7, o diagnóstico completo) se o `systemMessage` do gancho de um subagente aparece ao
   usuário. A fase 0 não depende disso: só a conversa principal põe o `systemMessage`. A fase 1
   também não: o `gancho = "desligado"` sai calado. Movido da fase 1 em 2026-11-13;
-- (fase 4, o plugin) o que o kit entrega das lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
+- (fase 7, a instalação) o que o kit entrega das lições `o-windows-muda-o-que-o-sh-recebe-do-python` e
   `trocar-o-localappdata-nao-esconde-o-python-do-agente`, que ficam em `docs/licoes/` por ora
   (seção 8, decisão 6), e das duas que a fase 1 acrescentou pelo mesmo caminho,
   `frontmatter-invalido-some-com-o-agente-sem-aviso` e
   `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`;
-- (fase 4) o "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente`, que
+- (fase 7) o "pulado sem Python" na `validar-fase`, na `auditar-specs` e na `sessao-gerente`, que
   rodam a régua: a fase 1 o faz só na `implementar-fase` e na `licao` (seção 8, decisão 7), e a
   seção 5(b) o pede em todas;
-- (fase 4, o plugin) por que uma sessão do app desktop aberta num worktree criado pelo app roda o
+- (fase 3, a fundação do Golem central) por que uma sessão do app desktop aberta num worktree criado pelo app roda o
   `gancho.sh` da pasta principal, e não o do worktree. A hipótese é o `CLAUDE_PROJECT_DIR`, que
   `.claude/settings.json:10` e `:21` usam. Visto na fase 0, a conferir.
 
@@ -475,7 +475,7 @@ reconferidos em 2026-11-15.
     Version History ⟩ ⋮ ⟩ Open Local Copy ⟩ Save to Roblox As, ou Creator Dashboard ⟩ Restore).
     Restaurar cria uma versão nova e não publica.
 
-**O destino é o Rojo (ou o Argon) e o git, numa fase própria de migração** (seção 7, a fase 7):
+**O destino é o Rojo (ou o Argon) e o git, numa fase própria de migração** (seção 7, a fase 10):
 - **Os arquivos:** o código fica em `src/` como `.luau` (`.server.luau` e `.client.luau` para
   Script e LocalScript), e o `default.project.json` mapeia as pastas para os serviços do place
   (ReplicatedStorage, ServerScriptService, StarterPlayer). Assim, o git, o diff, o revisor e o
@@ -557,12 +557,17 @@ pede Python, menos o desligar do gancho.
 
 ## 6. Instalação e primeiro uso
 
+**Mudou com o Golem central (seção 8, decisão 11).** O kit é instalado uma vez, como plugin, e
+ligado só nos jogos. A base, com o plugin, o "ligar" e o registro dos jogos, é da fase 3 (a
+fundação). O acabamento abaixo, com o `comecar`, o `diagnostico` e o guia, é da fase 7.
+
 - **Um plugin do Claude Code.** Um plugin junta skills, agentes e ganchos e se instala pelo
   `/plugin`, a partir de um marketplace que pode ser o próprio repositório
   ([plugins](https://code.claude.com/docs/en/plugins.md)). Os comandos exatos ficam a conferir na
   página de instalação.
   - **Custo:** as descrições das skills de um plugin ligado entram em todo turno, **em todo projeto
-    em que ele estiver ligado**. Por isso, o guia manda instalar no escopo do projeto.
+    em que ele estiver ligado**. Por isso, com o Golem central (seção 8, decisão 11), ele fica
+    desligado por padrão no usuário e ligado só nos jogos, por uma linha `true` no projeto.
   - **Nome:** as skills ganham prefixo (`/golem:spec-de-fase`).
   - **O gancho muda o jeito de achar o projeto.** Hoje a raiz sai da posição do próprio arquivo
     (`licoes_relevantes.py:55`, `RAIZ = Path(__file__).resolve().parents[2]`). Dentro de um
@@ -573,7 +578,8 @@ pede Python, menos o desligar do gancho.
 - **`/golem:comecar`:** cria o que o projeto precisa (o `AGENTS.md`, `docs/licoes/`, `specs/` e o
   `golem.toml` com a receita `economico`). Preenche as lacunas `<< >>` por entrevista ("como você
   roda o jogo?", "usa Rojo?", "onde estão seus módulos?"), passa pela configuração com botões (com
-  a pergunta do Python) e termina testando o gancho.
+  a pergunta do Python) e termina testando o gancho. No Golem central, o que se configura uma vez
+  e o que fica no jogo se decide na fase 3.
 - **`/golem:diagnostico`:** confere o Python, o `sh`, o git, o índice, o gancho, a configuração e
   o Studio MCP, e diz em uma linha o que fazer em cada falha. Quando o gancho não acha o Python,
   faz a mesma pergunta com botões da configuração (seção 3) e grava a resposta. Sem Python
@@ -588,20 +594,31 @@ pede Python, menos o desligar do gancho.
 
 ## 7. Roteiro em fases
 
-Cada fase é uma branch, mergeável sozinha, com spec aprovada antes (regra 1). A ordem põe primeiro
-o que o primeiro usuário sente no primeiro dia. A instalação vem depois porque, no começo, o autor
-do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 8, decisões 3 e 5).
+Cada fase é uma branch, mergeável sozinha, com spec aprovada antes (regra 1). A ordem das fases 0
+a 2 pôs primeiro o que o primeiro usuário sente no primeiro dia. A instalação vem depois porque, no
+começo, o autor do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 8,
+decisões 3 e 5) e refeita em 2026-11-21 pelas decisões 10 e 11: o Golem central e as fases novas.
+A exceção aceita: a base (a fundação, as lições e a fala) vem antes do estilo, que é o que o
+primeiro usuário mais quer.
+
+**Os números mudaram em 2026-11-21.** As fases 0 a 2 guardam o número. As pendentes foram
+renumeradas, e o número antigo vem entre parênteses ("antes: 3"). As specs fechadas e as decisões 1
+a 8 da seção 8 citam os números antigos: leia-os por esses parênteses.
 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
 | **0. O gancho acha o Python** (feita: validada em 2026-11-13, branch `fase-0-python`, spec em `specs/2026-11-12-fase-0-python/`) | a pergunta do Python com botões ("Você tem Python? Onde?"), numa versão mínima da skill de diagnóstico (em texto onde não houver botões); o `golem.local.toml` com a linha `python` (que entra no `.gitignore`), procurado também na pasta principal; o `gancho.sh` com a ordem nova (a linha `python`, o `.venv`, o PATH, os lugares do instalador oficial); o aviso de falha que sai uma vez, diz onde procurou, cita a lição e manda rodar o diagnóstico; e, quando nada é achado, o comando de instalação | 2 (o Python e o aviso) | P–M | numa máquina com o Python fora do PATH (só os atalhos da loja no PATH), o gancho o acha e entrega a lição; respondendo "Não" à pergunta do Python nessa máquina, a skill o acha e pergunta se usa; respondendo "Sim, e sei onde" com um caminho fora dos lugares de costume, a skill o grava e o gancho entrega a lição; com um `.venv` presente e a linha `python` apontando para outro Python, o gancho usa o da linha (a ordem); num worktree, o gancho acha o `golem.local.toml` da pasta principal; `git check-ignore golem.local.toml` confirma que ele fica fora do git; com a linha `python` apontando para um caminho que não roda e nenhum outro Python achado, o aviso diz que a linha `python` não roda; e o aviso de falha aparece uma vez por sessão, não a cada ação, citando a lição pelo id |
 | **1. Configuração e receita econômica** (feita: validada em 2026-11-15, branch `fase-1-configuracao`, spec em `specs/2026-11-13-fase-1-configuracao/`) | as três receitas e o `golem.toml` com as linhas livres; o `sempre`/`perguntar`/`nunca` de cada etapa; a skill de configurar com botões (em texto onde não houver botões), que reaproveita a pergunta do Python da fase 0, e o guia de configuração; um `golem aplicar` mínimo, em `.claude/golem.py` (o bloco "Como o Golem trabalha aqui" no `AGENTS.md` e o `model:` dos agentes; o gancho lê o `golem.toml` direto, o desligado e o teto, sem passar pelo `aplicar`); as regras 10 e 11 (a 1 não mudou), a `validar-fase`, a `implementar-fase`, o fecho em `docs/operacao-das-conversas.md:156` e a descrição do `validador` obedecendo à configuração; e o modo sem Python (o `gancho.sh` lendo o `gancho = "desligado"`, a busca direto em `docs/licoes/`) | 1, 2 (o modo sem Python), 3 | M | numa fase de teste com a receita `economico`, a conversa para a cada grupo e roda um revisor só, no Sonnet; com `revisor = "perguntar"`, a pergunta aparece com botões no fim da fase; a skill de configurar, respondida de ponta a ponta, deixa o `golem.toml` e o que o `aplicar` gera de acordo com as respostas; e, com `gancho = "desligado"` numa máquina sem Python, nenhum aviso do gancho aparece |
 | **2. Roblox mínimo, sem Rojo** (feita: validada em 2026-11-21, branch `fase-2-roblox`, spec em `specs/2026-11-13-fase-2-roblox/`) | o caminho sem Rojo: o gancho lendo a edição pelo Studio MCP; o revisor e o validador lendo o place (o validador com a mutação só em memória, num place sem `DataStore`); um executor mínimo de testes; os modelos de tech-stack e de comandos, duas lições e uma lista de riscos de exemplo em `templates/roblox/`; e o guia `docs/guia-roblox.md` | 4 | M | num place de exemplo, sem Rojo, com o Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de exemplo nessa edição; os testes rodam pelo executor, e a linha `N passed, N failed, N skipped` é lida no console; um teste quebrado de propósito aparece como `failed`; e, no fim, uma volta pelo histórico de versões é feita seguindo só o guia |
-| **3. Estilo e reaproveitamento** | a skill de estilo, o catálogo, a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
-| **4. Instalação fácil** | o plugin (com o gancho achando a raiz pelo projeto), o `comecar`, o `diagnostico` completo (a fase 0 entrega só a parte do Python) e o guia do primeiro dia | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
-| **5. Configuração completa e medidor** | o esforço por papel, o `golem aplicar --conferir`, a página HTML de configuração (se a fase 1 mostrar que a conversa com botões não basta), o medidor e a busca uniforme no índice | 8, 10, 12 | M | trocar a `receita` e rodar o `aplicar` muda o que a fase 1 gera, o `--conferir` acusa a divergência, e o medidor mostra o gasto por papel antes e depois |
-| **6. Produto** | versões, notas de versão, como atualizar, a página do kit, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
-| **7. Migração para o Rojo** (ordem a decidir; decisão 8) | a skill que guia a migração pelo `rojo syncback`; o `default.project.json`; o código no git; as áreas `.luau`, `default.project.json`, `rojo`, `argon`, `selene`, `stylua` e `wally` no gancho; e a troca do executor mínimo por um framework de teste | 4 | a conferir | a definir na spec da fase |
+| **Separar o método do produto** (sem número; feita: validada em 2026-11-21, PR 9, merge `d637f52`, spec em `specs/2026-11-21-separar-metodo-produto/`) | o modelo do usuário em `templates/AGENTS.md`; o `AGENTS.md` da raiz e o `golem.toml` do próprio kit, na receita `completo`; o conciliador (`.claude/tests/test_conciliar.py`); e a instalação copiando o modelo e rodando o `golem.py aplicar` | — (decisão 9) | P–M | feita; o "pronto" está no `validation.md` da fase |
+| **3. Fundação do Golem central** (nova; decisões 9 e 11) | o esqueleto do plugin; o plugin desligado por padrão no usuário e ligado só nos jogos, pela linha `true` que o kit escreve no projeto ao registrar o jogo; o registro dos jogos; o gancho achando o jogo pelo `CLAUDE_PROJECT_DIR`; os itens a conferir da decisão 11 (o modo interativo, o gancho fora do Golem, o arquivo do "ligado", o `CLAUDE_PLUGIN_ROOT` e a subida do `CLAUDE.md`); e as três partes adiadas da separação: a lista do que viaja, o mapa das pastas e a `iniciar-sdd` | 7 (a base) | a conferir | a definir na spec da fase. Ponto de partida: num jogo registrado, as skills e os agentes `golem:*` aparecem e o gancho entrega a lição; num projeto fora do registro, nenhum aparece |
+| **4. Lições e índices** (nova; seção 8, decisão 10) | cinco itens da proposta da conversa de método sobre os aprendizados de outro projeto: o gancho percebe a lição que falta no índice e avisa uma vez por sessão (A1); a régua confere as `refs:` das lições (D2); a régua mede o tamanho do `AGENTS.md` e avisa (D3); a `licao` manda a regra de área ao `docs/regras-de-area.md`, e não ao `AGENTS.md` (C); e o princípio "índice gerado para o acervo estável, calculado na hora para o documento vivo", num ADR (D1). No Golem central, os dois acervos (o geral e o do jogo) e a raiz do gancho | — | a conferir | a definir na spec da fase |
+| **5. Como o kit fala com o usuário** (nova; decisão 10) | a pergunta das respostas com emojis (onde ela se grava, junto dos combinados da fase 6, fica a conferir); os links de todo documento criado ou mudado; toda mudança se explica (T2); o resumo antes de gravar (T3); a linha da etapa (P1) e reler a etapa (P2); no Golem central, as preferências no central | — | a conferir | a definir na spec da fase |
+| **6. Estilo e reaproveitamento** (antes: 3) | a skill de estilo, o catálogo (gerado e conferido, como a régua faz com as lições), a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento; o gosto × risco com `riscos = "avisar" \| "perguntar"`, os combinados (o `deny` de permissão a avaliar) e a lição contada ao usuário; no Golem central, o estilo em dois níveis | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
+| **7. Instalação fácil** (antes: 4; só o acabamento, porque a base do plugin vai para a fase 3) | o `/golem:comecar`, o `diagnostico` completo (a fase 0 entrega só a parte do Python), o guia do primeiro dia, o "onde está tudo?" (T1) e a escolha das lições que o kit entrega (decisão 6) | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão |
+| **8. Configuração completa e medidor** (antes: 5) | o esforço por papel, o `golem aplicar --conferir`, a página HTML de configuração (se a fase 1 mostrar que a conversa com botões não basta), o medidor e a busca uniforme no índice; a retrospectiva de três perguntas no fim da fase (decidida para esta fase em 2026-11-13: "Fase 5", o número antigo); e, candidatos, os cartões da conversa gerente para abrir as conversas de estratégia e de método | 8, 10, 12 | M | trocar a `receita` e rodar o `aplicar` muda o que a fase 1 gera, o `--conferir` acusa a divergência, e o medidor mostra o gasto por papel antes e depois |
+| **9. Produto** (antes: 6) | versões, notas de versão (com o zip para quem não usa git, ideia do autor do kit de 2026-11-17; a fase da primeira release e a necessidade do zip, que depende de o plugin pedir git ou conta, ficam a conferir), como atualizar, a página do kit, a paridade do Codex e a fonte dele depois do plugin | 11, 13 | M–G | um usuário atualiza de uma versão para a outra sem perder as lições nem a configuração |
+| **10. Migração para o Rojo** (antes: 7; depois da instalação, na posição que o retorno do primeiro usuário indicar; decisões 8 e 10) | a skill que guia a migração pelo `rojo syncback`; o `default.project.json`; o código no git; as áreas `.luau`, `default.project.json`, `rojo`, `argon`, `selene`, `stylua` e `wally` no gancho; e a troca do executor mínimo por um framework de teste | 4 | a conferir | a definir na spec da fase |
 
 **Perguntas ao primeiro usuário.**
 - **Antes da fase 0:** se ele já tem Python instalado, e onde (o trabalho do Python é da fase 0).
@@ -684,6 +701,8 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
    - **"Receita + duas etapas":** a skill de configurar pergunta a receita, o revisor e o parar a
      cada parte.
 
+   **A "Econômica no kit" deixou de valer: ver decisão 9.**
+
 8. **O caminho sem Rojo e a spec da fase 2, em 2026-11-13.** As palavras dele sobre o caminho:
    "Sem Rojo, migrar depois". O caminho de entrada é sem Rojo (seção 5): o código fica no place, e
    as specs e as lições ficam numa pasta ao lado com git local; uma skill guia a migração para o
@@ -706,7 +725,82 @@ do kit pode instalar com ele. A ordem foi confirmada pelo autor do kit (seção 
    Sobre o fluxo da própria fase 2: "Completo pelo prompt" (revisor e validador a cada grupo, no
    Opus, e guardião no PR). **É uma exceção à decisão 7**, a "Econômica no kit": a fase 2 não serve
    de teste da receita `economico`. A spec foi aprovada com "Aprovo" (2026-11-13), com um commit
-   por grupo.
+   por grupo. **O "Completo pelo prompt" deixou de valer: ver decisão 9.**
+9. **Separar o método do produto, em 2026-11-21.** As palavras dele: "nós estamos usando a
+   ferramenta para desenvolver a ferramenta. Talvez seja muito importante nós criarmos essa
+   separação [...]". As respostas:
+   - "Separar já (Recomendado)" e, depois da correção da conversa de estratégia, "Ok, mantém a
+     separação";
+   - "Conferência automática" para o conciliador (e não um agente).
+
+   As cinco da spec da fase (`specs/2026-11-21-separar-metodo-produto/requirements.md`,
+   "Decisões"):
+   - "Fonte só, raiz à mão": o modelo do `AGENTS.md` mora em `templates/AGENTS.md`, na
+     `economico` e com as lacunas, e a raiz do kit se edita à mão;
+   - "Teste da suíte do kit": o conciliador é o `.claude/tests/test_conciliar.py`, que acusa a
+     diferença fora da lista de permitidas, e quando ele acusa a conversa de método decide;
+   - "Instalar roda o aplicar": o passo 4 do `README.md` roda o `golem.py aplicar`, com a troca
+     à mão quando não há Python;
+   - "Lista no README";
+   - "Mínimas agora": da lista no README, só a cópia do modelo e o `aplicar`.
+
+   Depois, com o Golem central decidido (decisão 11): "Ficam para depois (Recomendado)" e "Sim,
+   fundação antes (Recomendado)". A lista do que viaja, o mapa das pastas e a `iniciar-sdd` vão
+   para a fase 3, a fundação do Golem central.
+
+   **Consequência:** o repositório do kit passa a rodar na receita `completo`, pelo próprio
+   `golem.toml` (`.claude/golem.py`, a receita `completo`). Isso traz revisor e validador no Opus
+   a cada grupo, o guardião antes do merge, nenhuma parada entre os grupos e até 4 lições por
+   ação. **A decisão 7 ("Econômica no kit") e o "Completo pelo prompt" da decisão 8 deixam de
+   valer.**
+10. **A ordem das fases novas, em 2026-11-21.** Três fases novas entraram, cada uma por cartão:
+    - "lições e índices", com o A1, o D2, o D3 e o C: "Fase própria (Recomendado)"; o D1 veio
+      depois, na conversa de método: "Na fase lições e índices (Recommended)";
+    - "como o kit fala com o usuário", com as ideias 5 e 6, o T2, o T3, o P1 e o P2: "Fase própria
+      (Recomendado)";
+    - a separação (decisão 9).
+
+    À pergunta dele, "Essas fases, se houver no roteiro, têm que ser encaixadas em algum lugar.
+    Onde você sugere?", o cartão trouxe três ordens. As palavras dele: "Base antes do estilo
+    (Recomendado)". A ordem: lições e índices, como o kit fala com o usuário, estilo e
+    reaproveitamento, instalação, as fases de configuração e de produto. A migração para o Rojo vem
+    depois da instalação, na posição que o retorno do primeiro usuário indicar. O custo aceito: o
+    estilo, que é o que o primeiro usuário mais quer, chega mais tarde. A decisão 11 pôs a fundação
+    antes de todas.
+11. **O Golem central, em 2026-11-21.** Ao primeiro cartão (o kit dentro de cada projeto, um Golem
+    central ou estudar antes), ele respondeu "Estudar antes". Para o estudo, as palavras dele: "é
+    configurado uma só vez, é fácil de usar, guarda as lições, guarda o estilo do usuário [...] a
+    gente só teria que ter um documento, que seria um banco de dados, né, dos projetos que ele
+    tem". Depois do estudo da conversa de método e do teste "ligado só nos
+    jogos" (o plugin, desligado no usuário e com `true` no projeto, aparece só no jogo), as
+    respostas foram:
+    - no primeiro turno, "Golem central (Recomendado)";
+    - no segundo, à pergunta "Confirma o Golem central, instalado uma vez e ligado só nos
+      jogos?", "Confirmo".
+
+    **O que decide:**
+    - o kit é instalado uma vez, como plugin, desligado por padrão no usuário e ligado só nos
+      jogos (o kit escreve o "ligado" ao registrar o jogo);
+    - configurar e atualizar se fazem uma vez;
+    - lições e estilo ficam em dois níveis, e o geral só sobe com o ok dele e sem citar o projeto;
+    - há um registro dos jogos;
+    - o jogo sem Rojo fica numa subpasta do central ou na pasta que ele já tiver.
+
+    **O que continua:** as regras (`AGENTS.md`) ficam em cada jogo, porque o plugin não leva o
+    `CLAUDE.md`. O gancho acha o jogo pelo `CLAUDE_PROJECT_DIR`. O Codex fica no modelo de hoje até
+    se conferir.
+
+    **A conferir na fase 3:**
+    - o modo interativo (o diálogo de confiança);
+    - o gancho fora do Golem;
+    - o arquivo do "ligado": o `settings.json`, que vai ao git e valeria num repositório de
+      cliente, ou o `settings.local.json`, não testado;
+    - o `CLAUDE_PLUGIN_ROOT` e a subida do `CLAUDE.md` (as rodadas com login, se precisar).
+
+    Depois, à pergunta "Ponho uma fase 'fundação do Golem central' logo depois da separação?",
+    ele respondeu "Sim, fundação antes (Recomendado)". **Consequência no roteiro (seção 7):** a
+    fundação é a fase 3. A instalação fica só com o acabamento. As fases de lições, da fala, do
+    estilo e da instalação passam a ser desenhadas para o central.
 
 **Em aberto, uma de cada vez:**
 1. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
