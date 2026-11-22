@@ -602,8 +602,10 @@ A exceção aceita: a base (a fundação, as lições e a fala) vem antes do est
 primeiro usuário mais quer.
 
 **Os números mudaram em 2026-11-21.** As fases 0 a 2 guardam o número. As pendentes foram
-renumeradas, e o número antigo vem entre parênteses ("antes: 3"). As specs fechadas e as decisões 1
-a 8 da seção 8 citam os números antigos: leia-os por esses parênteses.
+renumeradas, e o número antigo vem entre parênteses ("antes: 3"). As specs das fases 0 a 2 e a da
+separação, e as decisões 1 a 8 da seção 8, citam os números antigos: leia-os por esses parênteses.
+Em 2026-11-22, a fase 4b entrou entre a 4 e a 5, sem renumerar as outras (decisão 14). Na spec da
+fase 3, a "fase 4" dos dois acervos, da raiz do gancho e do cliente marcado é a 4b.
 
 | Fase | Entrega | Melhorias | Tamanho | Pronto quando |
 |---|---|---|---|---|
@@ -612,7 +614,8 @@ a 8 da seção 8 citam os números antigos: leia-os por esses parênteses.
 | **2. Roblox mínimo, sem Rojo** (feita: validada em 2026-11-21, branch `fase-2-roblox`, spec em `specs/2026-11-13-fase-2-roblox/`) | o caminho sem Rojo: o gancho lendo a edição pelo Studio MCP; o revisor e o validador lendo o place (o validador com a mutação só em memória, num place sem `DataStore`); um executor mínimo de testes; os modelos de tech-stack e de comandos, duas lições e uma lista de riscos de exemplo em `templates/roblox/`; e o guia `docs/guia-roblox.md` | 4 | M | num place de exemplo, sem Rojo, com o Studio MCP ligado, uma fase pequena vai da spec ao validado: o agente salva a versão antes da fase; edita um ModuleScript pelo `multi_edit`; o gancho entrega uma lição e uma regra de área de exemplo nessa edição; os testes rodam pelo executor, e a linha `N passed, N failed, N skipped` é lida no console; um teste quebrado de propósito aparece como `failed`; e, no fim, uma volta pelo histórico de versões é feita seguindo só o guia |
 | **Separar o método do produto** (sem número; feita: validada em 2026-11-21, PR 9, merge `d637f52`, spec em `specs/2026-11-21-separar-metodo-produto/`) | o modelo do usuário em `templates/AGENTS.md`; o `AGENTS.md` da raiz e o `golem.toml` do próprio kit, na receita `completo`; o conciliador (`.claude/tests/test_conciliar.py`); e a instalação copiando o modelo e rodando o `golem.py aplicar` | — (decisão 9) | P–M | feita; o "pronto" está no `validation.md` da fase |
 | **3. Fundação do Golem central** (feita: validada em 2026-11-22, branch `fase-3-fundacao-central`, spec em `specs/2026-11-21-fase-3-fundacao-central/`; decisões 9, 11 e 12) | o esqueleto do plugin; a configuração do central, feita uma vez e válida em todos os jogos (onde a fase 5 grava a preferência dos emojis); o plugin desligado por padrão no usuário e ligado só nos jogos, pela linha `true` que o kit escreve no projeto ao registrar o jogo; o registro dos jogos; o gancho achando o jogo pelo `CLAUDE_PROJECT_DIR`; os itens a conferir da decisão 11 (o modo interativo, o gancho fora do Golem, o arquivo do "ligado", o `CLAUDE_PLUGIN_ROOT` e a subida do `CLAUDE.md`); e as três partes adiadas da separação: a lista do que viaja, o mapa das pastas e a `iniciar-sdd` | 7 (a base) | M–G | feita; o "pronto" está no `validation.md` da fase (num jogo registrado, as skills e os agentes `golem:*` aparecem e o gancho entrega a lição, provado com login; num projeto fora do registro, nenhum aparece) |
-| **4. Lições e índices** (nova; seção 8, decisão 10) | cinco itens da proposta da conversa de método sobre os aprendizados de outro projeto: o gancho percebe a lição que falta no índice e avisa uma vez por sessão (A1); a régua confere as `refs:` das lições (D2); a régua mede o tamanho do `AGENTS.md` e avisa (D3); a `licao` manda a regra de área ao `docs/regras-de-area.md`, e não ao `AGENTS.md` (C); e o princípio "índice gerado para o acervo estável, calculado na hora para o documento vivo", num ADR (D1). No Golem central, os dois acervos (o geral e o do jogo) e a raiz do gancho | — | a conferir | a definir na spec da fase |
+| **4. Lições e índices** (nova; seção 8, decisões 10 e 14) | cinco itens da proposta da conversa de método sobre os aprendizados de outro projeto: o gancho percebe a lição que falta no índice e avisa uma vez por sessão (A1); a régua confere as `refs:` das lições (D2); a régua mede o tamanho do `AGENTS.md` e avisa (D3); a `licao` manda a regra de área ao `docs/regras-de-area.md`, e não ao `AGENTS.md` (C); e o princípio "índice gerado para o acervo estável, calculado na hora para o documento vivo", na decisão 13 (D1). Tudo sobre o acervo do jogo, com a pasta das lições num só lugar no código, para a 4b trocar; o acervo geral é da fase 4b (decisão 14) | — | a conferir | a definir na spec da fase |
+| **4b. O acervo geral de lições** (nova; decisão 14) | no Golem central, o acervo geral de lições, ao lado do acervo do jogo: o gancho lê os dois, com a raiz do gancho para os dois; a `licao` oferece subir a lição ao acervo geral, com o ok do usuário e sem citar o projeto; e o projeto de cliente fica marcado e não sobe nada | — | a conferir | a definir na spec da fase |
 | **5. Como o kit fala com o usuário** (nova; decisões 10 e 12) | a pergunta das respostas com emojis, gravada na configuração do Golem central, que vale em todos os jogos (decisão 12); os links de todo documento criado ou mudado; toda mudança se explica (T2); o resumo antes de gravar (T3); a linha da etapa (P1) e reler a etapa (P2) | — | a conferir | a definir na spec da fase |
 | **6. Estilo e reaproveitamento** (antes: 3) | a skill de estilo, o catálogo (gerado e conferido, como a régua faz com as lições), a pergunta na entrevista e o revisor checando o estilo e o reaproveitamento; o gosto × risco com `riscos = "avisar" \| "perguntar"`, os combinados (o `deny` de permissão a avaliar) e a lição contada ao usuário; no Golem central, o estilo em dois níveis | 5, 6 | M | com 3 programas do usuário, as regras saem com exemplos do código dele, e o revisor acusa um módulo duplicado de propósito |
 | **7. Instalação fácil** (antes: 4; só o acabamento, porque a base do plugin vai para a fase 3) | o `/golem:comecar`, o `diagnostico` completo (a fase 0 entrega só a parte do Python), o guia do primeiro dia, o "onde está tudo?" (T1), a escolha das lições que o kit entrega (decisão 6) e, no fim da fase, a primeira release: um zip com o plugin, que se instala de uma pasta local, sem GitHub (decisão 12) | 7, 9 | M | uma pessoa sem o kit instala e começa a primeira spec seguindo só o guia do primeiro dia, num Windows sem Python instalado de antemão; o critério da release com zip fica para a spec da fase 7 (decisão 12) |
@@ -812,6 +815,21 @@ a 8 da seção 8 citam os números antigos: leia-os por esses parênteses.
       local, sem GitHub (o teste do plugin usou um marketplace numa pasta local). O git local
       continua necessário. O formato das versões, as notas e o "atualizar sem perder nada" ficam
       na fase 9.
+13. **Reservada:** o D1 da fase 4 (o princípio do índice), aprovado na spec dela; o texto entra com
+    o merge da fase 4.
+14. **O acervo geral numa fase própria, em 2026-11-22.** Na spec da fase 4, a conversa de estratégia
+    levou a ele o cartão sobre levar o acervo geral a esta fase ou a uma fase própria. As palavras
+    dele: "A: fase própria (Recomendado)". O motivo: com os dois acervos, a fase 4 passaria a G, e a
+    regra 2 pede dividir o roteiro em vez de inchar a fase. A fase 4 faz o A1, o D2, o D3, o C e o
+    D1 sobre o acervo do jogo, com a pasta das lições num só lugar no código, para a 4b trocar. A
+    fase nova, logo depois, faz o acervo geral no central: o gancho lê os dois acervos, a `licao`
+    oferece subir a lição com o ok dele e sem citar o projeto, e o projeto de cliente fica marcado e
+    não sobe nada.
+
+    Ao cartão do número da fase nova ("4b, sem mudar o resto", recomendada × "5, e o resto sobe um",
+    com as fases 5 a 10 passando a 6 a 11), as palavras dele: "4b, sem mudar o resto (Recomendado)"
+    (2026-11-22). As citações das fases 5 a 10 não mudam: as do plano e da spec da fase 3 seguem o
+    número novo, e as das specs das fases 0 a 2 e da separação, o antigo (os parênteses da seção 7).
 
 **Em aberto, uma de cada vez:**
 1. **O nome como marca:** há outros projetos de software chamados Golem. Vale buscar no INPI antes
