@@ -46,7 +46,9 @@ PR 13 do roteiro, trazida pelo merge `60a849d`). As saídas estão abaixo de cad
 - [x] `git diff "$BASE"..HEAD --name-only | grep -v -e '^specs/' -e '^docs/' -e '^\.claude/' -e '^AGENTS\.md$' -e '^templates/AGENTS\.md$'`
   → vazio: a fase não mexe fora do que a spec cita.
 
-  Saída: vazia.
+  Saída: vazia, no head `7460564`. No head final, sai `README.md`: a correção do guardião
+  (`6aa2b28`) mudou a linha do `regua.py` na tabela do `README.md` (quem muda, varre), para ela
+  descrever os dois avisos novos da régua. Fora isso, vazia. Está na tabela "Alterações de escopo".
 
 ## Verificações manuais
 
