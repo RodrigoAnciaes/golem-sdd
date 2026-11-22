@@ -563,18 +563,18 @@ fundação). O acabamento abaixo, com o `comecar`, o `diagnostico` e o guia, é 
 
 - **Um plugin do Claude Code.** Um plugin junta skills, agentes e ganchos e se instala pelo
   `/plugin`, a partir de um marketplace que pode ser o próprio repositório ou uma pasta local (o caminho
-  da release com zip, decisão 12) ([plugins](https://code.claude.com/docs/en/plugins.md)). Os comandos exatos ficam a conferir na
-  página de instalação.
+  da release com zip, decisão 12) ([plugins](https://code.claude.com/docs/en/plugins.md)). Os comandos, conferidos na fase 3, estão
+  no `README.md`, "Instalar o Golem (uma vez)".
   - **Custo:** as descrições das skills de um plugin ligado entram em todo turno, **em todo projeto
     em que ele estiver ligado**. Por isso, com o Golem central (seção 8, decisão 11), ele fica
     desligado por padrão no usuário e ligado só nos jogos, por uma linha `true` no projeto.
   - **Nome:** as skills ganham prefixo (`/golem:spec-de-fase`).
-  - **O gancho muda o jeito de achar o projeto.** Hoje a raiz sai da posição do próprio arquivo
-    (`licoes_relevantes.py:55`, `RAIZ = Path(__file__).resolve().parents[2]`). Dentro de um
-    plugin, isso daria a pasta do plugin. Ele passa a achar a raiz pelo `CLAUDE_PROJECT_DIR` ou
-    pelo git.
-  - **O Codex perde a fonte.** O `instalar_codex.py` lê `.claude/skills/`, que deixa de existir no
-    projeto. Falta decidir de onde ele tira as cópias.
+  - **O gancho muda o jeito de achar o projeto.** Antes, a raiz saía da posição do próprio
+    arquivo, o que dentro de um plugin daria a pasta do plugin. Desde a fase 3, ele acha a raiz
+    pelo `CLAUDE_PROJECT_DIR` ou pelo git.
+  - **O Codex fica na cópia.** Ele não usa o plugin: o kit vai copiado ao projeto, e o
+    `instalar_codex.py` continua lendo a `.claude/skills/` dele (decisão 11; `README.md`, "Usando
+    com o Codex"). O Codex como plugin é da fase 9.
 - **`/golem:comecar`:** cria o que o projeto precisa (o `AGENTS.md`, `docs/licoes/`, `specs/` e o
   `golem.toml` com a receita `economico`). Preenche as lacunas `<< >>` por entrevista ("como você
   roda o jogo?", "usa Rojo?", "onde estão seus módulos?"), passa pela configuração com botões (com

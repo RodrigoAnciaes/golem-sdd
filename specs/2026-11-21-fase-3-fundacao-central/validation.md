@@ -112,7 +112,9 @@ para ele, na configuração dele, com estes mesmos passos, e o PR diz isso. Toda
   posto à mão em `"$ISO/Golem"` só para esta rodada e apagado depois; no jogo de `jogos/`, a
   pergunta "que marca aparece no seu contexto? responda sem ler arquivo" → a marca aparece. Isso
   confirma por que o central nunca tem `CLAUDE.md` (R3).
-  **Saída (2026-11-22):** **o contrário do esperado: a marca não apareceu**, em 4 rodadas (o jogo com git, duas vezes no `-p`; uma pasta sem git dentro do central, no `-p`; e o jogo `l5` no modo interativo, depois da confiança), nem no texto que foi ao modelo (`g6-l4.jsonl`, `g6-l4-teste2.jsonl`, `g6-l4-sem-git.jsonl`, `g6-l5.txt`). A decisão do R3 (o central nunca tem `CLAUDE.md`) continua, porque não custa nada; a leitura da documentação era hipótese, e virou a lição `o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo`.
+  **Saída (2026-11-22):** **o contrário do esperado: a marca não apareceu**, em 4 rodadas (o jogo com git, duas vezes no `-p`; uma pasta sem git dentro do central, no `-p`; e o jogo `l5` no modo interativo, depois da confiança), nem no texto que foi ao modelo (`g6-l4.jsonl`, `g6-l4-teste2.jsonl`, `g6-l4-sem-git.jsonl`, `g6-l5.txt`). A decisão do R3 (o central nunca tem `CLAUDE.md`) continua, porque não custa nada; a leitura da documentação era hipótese, e virou a lição `o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo`. Sem rodada de controle (a mesma marca
+  num `CLAUDE.md` que com certeza é lido): a lição diz isso, e o resultado vale como "não se viu
+  subir", e não como prova de que nunca sobe.
 - [x] **L5. O modo interativo** (1 vez): o `"$CC"` aberto sem `-p`, numa aba do terminal do app,
   numa pasta de jogo registrada e nunca aberta → aparece o diálogo de confiança na pasta; depois
   de aceitar, `/plugin` (ou a pergunta "quais skills golem você tem?") mostra o `golem`. Se o

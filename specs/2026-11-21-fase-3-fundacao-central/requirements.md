@@ -141,7 +141,8 @@ Novos comandos do `golem.py` (a skill chama; quem não tem Python faz à mão, p
   - o "ligado" do próprio central (cartão 2), no `.claude/settings.local.json` (cartão 1).
 
   Nunca escreve um `CLAUDE.md` no central: ele subiria para todo jogo de `jogos/` (a
-  documentação, acima). Rodado de novo, não muda nada.
+  documentação, acima; a L4 mostrou depois que não subiu, e a decisão ficou: R6). Rodado de novo,
+  não muda nada.
 - **`registrar <pasta> [--nome <nome>]`**: põe o jogo no `jogos.md` (o nome, a pasta e a data) e
   escreve o "ligado" no jogo. O "ligado" é a chave `enabledPlugins` com `"golem@golem": true`, no
   `.claude/settings.local.json` (cartão 1), juntada ao que o arquivo já tiver. Ele também

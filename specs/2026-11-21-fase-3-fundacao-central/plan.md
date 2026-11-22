@@ -136,7 +136,8 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
   `grep -rnE "Copie para a raiz|a pasta \`\.claude/\` inteira|a pasta \`docs/\`|Instalar num projeto" --include=*.md --include=*.py .`
   (fora de `specs/`, que guarda o histórico). Cada ocorrência corrigida ou justificada no PR.
 - [x] `docs/plano-produto.md`: nada neste grupo. A nota da seção 6 e a linha da fase 3 na seção 7
-  ficam para a `validar-fase` (o roteiro); nada de decisão nova sem o autor do kit.
+  ficam para a `validar-fase` (o roteiro); nada de decisão nova sem o autor do kit. Feitas no fim
+  da fase: a linha da seção 7 no G6, e a nota da seção 6 depois do guardião.
 - [x] `python .claude/regua.py --conferir` (`ok`) e a suíte inteira: `166 passed`, sem pulados (o
   G5 não traz teste).
 

@@ -342,7 +342,7 @@ def test_o_central_nasce_com_as_quatro_pecas_e_sem_claude_md(plugin):
     assert "| Jogo | Pasta | Registrado em |" in (c / "jogos.md").read_text(encoding="utf-8")
     ligado = json.loads((c / ".claude" / "settings.local.json").read_text(encoding="utf-8"))
     assert ligado == {"enabledPlugins": {"golem@golem": True}}
-    assert not list(c.rglob("CLAUDE.md")), "o CLAUDE.md do central subiria para todo jogo"
+    assert not list(c.rglob("CLAUDE.md")), "o central não pode ter CLAUDE.md (R3 da fase 3)"
     r = plugin.rodar("golem.py", "central")
     assert r.returncode == 0 and "nada mudou" in r.stdout, r.stdout
 

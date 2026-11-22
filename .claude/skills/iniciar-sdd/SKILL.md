@@ -56,7 +56,9 @@ falta nele, em vez de registrar de novo.
 ## 3. A pasta e o git
 
 ```bash
-pasta=$(mkdir -p "<caminho>" && cd "<caminho>" && { pwd -W 2>/dev/null || pwd; })   # sem pasta: "${GOLEM_CENTRAL:-$HOME/Golem}/jogos/<nome>"
+# "Não, crie": o caminho é "${GOLEM_CENTRAL:-$HOME/Golem}/jogos/<nome>", e o mkdir -p o cria.
+# "Sim, tenho": tire o mkdir -p; a pasta tem de existir, e o comando diz ERRO se não existir.
+pasta=$(mkdir -p "<caminho>" && cd "<caminho>" && { pwd -W 2>/dev/null || pwd; }) || echo "ERRO: a pasta <caminho> não existe"
 echo "pasta: $pasta"
 topo=$(t=$(git -C "$pasta" rev-parse --show-toplevel 2>/dev/null) && cd "$t" && { pwd -W 2>/dev/null || pwd; })
 echo "raiz do git: ${topo:-não é um repositório git}"
@@ -171,6 +173,7 @@ equivalente. Não invente comando: se não achar, pergunte.
 ## Restrições
 
 - Nunca sobrescrever arquivo existente sem mostrar o diff e pedir confirmação.
-- Nunca escrever um `CLAUDE.md` no central: ele subiria para todo jogo de `jogos/`.
+- Nunca escrever um `CLAUDE.md` no central: a documentação diz que ele subiria para os jogos de
+  `jogos/` (nas rodadas da fase 3 não subiu, mas sem ele não há dúvida).
 - Não criar `specs/mission.md` vazio: documento vazio dá falsa sensação de spec pronta.
 - Não commitar nada sem o usuário pedir.

@@ -350,7 +350,7 @@ Na cópia (o Codex), o que mora no kit vai para dentro do projeto.
 | Pasta ou arquivo | Onde mora | O que é |
 |---|---|---|
 | `AGENTS.md` | no jogo | as regras permanentes do projeto, lidas em toda sessão |
-| `CLAUDE.md` | no jogo | o Claude Code lê este arquivo sozinho, e ele importa o `AGENTS.md` (`@AGENTS.md`); o Codex não usa. O central nunca tem um: ele subiria para todo jogo de `~/Golem/jogos/` |
+| `CLAUDE.md` | no jogo | o Claude Code lê este arquivo sozinho, e ele importa o `AGENTS.md` (`@AGENTS.md`); o Codex não usa. O central nunca tem um: a documentação do Claude Code diz que ele subiria para os jogos de `~/Golem/jogos/`, e nas rodadas da fase 3 não subiu (lição `o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo`); sem ele, não há dúvida |
 | `WORKFLOW.md` | no jogo | o fluxo, etapa por etapa |
 | `golem.toml` | no central, e no jogo se ele quiser | a receita e as linhas que mudam como o Golem trabalha. O do central vale em todos os jogos; o do jogo, se houver, vale por cima, linha a linha. Sem nenhum, vale a `economico` |
 | `golem.local.toml` | no central | o caminho do Python desta máquina (a skill `diagnostico` grava); fica fora do git |
