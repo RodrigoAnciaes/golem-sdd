@@ -70,10 +70,10 @@ Regras de escrita:
   trecho continua na linha citada e, quando ele muda de lugar, avisa a linha nova. `agenda.py` não
   ajuda; `agenda.py:142` sem o trecho a régua não confere. Ponha o item entre aspas simples: sem
   elas, um ` #` na âncora (o tamanho de uma tabela no Luau, um comentário) corta o item. A aspa
-  simples dentro da âncora vai dobrada (`print(''oi'')`); sem isso, a régua pula a ref sem
-  avisar. A ref em
-  prosa (sem caminho no começo) vale, e a régua a pula; o caminho de um script do place
-  (`game.ServerScriptService.…`) também, porque a régua não lê o place.
+  simples dentro da âncora vai dobrada (`print(''oi'')`); sem isso, a régua não lê a ref e avisa.
+  A ref em prosa (sem caminho no começo) vale, e a régua a pula; o caminho de um script do place
+  (`game.ServerScriptService.…`) também, porque a régua não lê o place. No repositório do kit, toda
+  lição leva também `origem: kit`, logo abaixo do `tipo:` (um teste confere); no jogo, nenhuma.
 - **Evidência, não impressão.** "Ficou lento" não; "a busca de horários foi de 120 ms para 3,1 s
   com 10 mil consultas no banco" sim.
 - **"Como perceber" é a seção que vale.** Um sinal observável, não um conselho. "Tome cuidado com

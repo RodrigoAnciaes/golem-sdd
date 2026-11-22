@@ -178,7 +178,7 @@ def ler_gatilhos(texto: str, nome: str = "gatilhos") -> list:
     são os do YAML; sem aspas, o item vale como está. Como no YAML, ` #` em diante é comentário,
     na linha do campo e na do item (fora das aspas). A régua lê com esta mesma função, então o
     índice e o Markdown não divergem. Item entre aspas malformado sai como `None`: o gancho o
-    ignora e a régua o acusa.
+    ignora, e a régua o acusa (como erro nos `gatilhos:`, como aviso nas `refs:`).
     """
     m = re.match(r"---\s*\n(.*?)\n---", texto, re.S)
     if not m:

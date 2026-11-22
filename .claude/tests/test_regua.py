@@ -311,6 +311,14 @@ def test_a_ref_em_dia_e_a_prosa_nao_dao_aviso(acervo, item):
     assert acervo.regua().problemas_de_refs() == []
 
 
+def test_a_ref_entre_aspas_que_nao_se_le_da_o_aviso(acervo):
+    """A aspa simples da âncora sem dobrar: o leitor não lê o item, e a régua avisa em vez de pular."""
+    _com_refs(acervo, "com-ref", ["'alvo.py:1 `print('oi')`'", "'alvo.py:1 `print(''oi'')`'"])
+    problemas = acervo.regua().problemas_de_refs()
+    assert any("com-ref: uma ref entre aspas que não se lê" in p for p in problemas), problemas
+    assert any("`print('oi')` não está no arquivo" in p for p in problemas), problemas
+
+
 def test_o_aviso_de_ref_nao_muda_o_codigo_de_saida(acervo):
     _com_refs(acervo, "com-ref", ["'alvo.py:1 `linha tres`'"])
     r = acervo.rodar_regua("--gerar")

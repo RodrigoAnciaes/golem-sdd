@@ -372,7 +372,7 @@ Na cópia (o Codex), o que mora no kit vai para dentro do projeto.
 | `.claude/agents/` | no kit | os subagentes `revisor` e `validador` |
 | `.claude/hooks/` | no kit | o gancho que entrega as lições antes de uma ação |
 | `.claude/golem.py` | no kit | o `aplicar` (o bloco "Como o Golem trabalha aqui" do `AGENTS.md`, e o `model:` dos agentes na cópia), o `central`, o `registrar` e o `onde` |
-| `.claude/regua.py` | no kit | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`); no plugin, no repositório da pasta corrente; na cópia, no projeto em que está |
+| `.claude/regua.py` | no kit | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`); avisa também da ref de lição que não bate com o arquivo citado e do `AGENTS.md` acima do teto (`agents_teto`); no plugin, no repositório da pasta corrente; na cópia, no projeto em que está |
 | `.claude/settings.json` | no kit (na cópia, no projeto) | liga o gancho quando o kit está dentro do projeto; no plugin, quem liga o gancho é o `.claude/hooks/hooks.json` |
 | `.claude/instalar_codex.py` | no kit (na cópia, no projeto) | gera as cópias do Codex (`.agents/skills/`, `.codex/agents/`, `.codex/hooks.json`) e confere que estão em dia (`--conferir`) |
 | `.agents/skills/`, `.codex/` | na cópia | (geradas pelo instalador, só para o Codex) as cópias das skills, dos agentes e do gancho |

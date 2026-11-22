@@ -34,9 +34,9 @@ o define assim:
   linha, e 8 delas apontam para uma linha que ainda existe, mas não é mais a citada (Contexto, "As
   refs deslocadas hoje").
 - **O `AGENTS.md` entra inteiro em toda conversa** (`CLAUDE.md:1`, `@AGENTS.md`), e nada mede o
-  tamanho dele. O do outro projeto, que inspirou a proposta, foi de 7,5 mil a 25 mil palavras em
-  cinco semanas (a leitura da EST, `leitura-produto-aprendizados-psi.md`, item D; esse número é a
-  documentação inteira de lá).
+  tamanho dele. No outro projeto que inspirou a proposta, a documentação cresceu várias vezes em
+  poucas semanas, segundo a leitura da EST sobre os aprendizados dele (item D). O número exato não
+  está neste repositório: a conferir, se alguém o citar.
 - **A `licao` manda toda regra nova ao `AGENTS.md`** (`licao/SKILL.md:101-102`; regra 7,
   `AGENTS.md:170-171`). A regra que só importa a quem mexe numa área pesa em toda conversa, e o
   `docs/regras-de-area.md` existe para ela (`licoes_relevantes.py:312-315`).
@@ -250,7 +250,7 @@ sem lição ("Do agente", abaixo).
 - a decisão 10: a fase própria de "lições e índices", com "Fase própria (Recomendado)", e o D1
   nela, com "Na fase lições e índices (Recommended)";
 - a decisão 11: o Golem central, que pede a busca nas lições do kit pela pasta do kit (R2);
-- o pedido do Rodrigo à EST, de 2026-11-22: "pede à GER para abrir a fase 4". À GER, ele disse
+- o pedido do autor do kit à EST, de 2026-11-22: "pede à GER para abrir a fase 4". À GER, ele disse
   "Sim, abre".
 
 **Do agente, dentro destas:**

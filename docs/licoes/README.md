@@ -80,9 +80,10 @@ Os dois campos de nome parecido: **`gatilho:`** (singular) é a circunstância, 
 armadilha apareceu, para quem lê; **`gatilhos:`** (plural, opcional) é a lista de expressões
 regulares que dizem ao gancho em que ação entregar a lição (abaixo).
 
-As lições que vêm com o kit trazem também **`origem: kit`**, logo abaixo do `tipo:`. Não ponha esse
-campo nas suas: numa lição do kit, a régua não avisa da ref a um arquivo que não existe, porque o
-jogo recebe as lições do kit, e não os testes e as specs que elas citam.
+As lições de `docs/licoes/` que vêm com o kit trazem também **`origem: kit`**, logo abaixo do
+`tipo:`. Não ponha esse campo nas suas: numa lição do kit, a régua não avisa da ref a um arquivo que
+não existe, porque o jogo recebe as lições do kit, e não os testes e as specs que elas citam. (No
+repositório do próprio kit é o contrário: toda lição leva o campo, e um teste confere.)
 
 **Depois do "Como perceber", nenhum rótulo em negrito terminado em dois pontos no começo de
 linha.** O gancho entrega a seção até o próximo rótulo assim, e o que vem depois não chega. Uma

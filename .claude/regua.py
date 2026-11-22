@@ -335,6 +335,10 @@ def problemas_de_refs(estrito: bool = False) -> list:
         texto = ler(arq)
         do_kit = not estrito and campo(texto, "origem") == "kit"
         for item in _gancho().ler_gatilhos(texto, "refs"):
+            if item is None:
+                fora.append(f"{arq.stem}: uma ref entre aspas que não se lê (aspas sem fechar, ou "
+                            f"a aspa simples de dentro sem dobrar): a régua não a confere")
+                continue
             problema = problema_da_ref(item, do_kit)
             if problema:
                 fora.append(f"{arq.stem}: a ref {_REF.match(item).group(0)}: {problema}")

@@ -242,6 +242,7 @@ receita = "economico"            # so-eu | economico | completo
 # conversas        = "uma"         # uma | papeis
 # gancho           = "ligado"      # ligado | desligado (máquina sem Python)
 # gancho_teto      = 2             # lições novas por ação (antes da fase 1, fixo em 4)
+# agents_teto      = 3000          # palavras do AGENTS.md antes do aviso da régua (fase 4)
 ```
 
 ```toml
@@ -257,7 +258,9 @@ usuário informou ou confirmou (o pedido do autor do kit, abaixo, em "Primeiro p
 procurar"). Ele mora num arquivo à parte porque é desta máquina: um caminho como
 `C:\Users\<nome>\...` está errado em qualquer outra e expõe o nome do usuário. O `gancho_teto`
 custa pouco (o gancho injeta no máximo ~600 tokens por ação), mas é o que controla quanto contexto
-o gancho injeta, um dos itens do critério "customizável", e é uma linha. O gancho continua
+o gancho injeta, um dos itens do critério "customizável", e é uma linha. O `agents_teto` (fase
+4, decisão 13) é o teto de palavras do `AGENTS.md`, que entra inteiro em toda conversa; ele é
+configurável a pedido do autor do kit ("C: configurável"). O gancho continua
 rodando antes de comandos em todas as receitas: as lições do kit disparam por comando, e quem
 roda os comandos do `validation.md` (a conversa, e o validador quando ele existe) precisa delas.
 

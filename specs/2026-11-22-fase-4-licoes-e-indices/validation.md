@@ -23,7 +23,8 @@ PR 13 do roteiro, trazida pelo merge `60a849d`). As saídas estão abaixo de cad
   - G3: só documentação, nenhum teste novo. A `main` nova (PR 13) só mudou o
     `docs/plano-produto.md`, e a contagem segue 166 na base.
 
-  Saída: `208 passed in 78.70s (0:01:18)`.
+  Saída: `208 passed in 78.70s (0:01:18)`. Depois das correções do guardião (um teste novo, o da
+  ref entre aspas que não se lê): `209 passed in 78.56s (0:01:18)`.
 - [x] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`,
   sai 0, e o stderr não traz nenhuma linha `AVISO` de ref nem do teto (as refs do kit em dia, e o
   `AGENTS.md` do kit abaixo do teto).

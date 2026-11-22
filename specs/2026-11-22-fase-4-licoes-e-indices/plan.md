@@ -112,4 +112,6 @@ Só documentação: caminho rápido, só o revisor.
 |---|---|---|---|
 | 2026-11-22 | O G1 corrige também a `licao` e a `diagnostico` (a lição fora do índice "nunca chega"), que estavam no G3 | O G1 tornou as frases falsas, e a varredura do G3 não as acharia (achado do revisor) | o agente: detalhe de implementação, dentro do R1 |
 | 2026-11-22 | O gancho só lê arquivo em `docs/licoes/` (`is_file`) | Uma pasta `x.md` derrubava o gancho a cada ação, visto pelo validador; já caía na varredura de hoje | o agente: falha vista, dentro do R1 |
+| 2026-11-22 | O gancho sai antes de carregar o `golem.py` quando não há nada novo para o agente | O revisor do G1 mediu ~27 ms por ação no `teto_do_gancho`, contra ~0,3 ms do resto, e o R1 diz "uma listagem da pasta por ação" | o agente: detalhe de implementação, dentro do R1 |
+| 2026-11-22 | O `golem.py` ganha o `INTEIROS` (a faixa de cada chave de número) | O segundo uso real (o `gancho_teto` e o `agents_teto`); sem ele, a faixa do `gancho_teto` valeria para o `agents_teto` | o agente: detalhe de implementação, dentro do R3 |
 | 2026-11-22 | As lições do kit ganham `origem: kit`, e nelas o arquivo ausente não avisa | Na instalação por cópia o jogo nascia com 12 avisos de ref (achado do revisor do G2) | o autor do kit, pela EST: "D: só as do kit calam (Recomendado)" |
