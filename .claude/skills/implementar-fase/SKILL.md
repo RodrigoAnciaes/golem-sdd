@@ -29,8 +29,8 @@ outro sistema ou outra equipe.
    desligado e o índice envelhece. Armadilha registrada não se paga duas vezes.
 5. Leia o bloco "Como o Golem trabalha aqui" do `AGENTS.md`: ele diz que revisão roda, quando, e
    se a implementação para a cada grupo. Sem o bloco (um `AGENTS.md` sem as marcas), rode
-   `python3 .claude/golem.py aplicar`; sem Python, siga a receita `economico`
-   (`docs/guia-configuracao.md`).
+   `python3 "${CLAUDE_SKILL_DIR}/../../golem.py" aplicar`; sem Python, siga a receita `economico`
+   (`${CLAUDE_SKILL_DIR}/../../../docs/guia-configuracao.md`).
 
 ## Execução
 
@@ -38,7 +38,9 @@ outro sistema ou outra equipe.
   1. a suíte da pasta tocada, com a linha de resumo lida (total, falhas, puladas). Erro acumulado
      entre grupos custa muito mais caro para diagnosticar;
   2. a revisão que o bloco pede, por subagentes que não escreveram o código (o revisor lê o diff
-     contra a spec; o validador roda os critérios e confere a evidência):
+     contra a spec; o validador roda os critérios e confere a evidência). Chame cada um com o
+     modelo que o bloco diz (o `model` da chamada) e pelo nome que a sessão lista: `golem:revisor`
+     e `golem:validador` no plugin, `revisor` e `validador` no kit e na cópia:
      - **por grupo:** o revisor e o validador que estiverem em `sempre`, sobre o diff do grupo;
      - **por fase:** nada aqui. Os que estiverem em `sempre` (ou em `perguntar`, com o sim) rodam
        uma vez, ao fim do último grupo de implementação (antes do grupo de verificação), sobre o

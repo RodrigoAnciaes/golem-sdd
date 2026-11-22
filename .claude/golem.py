@@ -211,8 +211,9 @@ def _modelo(valor: str) -> str:
     return " Modelo: o da conversa." if valor == "inherit" else f" Modelo `{valor}`."
 
 
-def bloco(c: dict) -> str:
-    """O bloco "Como o Golem trabalha aqui", com as marcas, em LF."""
+def bloco(c: dict, plugin: bool = False) -> str:
+    """O bloco "Como o Golem trabalha aqui", com as marcas, em LF. No plugin, o guia não está no
+    projeto: o bloco o aponta pelo pedido."""
     por_fase = c["revisor_quando"] == "por_fase"
     quando = "uma vez por fase, antes da verificação" if por_fase else "a cada grupo"
     diff = "o diff da fase inteira" if por_fase else "o diff do grupo"
@@ -220,10 +221,11 @@ def bloco(c: dict) -> str:
         INICIO,
         "## Como o Golem trabalha aqui",
         "",
-        "<!-- Gerado pelo `.claude/golem.py aplicar`. Não edite à mão: peça \"configurar o "
-        "Golem\". -->",
+        "<!-- Gerado pelo `aplicar` do Golem. Não edite à mão: peça \"configurar o Golem\". -->",
         "",
-        f"Receita `{c['receita']}`; o guia é `docs/guia-configuracao.md`.",
+        f"Receita `{c['receita']}`; o guia " + (
+            "vem com o kit (peça \"configurar o Golem\")." if plugin
+            else "é `docs/guia-configuracao.md`."),
         "",
         "- **Revisor:** " + _etapa(c["revisor"], quando, f"o `revisor` lê {diff}")
         + ("" if c["revisor"] == "nunca" else _modelo(c["modelo_revisor"])),
@@ -300,7 +302,7 @@ def esperado(raiz: Path = RAIZ) -> dict:
     agents_md = raiz / "AGENTS.md"
     if agents_md.is_file():
         texto, fim = _ler(agents_md)
-        alvo[agents_md] = (com_bloco(texto, bloco(c)), fim)
+        alvo[agents_md] = (com_bloco(texto, bloco(c, modo_plugin(raiz))), fim)
     return alvo
 
 
@@ -321,7 +323,12 @@ def aplicar(raiz: Path = RAIZ) -> int:
         print(f"  escrito  {caminho.relative_to(raiz).as_posix()}")
         mudou += 1
     for falta in ("AGENTS.md", ".claude/agents/revisor.md", ".claude/agents/validador.md"):
-        if not (raiz / falta).is_file():
+        if (raiz / falta).is_file():
+            continue
+        if falta != "AGENTS.md" and modo_plugin(raiz):
+            print(f"  pulado   {falta}: no Golem central, o agente mora no kit, e o modelo vai na "
+                  "chamada (o bloco diz qual)")
+        else:
             print(f"  pulado   {falta}: não existe neste projeto")
     if mudou:
         print(f"  {mudou} arquivo(s) mudaram. A configuração nova vale numa conversa nova.")

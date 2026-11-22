@@ -122,6 +122,12 @@ PERMITIDAS = [
      "justifica. >>",
      "Regras do kit a partir da 13: nenhuma por ora.",
      "o kit não tem regra própria"),
+    ('| Ferramental do agente | o kit: no Golem central, o plugin, fora do projeto; na cópia, a `.claude/` (skills, agentes, ganchos, régua) |',
+     '| Ferramental do agente | `.claude/` (skills, agentes, ganchos, régua): a fonte |',
+     "no kit, o ferramental é a .claude/ do repositório; no jogo, o plugin"),
+    ('No Golem central, as skills e os agentes vêm do plugin, instalado uma vez na máquina e ligado neste\nprojeto pelo `.claude/settings.local.json`. Na cópia, ficam versionados em `.claude/skills/` e\n`.claude/agents/`, e as cópias do Codex em `.agents/skills/` e `.codex/agents/` (ver "Convenções"):\nclonar o repositório reproduz o ambiente nos dois agentes.',
+     'Versionados em `.claude/skills/` e `.claude/agents/`, e as cópias do Codex em `.agents/skills/` e\n`.codex/agents/` (no projeto que usa o kit; ver "Convenções"): clonar o repositório reproduz o\nambiente nos dois agentes.',
+     "o kit não é um jogo: as skills e os agentes dele moram na .claude/ do repositório"),
 ]
 
 

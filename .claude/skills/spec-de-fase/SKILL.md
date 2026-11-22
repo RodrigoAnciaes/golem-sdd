@@ -74,7 +74,8 @@ estabelecidos em vez de inventar novos.
 - **`requirements.md`**: escopo, fora de escopo, decisões com justificativa e alternativa
   descartada, contexto, "padrões a seguir" (o arquivo do repositório que serve de modelo), as notas
   do usuário (com as palavras dele e a data) e o teto de gasto, se houver. Modelo em
-  `templates/fase/requirements.md`, quando o projeto o tiver
+  `${CLAUDE_SKILL_DIR}/../../../templates/fase/requirements.md` (os modelos do kit), quando ele
+  existir (na cópia sem a `templates/`, siga as seções desta lista)
 - **`plan.md`**: grupos numerados de tarefas, cada grupo implementável e revisável sozinho; o
   último grupo é sempre verificação. Com o "parar a cada parte" do bloco "Como o Golem trabalha
   aqui" (`AGENTS.md`), cada grupo tem o tamanho de um arquivo ou de uma função: é o passo que o

@@ -1,13 +1,15 @@
 ---
 name: diagnostico
-description: Faz o gancho das lições achar o Python da máquina. Pergunta ao usuário se ele tem Python e onde, procura nos lugares de costume do Windows, grava o caminho no golem.local.toml da pasta principal e testa o gancho. Use quando aparecer o aviso "Gancho das lições falhou (nenhum Python 3.8+ encontrado...)", quando o usuário disser "diagnóstico do Golem", "o gancho não acha o Python", "configurar o Python" ou invocar /diagnostico.
+description: Faz o gancho das lições achar o Python da máquina. Pergunta ao usuário se ele tem Python e onde, procura nos lugares de costume do Windows, grava o caminho no golem.local.toml da pasta principal (no Golem central, no do central) e testa o gancho. Use quando aparecer o aviso "Gancho das lições falhou (nenhum Python 3.8+ encontrado...)", quando o usuário disser "diagnóstico do Golem", "o gancho não acha o Python", "configurar o Python" ou invocar /diagnostico.
 license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
 # Diagnóstico do Golem: o Python do gancho
 
-**Lê:** o `golem.local.toml` da pasta principal do repositório, se existir.
-**Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal e, com o ok do
+**Lê:** o `golem.local.toml` da pasta principal do repositório (no Golem central, o do central), se
+existir.
+**Escreve:** a linha `python = '<caminho>'` do `golem.local.toml` da pasta principal (no Golem
+central, o do central: um Python só para todos os jogos) e, com o ok do
 usuário, a linha `golem.local.toml` no `.gitignore`, se faltar, o índice das lições, se defasado,
 e, com o sim ao modo sem Python, a linha `gancho = "desligado"` no `golem.toml` da raiz (que viaja
 no git) e a linha do gancho no bloco "Como o Golem trabalha aqui" do `AGENTS.md`. Não instala nada.
@@ -19,6 +21,26 @@ instalador do Windows. Fora disso, ele não acha, e o aviso dele diz onde procur
 máquina não tem Python (lição `sem-python-no-path-nao-e-maquina-sem-python`).
 
 ## 1. Ver o que já existe
+
+Primeiro, o modo, em `sh` (esta skill roda justamente quando o Python falta):
+
+```bash
+KIT=$(cd "${CLAUDE_SKILL_DIR}/../../.." && pwd)
+[ -f "$KIT/.claude/golem.py" ] || echo "ERRO: não achei o kit em $KIT; use a pasta de 'Base directory for this skill', três níveis acima"
+raiz=$(cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && pwd)
+if [ -f "$KIT/.claude-plugin/plugin.json" ] && [ "$KIT" != "$raiz" ]; then
+    echo "modo plugin; central: ${GOLEM_CENTRAL:-$HOME/Golem}"
+else
+    echo "modo cópia: o kit mora no próprio projeto"
+fi
+```
+
+Se a primeira linha disser `ERRO`, pare: sem o kit, o modo sai errado.
+
+**No modo plugin**, o `golem.local.toml` desta skill é o do central
+(`${GOLEM_CENTRAL:-$HOME/Golem}/golem.local.toml`), fora de qualquer git: leia e grave nele, e pule a
+conferência do `.gitignore`. Mostre também a linha `python` do `golem.local.toml` do jogo, se
+houver: o gancho a lê antes da do central, e uma linha quebrada ali esconde a do central. Na cópia, siga como está abaixo, pela pasta principal.
 
 ```bash
 principal=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
@@ -81,7 +103,8 @@ ls "$LOCALAPPDATA"/Programs/Python/Python3*/python.exe \
 
 ## 5. Gravar
 
-No `golem.local.toml` da pasta principal, troque a linha `python` que já houver. Se o arquivo
+No `golem.local.toml` da pasta principal (no modo plugin, no do central), troque a linha `python`
+que já houver. Se o arquivo
 existe sem ela, acrescente-a. Se não existe, crie-o com:
 
 ```toml
@@ -114,7 +137,7 @@ Se o usuário não quiser instalar agora, ofereça o **modo sem Python**: a linh
 ser buscadas à mão em `docs/licoes/`. A mudança (a linha e o arquivo em que ela entra) vai no
 texto da própria oferta. Com o sim, ponha a linha `gancho = "desligado"` no `golem.toml` da raiz
 (crie o arquivo se não existir); o resto da
-configuração fica como está (`docs/guia-configuracao.md`). Sem Python, o `aplicar` não roda: troque
+configuração fica como está (`${CLAUDE_SKILL_DIR}/../../../docs/guia-configuracao.md`). Sem Python, o `aplicar` não roda: troque
 à mão, no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, só a linha do gancho por esta, que é
 a que o `aplicar` gera:
 
@@ -130,7 +153,7 @@ Python.
 ## 7. Testar o gancho
 
 ```bash
-echo '{"tool_input":{"command":"pytest -q"}}' | sh "$(git rev-parse --show-toplevel)/.claude/hooks/gancho.sh"
+echo '{"tool_input":{"command":"pytest -q"}}' | sh "${CLAUDE_SKILL_DIR}/../../hooks/gancho.sh"
 ```
 
 - A entrada vai **sem** `session_id`: assim, o gancho não esconde a lição nem o aviso numa segunda
@@ -144,7 +167,7 @@ echo '{"tool_input":{"command":"pytest -q"}}' | sh "$(git rev-parse --show-tople
     teste não diz nada sobre ele. Mostre o motivo ao usuário: falta o arquivo do kit.
 - Se a saída traz uma lição, ou sai vazia, o Python rodou. Vazia quer dizer só que nenhuma lição
   casa com `pytest` neste projeto.
-- Com o Python rodando, confira o índice das lições: `"<o Python gravado>" .claude/regua.py
+- Com o Python rodando, confira o índice das lições: `"<o Python gravado>" "${CLAUDE_SKILL_DIR}/../../regua.py"
   --conferir`. Lição escrita enquanto não havia Python fica fora do índice, e o gancho, que lê o
   índice, nunca a entrega. Se o `--conferir` acusar, peça o ok para regerar, com a saída dele no
   texto da pergunta. Com o ok, o `git add` das lições e o `--gerar`, como na skill `licao`, e diga

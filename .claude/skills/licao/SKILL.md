@@ -70,8 +70,9 @@ Regras de escrita:
   fuso horário" não serve; "se a consulta marcada aparece uma hora adiantada só nas datas depois
   da mudança de horário, o servidor está gravando em hora local" serve.
 - **Vocabulário controlado** de `area` e `tipo`: use os valores do README. Valor novo exige
-  atualizar o `docs/licoes/README.md` e o `AREAS_VALIDAS` ou o `TIPOS_VALIDOS` do
-  `.claude/regua.py` no mesmo commit.
+  atualizar o `docs/licoes/README.md` e o `AREAS_VALIDAS` ou o `TIPOS_VALIDOS` da régua
+  (`${CLAUDE_SKILL_DIR}/../../regua.py`) no mesmo commit. No Golem central, a régua é do kit: o
+  valor novo vira um pedido ao kit.
 
 ### `gatilho:` e `gatilhos:` são campos diferentes
 
@@ -109,8 +110,8 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 
 ```bash
 git add docs/licoes/<id>.md
-python3 .claude/regua.py --gerar      # no Windows, python ou py -3
-python3 .claude/regua.py --conferir
+python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --gerar      # no Windows, python ou py -3
+python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir
 ```
 
 **Não é opcional.** O gancho, que entrega as lições a cada ação, lê `.claude/indice/licoes.yaml`,
@@ -132,13 +133,13 @@ que **deve** recebê-la (o caminho ou o comando que o `gatilhos:` descreve, ou u
 procure o id na saída:
 
 ```bash
-echo '{"tool_input":{"file_path":"<caminho da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
-echo '{"tool_input":{"command":"<comando da ação>"}}' | sh .claude/hooks/gancho.sh | grep -o '\*\*<id>\*\*'
+echo '{"tool_input":{"file_path":"<caminho da ação>"}}' | sh "${CLAUDE_SKILL_DIR}/../../hooks/gancho.sh" | grep -o '\*\*<id>\*\*'
+echo '{"tool_input":{"command":"<comando da ação>"}}' | sh "${CLAUDE_SKILL_DIR}/../../hooks/gancho.sh" | grep -o '\*\*<id>\*\*'
 ```
 
 - O id tem de sair. Se não sair, o gatilho não alcança a ação em que o erro acontece: corrija os
   `gatilhos:` (ou a `area`), regere o índice e rode de novo. Se a saída traz outras lições e não
-  esta, pode ser o teto de lições por ação (`gancho_teto`, no `docs/guia-configuracao.md`): a que
+  esta, pode ser o teto de lições por ação (`gancho_teto`, no `${CLAUDE_SKILL_DIR}/../../../docs/guia-configuracao.md`): a que
   casa por `gatilhos:` vem antes das que vêm só pela área.
 - Com `gatilhos:`, rode também as três ações comuns que **não** devem receber a lição (o passo
   2): nenhuma deve trazer o id. Sem eles, a lição chega em toda ação da área, por desenho.

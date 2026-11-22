@@ -141,7 +141,9 @@ def test_aplicar_troca_so_o_que_esta_entre_as_marcas(copia_do_kit):
     escrever(copia_do_kit, 'receita = "so-eu"\n')
     assert golem.aplicar(copia_do_kit) == 0
     texto = (copia_do_kit / "AGENTS.md").read_text(encoding="utf-8")
-    assert texto == antes + golem.bloco(golem.configuracao(copia_do_kit)) + depois[1:], texto
+    # o módulo é o do kit, que tem o manifesto: chamado com outra raiz, é o modo plugin
+    esperado = golem.bloco(golem.configuracao(copia_do_kit), golem.modo_plugin(copia_do_kit))
+    assert texto == antes + esperado + depois[1:], texto
     assert "lixo velho" not in texto and "Receita `so-eu`" in texto
 
 
@@ -279,7 +281,10 @@ def test_o_aplicar_do_kit_trabalha_no_jogo_e_acusa_o_central_com_erro(plugin):
     agentes_antes = (plugin.kit / ".claude" / "agents" / "revisor.md").read_bytes()
     r = plugin.rodar("golem.py", "aplicar")
     assert r.returncode == 0, r.stdout + r.stderr
-    assert golem.INICIO in (plugin.jogo / "AGENTS.md").read_text(encoding="utf-8")
+    texto = (plugin.jogo / "AGENTS.md").read_text(encoding="utf-8")
+    assert golem.INICIO in texto and 'o guia vem com o kit (peça "configurar o Golem")' in texto
+    assert "docs/guia-configuracao.md" not in texto, "o guia não vai ao jogo"
+    assert "o agente mora no kit, e o modelo vai na chamada" in r.stdout, r.stdout
     assert (plugin.kit / ".claude" / "agents" / "revisor.md").read_bytes() == agentes_antes
     assert (plugin.jogo / ".claude" / "indice" / "licoes.yaml").is_file()   # a régua, no fixture
     assert not (plugin.kit / ".claude" / "indice").exists()

@@ -154,9 +154,10 @@ Novos comandos do `golem.py` (a skill chama; quem não tem Python faz à mão, p
   `AGENTS.md` de cada jogo. Um jogo cuja pasta sumiu sai com um aviso, e os outros seguem.
 - **`onde`**: diz em poucas linhas a raiz do projeto, o modo (plugin ou cópia), o central e de
   onde vem cada linha da configuração (do central ou do jogo). Quem o usa nesta fase: a
-  `configurar` e o `diagnostico`, para saber se estão no modo plugin e em que pasta gravar (o
-  `golem.toml` e o `golem.local.toml` do central, ou os do projeto), sem repetir na skill a regra
-  do central (R2). Não é o "onde está tudo?" (T1) da fase 7.
+  `configurar`, depois do `aplicar`, para mostrar ao usuário o que vale do central e o que vale do
+  jogo. O modo, a `configurar` e o `diagnostico` sabem por uma conferência em `sh`, porque o
+  `diagnostico` roda sem Python (alteração de 2026-11-22, no `plan.md`). Não é o "onde está tudo?"
+  (T1) da fase 7.
 - **O `jogos.md`** é uma tabela em Markdown (Jogo, Pasta, Registrado em), legível pelo usuário e
   buscável. O nome não aceita `|` nem quebra de linha.
 

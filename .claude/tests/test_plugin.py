@@ -6,6 +6,7 @@ onde o kit também os usa para se desenvolver. O `.claude/hooks/hooks.json` é o
 `.claude/settings.json` com o lançador no `${CLAUDE_PLUGIN_ROOT}`: os dois não podem divergir.
 """
 import json
+import re
 
 from conftest import RAIZ
 from test_credito import NOME, URL
@@ -56,3 +57,45 @@ def test_o_gancho_do_plugin_e_o_do_settings_com_o_lancador_trocado():
             assert gancho["command"].startswith(LANCADOR_DO_PROJETO), gancho["command"][:80]
             gancho["command"] = LANCADOR_DO_PLUGIN + gancho["command"][len(LANCADOR_DO_PROJETO):]
     assert _json(RAIZ / ".claude" / "hooks" / "hooks.json") == {"hooks": settings}
+
+
+# ------------------------------------------- as skills acham o kit pela pasta delas (G4)
+
+SKILLS = RAIZ / ".claude" / "skills"
+DO_KIT = re.compile(r"\.claude/(golem|regua|instalar_codex)\.py|\.claude/hooks/")
+# A única menção sem o prefixo: o texto literal do aviso do gancho, citado pela `diagnostico`.
+CITACOES = ('"não achei .claude/hooks/licoes_relevantes.py"',)
+
+
+def _arquivos_md():
+    return sorted(list(SKILLS.rglob("*.md")) + list((RAIZ / ".claude" / "agents").glob("*.md")))
+
+
+def test_nenhuma_skill_nem_agente_chama_um_arquivo_do_kit_pelo_caminho_do_projeto():
+    """No plugin, o jogo não tem `.claude/regua.py` nem `.claude/hooks/`: o caminho sai da pasta da
+    skill (`${CLAUDE_SKILL_DIR}/../../regua.py`, que não cita `.claude/`, ou
+    `${CLAUDE_SKILL_DIR}/../../../.claude/regua.py`) ou do `$KIT` que a `iniciar-sdd` calcula dela."""
+    soltas = []
+    for md in _arquivos_md():
+        for n, linha in enumerate(md.read_text(encoding="utf-8").splitlines(), 1):
+            if any(c in linha for c in CITACOES):
+                continue
+            for m in DO_KIT.finditer(linha):
+                antes = linha[:m.start()]
+                if not (antes.endswith("${CLAUDE_SKILL_DIR}/../../../") or antes.endswith("$KIT/")):
+                    soltas.append(f"{md.relative_to(RAIZ).as_posix()}:{n}: {linha.strip()}")
+    assert not soltas, "chamadas pelo caminho do projeto:\n" + "\n".join(soltas)
+
+
+def test_todo_caminho_pela_pasta_da_skill_existe_no_kit():
+    faltam = []
+    for md in sorted(SKILLS.glob("*/SKILL.md")):
+        for m in re.finditer(r"\$\{CLAUDE_SKILL_DIR\}((?:/\.\.)+)/([\w./-]*\w)", md.read_text(encoding="utf-8")):
+            subidas, resto = m.group(1).count(".."), m.group(2)
+            if subidas not in (2, 3):
+                faltam.append(f"{md.parent.name}: sobe {subidas} pastas ({m.group(0)})")
+                continue
+            alvo = (md.parent / m.group(1).lstrip("/") / resto).resolve()
+            if not alvo.exists():
+                faltam.append(f"{md.parent.name}: {m.group(0)} -> {alvo}")
+    assert not faltam, "\n".join(faltam)

@@ -9,7 +9,8 @@
 A fonte é uma só, `.claude/`. As cópias vão para o Git, e o `--conferir` (no CI, ou antes do
 commit) impede que elas envelheçam caladas:
 
-- `.claude/skills/<nome>/**`  ->  `.agents/skills/<nome>/**` (o Codex lê as skills dali);
+- `.claude/skills/<nome>/**`  ->  `.agents/skills/<nome>/**` (o Codex lê as skills dali), com o
+  `${CLAUDE_SKILL_DIR}` trocado pela raiz do git (`TROCAS_DO_CODEX`);
 - `.claude/agents/<nome>.md`  ->  `.codex/agents/<nome>.toml` (frontmatter -> `name` e
   `description`; o corpo -> `developer_instructions`);
 - o gancho das lições          ->  `.codex/hooks.json`, com duas entradas `PreToolUse`, uma para
@@ -94,12 +95,29 @@ def hooks_json() -> str:
     return json.dumps(config, ensure_ascii=False, indent=2) + "\n"
 
 
+# As skills acham os arquivos do kit pela pasta delas (`${CLAUDE_SKILL_DIR}`, fase 3), que o Codex
+# não conhece. Na cópia, o kit mora no projeto: o caminho passa a sair da raiz do git, que também
+# funciona de uma subpasta. O mais longo primeiro.
+TROCAS_DO_CODEX = (
+    (b"${CLAUDE_SKILL_DIR}/../../../", b"$(git rev-parse --show-toplevel)/"),
+    (b"${CLAUDE_SKILL_DIR}/../../", b"$(git rev-parse --show-toplevel)/.claude/"),
+)
+
+
+def para_o_codex(dados: bytes) -> bytes:
+    for de, para in TROCAS_DO_CODEX:
+        dados = dados.replace(de, para)
+    return dados
+
+
 def esperado() -> dict:
     """{caminho de destino: bytes} de tudo o que as cópias devem conter."""
     alvo = {}
     for f in sorted(FONTE_SKILLS.rglob("*")):
         if f.is_file() and "__pycache__" not in f.parts:
-            alvo[DEST_SKILLS / f.relative_to(FONTE_SKILLS)] = f.read_bytes()
+            dados = f.read_bytes()
+            alvo[DEST_SKILLS / f.relative_to(FONTE_SKILLS)] = (
+                para_o_codex(dados) if f.suffix == ".md" else dados)
     for md in sorted(FONTE_AGENTES.glob("*.md")):
         nome, toml = agente_toml(md)
         alvo[DEST_AGENTES / f"{nome}.toml"] = toml.encode("utf-8")

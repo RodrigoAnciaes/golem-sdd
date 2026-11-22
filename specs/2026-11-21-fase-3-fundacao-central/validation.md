@@ -19,6 +19,7 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
   - **G1:** `150 passed`, sem pulados (134 + 16).
   - **G2:** `154 passed`, sem pulados (150 + 4).
   - **G3:** `164 passed`, sem pulados (154 + 10).
+  - **G4:** `166 passed`, sem pulados (164 + 2).
 - [ ] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`.
 - [ ] `"$PYR" .claude/golem.py aplicar`, no kit → `nada mudou`, e o `git status --short` continua
   igual: o kit não está no modo plugin (R2).

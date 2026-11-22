@@ -94,30 +94,32 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
 
 ## G4 — As skills, os agentes e o modelo do `AGENTS.md` (R4)
 
-- [ ] A busca do que trocar, pelo arquivo e não pelo jeito de chamar:
+- [x] A busca do que trocar, pelo arquivo e não pelo jeito de chamar:
   `grep -rnE '\.claude/(golem|regua|instalar_codex)\.py|\.claude/hooks/|templates/|docs/guia-' .claude/skills .claude/agents`.
   Cada ocorrência que aponta um arquivo do kit passa ao `${CLAUDE_SKILL_DIR}`; o que mora no jogo
   fica, e cada linha que sobrar se justifica no PR.
-- [ ] `.claude/skills/iniciar-sdd/SKILL.md`: o fluxo no central (R4) e a variante da cópia.
-- [ ] `.claude/skills/configurar/SKILL.md`: o `onde` para saber o modo; no modo plugin, o central
+- [x] `.claude/skills/iniciar-sdd/SKILL.md`: o fluxo no central (R4) e a variante da cópia.
+- [x] `.claude/skills/configurar/SKILL.md`: o modo pela conferência em `sh` (como a `diagnostico`), e o `onde` depois do `aplicar`, para mostrar de onde vem cada linha; no modo plugin, o central
   por padrão, o `aplicar --todos`, o "só neste jogo" e a linha `python` lida também do central.
-- [ ] `.claude/skills/diagnostico/SKILL.md`: o `onde` para saber o modo; a linha `python` no
+- [x] `.claude/skills/diagnostico/SKILL.md`: o modo pela conferência em `sh` (ela roda justamente sem Python); a linha `python` no
   central, no modo plugin.
-- [ ] `.claude/skills/implementar-fase/SKILL.md` e `validar-fase/SKILL.md`: o modelo do bloco
+- [x] `.claude/skills/implementar-fase/SKILL.md` e `validar-fase/SKILL.md`: o modelo do bloco
   passado na chamada do revisor e do validador, e o agente pelo nome que a sessão lista
   (`golem:revisor` no plugin).
-- [ ] `.claude/golem.py`: o `bloco` no modo plugin aponta o guia pelo pedido, e o comentário
+- [x] `.claude/golem.py`: o `bloco` no modo plugin aponta o guia pelo pedido, e o comentário
   gerado (`:154`) sai sem o caminho; o `aplicar`, no modo plugin, diz que o modelo vai na chamada
   em vez de "pulado … não existe neste projeto".
-- [ ] `templates/AGENTS.md` e `AGENTS.md`: a regra 11 (o modelo na chamada) e as linhas do R4, o
+- [x] `templates/AGENTS.md` e `AGENTS.md`: a regra 11 (o modelo na chamada) e as linhas do R4, o
   mesmo texto nos dois; a `PERMITIDAS` do conciliador, se alguma diferença permitida mudar.
-- [ ] `.claude/instalar_codex.py`: a troca do `${CLAUDE_SKILL_DIR}` nas cópias, e o teste.
-- [ ] Testes: o `${CLAUDE_SKILL_DIR}` só aparece na forma `…/../../` ou `…/../../../` e aponta para
+- [x] `.claude/instalar_codex.py`: a troca do `${CLAUDE_SKILL_DIR}` nas cópias, e o teste.
+- [x] Testes: o `${CLAUDE_SKILL_DIR}` só aparece na forma `…/../../` ou `…/../../../` e aponta para
   um arquivo que existe no kit; nenhuma skill nem agente cita `.claude/golem.py`,
   `.claude/regua.py`, `.claude/instalar_codex.py` ou `.claude/hooks/` sem o `${CLAUDE_SKILL_DIR}`
   na frente.
-- [ ] `python .claude/instalar_codex.py --conferir`, numa cópia com as cópias geradas, e a suíte
-  inteira.
+- [x] `python .claude/instalar_codex.py --conferir`, numa cópia com as cópias geradas (`ok       24
+  arquivos do Codex batem com .claude/`, nenhum `CLAUDE_SKILL_DIR` nas cópias), e a suíte inteira:
+  `166 passed`, sem pulados (164 + 2 do `test_plugin.py`; os testes do Codex e do `aplicar` mudaram
+  de forma, sem contar a mais).
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 
@@ -152,4 +154,5 @@ fato contra a fonte. Se ganhar código, volta ao caminho completo.
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
+| 2026-11-22 | A `diagnostico` e a `configurar` sabem o modo por uma conferência em `sh` (a pasta do kit tem o manifesto e é outra que a raiz), e não pelo `onde`; o `onde` fica na `configurar`, depois do `aplicar`, para mostrar ao usuário de onde vem cada linha | a `diagnostico` roda justamente quando o Python falta, e o `onde` pede Python; a `configurar` acha o Python só no passo 4 | o agente, dentro do R3 e do R4 (detalhe de implementação) |
 | 2026-11-22 | O modo plugin pede também que a pasta do kit seja o plugin (tenha o manifesto), e não só que a raiz seja outra | o revisor do G1: sem isso, a cópia do Codex, sem o manifesto, entraria no modo plugin ao ser chamada com outra raiz; a cópia e o kit não mudam, como o R2 já dizia. Na suíte, o kit tem o manifesto depois do G2, e quem a protege do central da máquina é o `GOLEM_CENTRAL` do `conftest.py` | o agente, dentro do R2 (detalhe de implementação) |
