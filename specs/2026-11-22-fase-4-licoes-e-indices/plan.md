@@ -102,7 +102,7 @@ Só documentação: caminho rápido, só o revisor.
 - [x] Os comandos do `validation.md`, com a linha de resumo lida, e a saída de cada critério
   colada nele.
 - [x] As verificações manuais do `validation.md`.
-- [ ] O guardião sobre o diff inteiro do PR.
+- [x] O guardião sobre o diff inteiro do PR.
 - [ ] A `validar-fase`: o roteiro marcado, o PR aberto e o PEDIDO à GER. A linha da fase 4 na
   seção 7 é a nova do PR da GER, que termina em "o acervo geral é da fase 4b (decisão 14)".
 

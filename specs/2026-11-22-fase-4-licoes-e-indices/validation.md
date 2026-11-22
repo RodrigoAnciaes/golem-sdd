@@ -158,8 +158,10 @@ do gancho vêm em JSON; abaixo, o `additionalContext` decodificado.
 - [x] O conciliador passa sem entrada nova em `PERMITIDAS` (a regra 7 igual nos dois `AGENTS.md`).
   Prova: o `git diff "$BASE"..HEAD --stat -- .claude/tests/test_conciliar.py` sai vazio, e o
   `test_conciliar.py` passa.
-- [ ] Nenhum nome de cliente, de outro projeto ou de pessoa nos arquivos da fase:
-  `git diff "$BASE"..HEAD` lido pelo guardião.
+- [x] Nenhum nome de cliente, de outro projeto ou de pessoa nos arquivos da fase:
+  `git diff "$BASE"..HEAD` lido pelo guardião. Prova: o guardião sobre `421b7b6..6aa2b28`, na
+  segunda rodada, "sem bloqueio" (a primeira achou um nome de pessoa e o de outro projeto na spec,
+  corrigidos no `6aa2b28`); o `git grep -i -E "rodrigo|psi"` na pasta da spec sai vazio.
 
 ## Registro
 
