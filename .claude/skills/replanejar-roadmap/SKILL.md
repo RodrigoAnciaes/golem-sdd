@@ -36,7 +36,8 @@ Apresente ao usuário, **sem mexer em nada ainda**:
 | Faltando | trabalho descoberto na prática e ainda não planejado |
 | Fora de ordem | dependência externa ou decisão pendente que deveria vir antes |
 
-Use o teste de tamanho de fase e as regras de ordenação de `constituicao/references/roadmap.md`.
+Use o teste de tamanho de fase e as regras de ordenação de
+`${CLAUDE_SKILL_DIR}/../../skills/constituicao/references/roadmap.md`.
 
 Cada proposta vai como cartão de decisão: o problema, as opções com a consequência, a recomendada
 primeiro e o porquê. Uma decisão aberta por mensagem quando elas não dependem uma da outra.

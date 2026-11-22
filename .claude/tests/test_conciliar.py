@@ -108,7 +108,8 @@ PERMITIDAS = [
      "só o repositório do kit deixa de versionar as cópias do Codex"),
     ("- << convenções do projeto: estrutura de pastas, nomes, tratamento de erro >>",
      "- Nenhum nome de cliente, de outro projeto ou de pessoa entra no kit, fora do crédito (a linha de\n"
-     "  crédito, o `LICENSE` e a seção \"Licença e crédito\" do `README.md`).",
+     "  crédito, o `LICENSE`, o `author` e o `owner` dos manifestos em `.claude-plugin/` e a seção\n"
+     "  \"Licença e crédito\" do `README.md`).",
      "a convenção do kit sobre nomes"),
     ("Algo fora de `specs/tech-stack.md`,\n   inclusive",
      "Algo fora da linha **Stack** dos\n   \"Comandos reais\", inclusive",
@@ -121,6 +122,12 @@ PERMITIDAS = [
      "justifica. >>",
      "Regras do kit a partir da 13: nenhuma por ora.",
      "o kit não tem regra própria"),
+    ('| Ferramental do agente | o kit: no Golem central, o plugin, fora do projeto; na cópia, a `.claude/` (skills, agentes, ganchos, régua) |',
+     '| Ferramental do agente | `.claude/` (skills, agentes, ganchos, régua): a fonte |',
+     "no kit, o ferramental é a .claude/ do repositório; no jogo, o plugin"),
+    ('No Golem central, as skills e os agentes vêm do plugin, instalado uma vez na máquina e ligado neste\nprojeto pelo `.claude/settings.local.json`. Na cópia, ficam versionados em `.claude/skills/` e\n`.claude/agents/`, e as cópias do Codex em `.agents/skills/` e `.codex/agents/` (ver "Convenções"):\nclonar o repositório reproduz o ambiente nos dois agentes.',
+     'Versionados em `.claude/skills/` e `.claude/agents/`, e as cópias do Codex em `.agents/skills/` e\n`.codex/agents/` (no projeto que usa o kit; ver "Convenções"): clonar o repositório reproduz o\nambiente nos dois agentes.',
+     "o kit não é um jogo: as skills e os agentes dele moram na .claude/ do repositório"),
 ]
 
 

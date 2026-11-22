@@ -36,18 +36,22 @@ no Studio e deixa um programa de fora conversar com ele.
 
 ## 2. Preparar a pasta do projeto (uma vez)
 
-Uma pasta por jogo, com `git init`. Dentro dela, o kit e os modelos de Roblox. Hoje, o kit se copia
-para a pasta; isto muda quando o kit virar plugin (a fundação do Golem central). Com o kit copiado:
+Uma pasta por jogo, com `git init`. No Golem central, a skill `iniciar-sdd` cria e prepara essa
+pasta ("registrar um jogo", no `README.md`), e os modelos de Roblox ficam no kit, em
+`<pasta do kit>/templates/roblox/`. Na cópia (o kit dentro do projeto), eles vêm na `templates/`
+copiada. Abaixo, `templates/roblox/` quer dizer `<pasta do kit>/templates/roblox/` no Golem central.
 
-- copie também a pasta `templates/roblox/` do kit para `templates/roblox/` no projeto: o README
-  chama a `templates/` de opcional, mas para um jogo ela não é, porque o agente tira dela o
-  `Executor.luau` quando você pede o executor de testes;
+- na cópia, copie também a pasta `templates/roblox/` do kit para `templates/roblox/` no projeto: o
+  README chama a `templates/` de opcional, mas para um jogo ela não é, porque o agente tira dela o
+  `Executor.luau` quando você pede o executor de testes. No Golem central, ao pedir o executor, diga
+  ao agente onde ele está (`<pasta do kit>/templates/roblox/Executor.luau`);
 - troque o bloco "Comandos reais" do `AGENTS.md` pelo `templates/roblox/comandos-reais.md`;
 - copie `templates/roblox/tech-stack.md` para `specs/tech-stack.md` e ajuste ao seu jogo;
 - copie as lições de `templates/roblox/licoes/` para `docs/licoes/`, e o
   `templates/roblox/regras-de-area.md` para `docs/regras-de-area.md` (os riscos do Roblox, que o
   agente avisa quando o seu pedido bate num deles);
-- rode `git add docs/licoes docs/regras-de-area.md` e depois `python .claude/regua.py --gerar`: o
+- rode `git add docs/licoes docs/regras-de-area.md` e depois a régua (`python .claude/regua.py
+  --gerar` na cópia; no Golem central, `python <pasta do kit>/.claude/regua.py --gerar`): o
   gancho lê as lições pelo índice, a régua só indexa o que o git conhece, e uma lição copiada sem
   esses dois passos não chega.
 

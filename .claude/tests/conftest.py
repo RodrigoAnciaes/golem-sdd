@@ -20,10 +20,18 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 
 import pytest
+
+# A suíte não lê a sessão de quem a roda nem o Golem central da máquina (fase 3): sem o
+# `CLAUDE_PROJECT_DIR`, o gancho acha a raiz como fora do harness; e o `GOLEM_CENTRAL` aponta uma
+# pasta que não existe. Os testes do central põem o deles no `env` de cada chamada.
+os.environ.pop("CLAUDE_PROJECT_DIR", None)
+os.environ["GOLEM_CENTRAL"] = os.path.join(tempfile.gettempdir(),
+                                           f"golem-central-da-suite-{uuid.uuid4().hex[:8]}")
 
 RAIZ = Path(__file__).resolve().parents[2]
 GANCHO = RAIZ / ".claude" / "hooks" / "licoes_relevantes.py"
@@ -157,3 +165,59 @@ def copia_do_kit(tmp_path) -> Path:
     modelo = RAIZ / "templates" / "AGENTS.md"
     shutil.copy2(modelo if modelo.is_file() else RAIZ / "AGENTS.md", destino / "AGENTS.md")
     return destino
+
+
+def escrever_licao(pasta: Path, ident: str, gatilho: str = r"'\bpytest\b'") -> Path:
+    """Uma lição mínima em `<pasta>/docs/licoes/`, que casa com o gatilho dado."""
+    destino = pasta / "docs" / "licoes" / f"{ident}.md"
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text(
+        f"---\nid: {ident}\ndata: 2026-01-01\narea: processo\ntipo: armadilha\n"
+        f'custo: "x"\ngatilho: "x"\ngatilhos:\n  - {gatilho}\nrefs:\n  - x\n---\n\n'
+        f"**O que se achava:** x.\n\n**O que é:** y.\n\n"
+        f"**Como perceber da próxima vez:** sinal de {ident}.\n", encoding="utf-8")
+    return destino
+
+
+class Plugin:
+    """O Golem central numa árvore descartável (fase 3).
+
+    - `kit`: a `.claude/` do kit com o manifesto do plugin e uma lição só dele (`licao-do-kit`);
+    - `jogo`: um repositório git com uma lição própria (`licao-do-jogo`), o índice gerado pela
+      régua DO KIT rodada na pasta do jogo, e nenhum script do kit;
+    - `central`: a pasta do Golem central (não existe até o teste a criar);
+    - `env`: o `AMBIENTE` com o `GOLEM_CENTRAL` no central.
+    """
+
+    def __init__(self, base: Path):
+        self.kit = base / "kit-plugin"
+        shutil.copytree(RAIZ / ".claude", self.kit / ".claude",
+                        ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache", "tests",
+                                                      "indice", "gancho-falhas.log"))
+        (self.kit / ".claude-plugin").mkdir()
+        (self.kit / ".claude-plugin" / "plugin.json").write_text('{"name": "golem"}\n',
+                                                                  encoding="utf-8")
+        escrever_licao(self.kit, "licao-do-kit")
+        self.central = base / "Golem"
+        self.env = {**AMBIENTE, "GOLEM_CENTRAL": str(self.central)}
+        self.jogo = base / "jogo"
+        self.jogo.mkdir()
+        git = shutil.which("git")
+        if not git:
+            pytest.skip("sem git no PATH")
+        subprocess.run([git, "init", "-q"], cwd=self.jogo, check=True, capture_output=True)
+        escrever_licao(self.jogo, "licao-do-jogo")
+        subprocess.run([git, "add", "docs"], cwd=self.jogo, check=True, capture_output=True)
+        r = self.rodar("regua.py", "--gerar")
+        assert r.returncode == 0, r.stdout + r.stderr
+
+    def rodar(self, script: str, *args, cwd=None, env=None) -> subprocess.CompletedProcess:
+        """Um script do kit (`golem.py`, `regua.py`) com a pasta corrente no jogo (ou em `cwd`)."""
+        return subprocess.run([sys.executable, str(self.kit / ".claude" / script), *args],
+                              capture_output=True, text=True, encoding="utf-8",
+                              cwd=cwd or self.jogo, env=env or self.env)
+
+
+@pytest.fixture
+def plugin(tmp_path) -> Plugin:
+    return Plugin(tmp_path)

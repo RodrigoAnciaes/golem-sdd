@@ -7,12 +7,18 @@
 # comando sai 127, o `|| true` esconde, e a sessão inteira trabalha sem lição sem ninguém saber.
 #
 # O que faz:
-#   1. se localiza pelo próprio caminho: a raiz do projeto é `../..` daqui (nunca depende do cwd);
-#      com `gancho = "desligado"` no golem.toml da raiz (o modo sem Python), sai calado aqui;
+#   1. acha a raiz do projeto: o `CLAUDE_PROJECT_DIR` (o que o harness passa ao gancho), quando é
+#      uma pasta; sem ele, `../..` daqui (a posição), salvo quando a posição é o plugin do Golem
+#      (tem `.claude-plugin/plugin.json`): aí, o git da pasta corrente, como as skills o rodam pelo
+#      Bash. No modo plugin (o kit é o plugin e o projeto é outro), vale também o Golem central
+#      (`$GOLEM_CENTRAL`, senão `$HOME/Golem`, a mesma regra do `golem.py`). Com
+#      `gancho = "desligado"` no golem.toml (o do central por baixo do da raiz; vale a última
+#      linha), sai calado aqui (o modo sem Python);
 #   2. procura um Python, nesta ordem, e só aceita o candidato que RODA um Python 3.8+ de verdade
 #      (senão passa ao próximo):
 #        a. a linha `python = '<caminho>'` do `golem.local.toml` (fora do git) da raiz ou, se a
-#           raiz não tiver a linha, da PASTA PRINCIPAL; quem a grava é a skill `diagnostico`;
+#           raiz não tiver a linha, da PASTA PRINCIPAL e, no modo plugin, do central; quem a
+#           grava é a skill `diagnostico`;
 #        b. o `.venv` da raiz;
 #        c. o `.venv` da PASTA PRINCIPAL do repositório (o pai de `git rev-parse --git-common-dir`),
 #           para quem trabalha em worktree;
@@ -32,29 +38,43 @@
 # ⚠️ Nada de junction/symlink de `.venv` dentro do worktree: um `git clean -x` pode atravessar o
 # link e apagar o venv da pasta principal. A resolução é por caminho.
 # ⚠️ Este arquivo tem de ter fim de linha LF. No `.gitattributes`: `*.sh text eol=lf`. Com CRLF o
-# `sh` quebra antes de chegar aqui, e aí quem avisa é o `|| printf` do settings.json.
+# `sh` quebra antes de chegar aqui, e aí quem avisa é o `|| printf` do settings.json (ou do
+# `.claude/hooks/hooks.json`, no plugin).
 
 aqui=$(cd "$(dirname "$0")" && pwd)
-raiz=$(cd "$aqui/../.." && pwd)
+kit=$(cd "$aqui/../.." && pwd)
 # Sem o próprio caminho (o lançador lido por `sh -c "$(cat …)"`, ou por um agente que não o
-# chama pelo arquivo), a raiz vem do git, a partir da pasta corrente; vale para o Claude Code sem
+# chama pelo arquivo), o kit vem do git, a partir da pasta corrente; vale para o Claude Code sem
 # `CLAUDE_PROJECT_DIR` e para o Codex, que não tem essa variável.
 if [ ! -f "$aqui/licoes_relevantes.py" ]; then
     topo=$(git rev-parse --show-toplevel 2>/dev/null)
     if [ -n "$topo" ] && [ -f "$topo/.claude/hooks/licoes_relevantes.py" ]; then
-        raiz=$(cd "$topo" && pwd)
-        aqui="$raiz/.claude/hooks"
+        kit=$(cd "$topo" && pwd)
+        aqui="$kit/.claude/hooks"
     fi
+fi
+raiz=$kit
+if [ -n "$CLAUDE_PROJECT_DIR" ] && [ -d "$CLAUDE_PROJECT_DIR" ]; then
+    raiz=$(cd "$CLAUDE_PROJECT_DIR" && pwd)
+elif [ -f "$kit/.claude-plugin/plugin.json" ]; then
+    topo=$(git rev-parse --show-toplevel 2>/dev/null)
+    raiz=$(cd "${topo:-.}" && pwd)
+fi
+central=""
+if [ -f "$kit/.claude-plugin/plugin.json" ] && [ "$raiz" != "$kit" ]; then
+    central=${GOLEM_CENTRAL:-$HOME/Golem}
 fi
 
 # O modo sem Python: `gancho = "desligado"` (ou entre aspas simples) no golem.toml da raiz desliga
 # o gancho antes de procurar o Python, calado, sem aviso nem log. É lido aqui, em sh, para valer
-# numa máquina sem Python. Vale a ÚLTIMA linha `gancho`, como no `.claude/golem.py`; a chave só
+# numa máquina sem Python. Vale a ÚLTIMA linha `gancho`, como no `.claude/golem.py`; no modo
+# plugin, o golem.toml do central é lido antes do da raiz, e a linha da raiz vence. A chave só
 # vale seguida de espaços opcionais e `=` (o `gancho_teto` não conta). O `\r` de um arquivo em
 # CRLF e um comentário depois do valor são tolerados.
 cr=$(printf '\r')
 valor_gancho=""
-if [ -f "$raiz/golem.toml" ]; then
+ler_linha_gancho() {
+    [ -f "$1" ] || return 0
     while read -r linha || [ -n "$linha" ]; do
         case $linha in
             gancho*=*) ;;
@@ -67,8 +87,10 @@ if [ -f "$raiz/golem.toml" ]; then
         esac
         valor_gancho=${linha#*=}
         valor_gancho=${valor_gancho#"${valor_gancho%%[! 	]*}"}
-    done < "$raiz/golem.toml"
-fi
+    done < "$1"
+}
+[ -z "$central" ] || ler_linha_gancho "$central/golem.toml"
+ler_linha_gancho "$raiz/golem.toml"
 case $valor_gancho in
     '"desligado"' | '"desligado"'[' 	#'"$cr"]* | "'desligado'" | "'desligado'"[' 	#'"$cr"]*)
         exit 0 ;;
@@ -203,7 +225,8 @@ comum=$(git -C "$raiz" rev-parse --path-format=absolute --git-common-dir 2>/dev/
 py=""
 linha_quebrada=""
 if ler_linha_python "$raiz/golem.local.toml" \
-    || { [ -n "$principal" ] && ler_linha_python "$principal/golem.local.toml"; }; then
+    || { [ -n "$principal" ] && ler_linha_python "$principal/golem.local.toml"; } \
+    || { [ -n "$central" ] && ler_linha_python "$central/golem.local.toml"; }; then
     if [ -f "$linha_python" ] && roda_py38 "$linha_python"; then
         py="$linha_python"
     else
@@ -292,6 +315,11 @@ fi
 # O stdout do gancho só sai se ele terminar bem: JSON pela metade seguido do aviso quebraria o
 # parse do harness. O stdin (o JSON da ferramenta) passa direto, e o stderr dele vai ao usuário.
 # `$py_arg` sem aspas de propósito: vazio, some; `-3`, vira um argumento.
+# A raiz vai ao `.py` no `CLAUDE_PROJECT_DIR`: ele lê dali as lições e a configuração. No Git
+# Bash, o `/c/...` do `pwd` chega ao Python como `C:/...` pela conversão do MSYS, a mesma que
+# leva o caminho do `.py`; sem ela (`MSYS_NO_PATHCONV=1`), o `.py` nem é achado, e o aviso sai.
+CLAUDE_PROJECT_DIR=$raiz
+export CLAUDE_PROJECT_DIR
 saida=$("$py" $py_arg "$aqui/licoes_relevantes.py")
 codigo=$?
 [ "$codigo" -eq 0 ] || avisar "licoes_relevantes.py saiu com código $codigo"

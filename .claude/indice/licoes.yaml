@@ -43,6 +43,13 @@ licoes:
     gatilho: "a skill configurar mandava dizer, numa linha de texto entre duas chamadas da ferramenta de pergunta, o que fica sem revisão; em duas sessões novas, a linha não saiu"
     gatilhos: ["/SKILL\\.md$"]
     arquivo: docs/licoes/o-aviso-entre-duas-perguntas-fica-no-raciocinio.md
+  o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-22"
+    gatilho: "a spec da fase 3 leu na documentação que o CLAUDE.md sobe a toda pasta acima e tirou disso que o do Golem central chegaria a cada jogo de ~/Golem/jogos/"
+    gatilhos: ["(^|/)CLAUDE\\.md$", "\\.claude-plugin/"]
+    arquivo: docs/licoes/o-claude-md-da-pasta-de-cima-nao-chegou-ao-jogo.md
   o-git-bash-troca-o-barra-c-do-cmd-por-c:
     area: "processo"
     tipo: "armadilha"
@@ -106,4 +113,4 @@ licoes:
     gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
     gatilhos: ["\\bLOCALAPPDATA=\\S", "\\$env:LOCALAPPDATA\\s*=", "\\bwinpty\\b"]
     arquivo: docs/licoes/trocar-o-localappdata-nao-esconde-o-python-do-agente.md
-total: 15
+total: 16

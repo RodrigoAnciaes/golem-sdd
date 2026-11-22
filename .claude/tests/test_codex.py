@@ -123,11 +123,18 @@ def test_instalador_gera_as_copias_e_a_segunda_rodada_nao_muda_nada(copia_do_kit
     r = rodar_instalador(copia_do_kit)
     assert r.returncode == 0, r.stdout + r.stderr
     fonte = copia_do_kit / ".claude"
-    # As skills: cópia byte a byte, inclusive as referências.
+    # As skills: cópia byte a byte, salvo o `${CLAUDE_SKILL_DIR}` dos `.md`, trocado pela raiz do
+    # git (o Codex não conhece a variável).
     for f in (fonte / "skills").rglob("*"):
         if f.is_file():
             copia = copia_do_kit / ".agents" / "skills" / f.relative_to(fonte / "skills")
-            assert copia.read_bytes() == f.read_bytes(), copia
+            original = f.read_bytes()
+            if f.suffix == ".md":
+                original = (original
+                            .replace(b"${CLAUDE_SKILL_DIR}/../../../", b"$(git rev-parse --show-toplevel)/")
+                            .replace(b"${CLAUDE_SKILL_DIR}/../../", b"$(git rev-parse --show-toplevel)/.claude/"))
+                assert b"CLAUDE_SKILL_DIR" not in copia.read_bytes(), copia
+            assert copia.read_bytes() == original, copia
     # Os agentes: o frontmatter vira name/description; o corpo, developer_instructions.
     for nome in ("revisor", "validador"):
         md = (fonte / "agents" / f"{nome}.md").read_text(encoding="utf-8")

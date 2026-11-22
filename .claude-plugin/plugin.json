@@ -1,0 +1,17 @@
+{
+  "name": "golem",
+  "version": "0.0.1",
+  "description": "Golem SDD: spec-driven development para o Claude Code, pensado para quem começa no Roblox. Instale uma vez; ele liga só nos jogos registrados.",
+  "author": {
+    "name": "Rodrigo Anciães Patelli"
+  },
+  "homepage": "https://github.com/RodrigoAnciaes/golem-sdd",
+  "license": "MIT",
+  "defaultEnabled": false,
+  "skills": "./.claude/skills/",
+  "agents": [
+    "./.claude/agents/revisor.md",
+    "./.claude/agents/validador.md"
+  ],
+  "hooks": "./.claude/hooks/hooks.json"
+}

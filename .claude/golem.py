@@ -2,6 +2,7 @@
 """Configura o Golem neste projeto: junta a receita e as linhas do `golem.toml`, e aplica.
 
     python3 .claude/golem.py aplicar   # escreve o `model:` dos agentes e o bloco do AGENTS.md
+    python3 .claude/golem.py           # os outros comandos (o central, o registro dos jogos)
 
 (No Windows, `python` ou `py -3` no lugar de `python3`.)
 
@@ -20,14 +21,65 @@ O `aplicar` escreve:
 
 O gancho das lições lê o mesmo arquivo: o teto pelo `teto_do_gancho()` daqui, e a linha `gancho`
 pelo próprio `gancho.sh`, em `sh`, para valer sem Python. Só biblioteca padrão.
+
+Duas raízes (fase 3, o Golem central):
+- `KIT` é a pasta de onde este script roda: no plugin, o kit; na instalação por cópia, o projeto.
+- `RAIZ` é a raiz do projeto: a posição, salvo quando a posição é o plugin (a pasta tem
+  `.claude-plugin/plugin.json`); aí, o git da pasta corrente (ou a pasta corrente, fora do git).
+- **O modo plugin** é a pasta do kit ser o plugin e a raiz do projeto ser outra. Só nele vale o
+  central (`central()`): o `golem.toml` dele fica por baixo do do jogo, linha a linha.
 """
 from __future__ import annotations
 
+import datetime
+import json
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[1]
+KIT = Path(__file__).resolve().parents[1]
+
+
+def eh_plugin(pasta: Path = KIT) -> bool:
+    """A pasta é o plugin do Golem (tem o manifesto do plugin)."""
+    return (pasta / ".claude-plugin" / "plugin.json").is_file()
+
+
+def raiz_do_projeto(kit: Path = KIT) -> Path:
+    """A posição, salvo no plugin: aí, o git da pasta corrente, ou a pasta corrente."""
+    if not eh_plugin(kit):
+        return kit
+    try:
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
+                           text=True, encoding="utf-8", timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return Path(r.stdout.strip()).resolve()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return Path.cwd().resolve()
+
+
+def central() -> Path:
+    """A pasta do Golem central: `GOLEM_CENTRAL`, senão `$HOME/Golem`, senão a do `Path.home()`.
+
+    A mesma regra do `gancho.sh` (que só tem o `HOME`): no Windows, o `Path.home()` usa o
+    `USERPROFILE`, e os dois achariam pastas diferentes com um `HOME` diferente dele.
+    """
+    pasta = os.environ.get("GOLEM_CENTRAL")
+    if pasta:
+        return Path(pasta)
+    casa = os.environ.get("HOME")
+    return (Path(casa) if casa else Path.home()) / "Golem"
+
+
+def modo_plugin(raiz: Path, kit: Path = KIT) -> bool:
+    """O kit é o plugin e o projeto é outro: só aí vale o central."""
+    return eh_plugin(kit) and Path(raiz).resolve() != kit.resolve()
+
+
+RAIZ = raiz_do_projeto()
 PADRAO = "economico"
 INICIO = "<!-- golem:inicio -->"
 FIM = "<!-- golem:fim -->"
@@ -113,12 +165,29 @@ def ler_texto(texto: str, origem: str = "golem.toml") -> dict:
     return linhas
 
 
+def _linhas(arquivo: Path, origem: str) -> dict:
+    return ler_texto(arquivo.read_text(encoding="utf-8"), origem) if arquivo.is_file() else {}
+
+
+def niveis(raiz: Path = RAIZ) -> tuple:
+    """(as linhas do central, as do projeto). Fora do modo plugin, o central não conta."""
+    do_projeto = _linhas(raiz / "golem.toml", "golem.toml")
+    do_central = {}
+    if modo_plugin(raiz):
+        arquivo = central() / "golem.toml"
+        do_central = _linhas(arquivo, arquivo.as_posix())
+    return do_central, do_projeto
+
+
 def configuracao(raiz: Path = RAIZ) -> dict:
-    """A configuração inteira: a receita, com as linhas do `golem.toml` por cima."""
-    arquivo = raiz / "golem.toml"
-    linhas = ler_texto(arquivo.read_text(encoding="utf-8")) if arquivo.is_file() else {}
-    receita = linhas.get("receita", PADRAO)
-    return {"receita": receita, **RECEITAS[receita], **linhas}
+    """A configuração inteira: a receita, com as linhas do central e as do projeto por cima.
+
+    Por chave, vale a linha do projeto, senão a do central, senão a da receita. A receita é a do
+    projeto, senão a do central, senão a `economico`.
+    """
+    do_central, do_projeto = niveis(raiz)
+    receita = do_projeto.get("receita", do_central.get("receita", PADRAO))
+    return {**RECEITAS[receita], **do_central, **do_projeto, "receita": receita}
 
 
 def teto_do_gancho(raiz: Path = RAIZ) -> int:
@@ -142,8 +211,9 @@ def _modelo(valor: str) -> str:
     return " Modelo: o da conversa." if valor == "inherit" else f" Modelo `{valor}`."
 
 
-def bloco(c: dict) -> str:
-    """O bloco "Como o Golem trabalha aqui", com as marcas, em LF."""
+def bloco(c: dict, plugin: bool = False) -> str:
+    """O bloco "Como o Golem trabalha aqui", com as marcas, em LF. No plugin, o guia não está no
+    projeto: o bloco o aponta pelo pedido."""
     por_fase = c["revisor_quando"] == "por_fase"
     quando = "uma vez por fase, antes da verificação" if por_fase else "a cada grupo"
     diff = "o diff da fase inteira" if por_fase else "o diff do grupo"
@@ -151,10 +221,11 @@ def bloco(c: dict) -> str:
         INICIO,
         "## Como o Golem trabalha aqui",
         "",
-        "<!-- Gerado pelo `.claude/golem.py aplicar`. Não edite à mão: peça \"configurar o "
-        "Golem\". -->",
+        "<!-- Gerado pelo `aplicar` do Golem. Não edite à mão: peça \"configurar o Golem\". -->",
         "",
-        f"Receita `{c['receita']}`; o guia é `docs/guia-configuracao.md`.",
+        f"Receita `{c['receita']}`; o guia " + (
+            "vem com o kit (peça \"configurar o Golem\")." if plugin
+            else "é `docs/guia-configuracao.md`."),
         "",
         "- **Revisor:** " + _etapa(c["revisor"], quando, f"o `revisor` lê {diff}")
         + ("" if c["revisor"] == "nunca" else _modelo(c["modelo_revisor"])),
@@ -231,7 +302,7 @@ def esperado(raiz: Path = RAIZ) -> dict:
     agents_md = raiz / "AGENTS.md"
     if agents_md.is_file():
         texto, fim = _ler(agents_md)
-        alvo[agents_md] = (com_bloco(texto, bloco(c)), fim)
+        alvo[agents_md] = (com_bloco(texto, bloco(c, modo_plugin(raiz))), fim)
     return alvo
 
 
@@ -252,7 +323,12 @@ def aplicar(raiz: Path = RAIZ) -> int:
         print(f"  escrito  {caminho.relative_to(raiz).as_posix()}")
         mudou += 1
     for falta in ("AGENTS.md", ".claude/agents/revisor.md", ".claude/agents/validador.md"):
-        if not (raiz / falta).is_file():
+        if (raiz / falta).is_file():
+            continue
+        if falta != "AGENTS.md" and modo_plugin(raiz):
+            print(f"  pulado   {falta}: no Golem central, o agente mora no kit, e o modelo vai na "
+                  "chamada (o bloco diz qual)")
+        else:
             print(f"  pulado   {falta}: não existe neste projeto")
     if mudou:
         print(f"  {mudou} arquivo(s) mudaram. A configuração nova vale numa conversa nova.")
@@ -261,17 +337,216 @@ def aplicar(raiz: Path = RAIZ) -> int:
     return 0
 
 
-USO = """uso: python3 .claude/golem.py aplicar
+# ---------------------------------------------------------------- o central e os jogos (fase 3)
 
-  aplicar   junta a receita e as linhas do golem.toml e escreve o `model:` dos agentes e o
-            bloco "Como o Golem trabalha aqui" do AGENTS.md
+ID_DO_PLUGIN = "golem@golem"
+LIGADO = Path(".claude") / "settings.local.json"
+REGISTRO = "jogos.md"
+CABECALHO_DO_REGISTRO = (
+    "# Os jogos do Golem\n\n"
+    "<!-- O registro dos jogos desta máquina. Quem escreve é o kit (\"registrar um jogo\"); uma "
+    "linha se apaga à mão. -->\n\n"
+    "| Jogo | Pasta | Registrado em |\n"
+    "|---|---|---|\n")
+GOLEM_TOML_DO_CENTRAL = (
+    "# golem.toml do Golem central: a configuração de todos os jogos desta máquina.\n"
+    "# O golem.toml de um jogo vale por cima, linha a linha. Para mudar, peça \"configurar o "
+    "Golem\".\n")
+
+
+def _escrever(caminho: Path, texto: str, escritos: list) -> None:
+    """Escreve só se mudou, e anota o caminho em `escritos`."""
+    if caminho.is_file() and caminho.read_bytes() == texto.encode("utf-8"):
+        return
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    caminho.write_bytes(texto.encode("utf-8"))
+    escritos.append(caminho)
+
+
+def _com_ligado(pasta: Path) -> str:
+    """O `.claude/settings.local.json` de `pasta` com o "ligado" do Golem, guardando o resto.
+
+    Falha (sem escrever nada) se o arquivo existe e não é um objeto JSON.
+    """
+    arquivo = pasta / LIGADO
+    dados = {}
+    if arquivo.is_file():
+        try:
+            dados = json.loads(_ler(arquivo)[0] or "{}")
+        except ValueError as e:
+            raise ErroDeConfiguracao(f"{arquivo.as_posix()}: não é um JSON válido ({e}); "
+                                     "conserte ou apague o arquivo, e rode de novo") from None
+        if not isinstance(dados, dict) or not isinstance(dados.get("enabledPlugins", {}), dict):
+            raise ErroDeConfiguracao(f"{arquivo.as_posix()}: o JSON não é um objeto com "
+                                     "`enabledPlugins` como objeto; conserte e rode de novo")
+    dados.setdefault("enabledPlugins", {})[ID_DO_PLUGIN] = True
+    return json.dumps(dados, ensure_ascii=False, indent=2) + "\n"
+
+
+def _com_gitignore(pasta: Path) -> str:
+    """O `.gitignore` de `pasta` com a linha do "ligado" (fora do git), se faltar, no fim de
+    linha que o arquivo já usa (como o `aplicar`)."""
+    arquivo = pasta / ".gitignore"
+    texto, fim = _ler(arquivo) if arquivo.is_file() else ("", "\n")
+    linha = LIGADO.as_posix()
+    if linha in (l.strip() for l in texto.splitlines()):
+        return arquivo.read_bytes().decode("utf-8")      # já tem: fica como está, byte a byte
+    if texto and not texto.endswith("\n"):
+        texto += "\n"
+    texto += ("# O \"ligado\" do Golem é desta máquina (o registro dos jogos também).\n"
+              + linha + "\n")
+    return texto.replace("\n", fim)
+
+
+def ler_registro() -> list:
+    """[(nome, pasta, data)] do `jogos.md` do central; [] sem o arquivo. O cabeçalho e o
+    separador se reconhecem pela linha inteira: um jogo pode se chamar "Jogo"."""
+    arquivo = central() / REGISTRO
+    if not arquivo.is_file():
+        return []
+    jogos = []
+    for linha in _ler(arquivo)[0].splitlines():
+        celulas = [c.strip() for c in linha.strip().strip("|").split("|")]
+        if not linha.lstrip().startswith("|") or len(celulas) != 3:
+            continue
+        if celulas == ["Jogo", "Pasta", "Registrado em"]:
+            continue
+        if all(c and set(c) <= set("-: ") for c in celulas):
+            continue
+        jogos.append(tuple(celulas))
+    return jogos
+
+
+def _mesma_pasta(a, b) -> bool:
+    return os.path.normcase(str(Path(a).resolve())) == os.path.normcase(str(Path(b).resolve()))
+
+
+def criar_central() -> list:
+    """Cria o central (o `golem.toml`, o `jogos.md`, a `jogos/` e o "ligado"), o que faltar."""
+    c = central()
+    escritos = []
+    texto_ligado = _com_ligado(c)
+    if not (c / "golem.toml").is_file():
+        _escrever(c / "golem.toml", GOLEM_TOML_DO_CENTRAL, escritos)
+    if not (c / REGISTRO).is_file():
+        _escrever(c / REGISTRO, CABECALHO_DO_REGISTRO, escritos)
+    if not (c / "jogos").is_dir():
+        (c / "jogos").mkdir(parents=True)
+        escritos.append(c / "jogos")
+    _escrever(c / LIGADO, texto_ligado, escritos)
+    return escritos
+
+
+def registrar(pasta: Path, nome: str = None) -> list:
+    """Põe o jogo no registro e o "ligado" nele. Confere tudo antes de escrever."""
+    pasta = Path(pasta).resolve()
+    nome = (nome or pasta.name).strip()
+    if not nome or "|" in nome or "\n" in nome or "\r" in nome:
+        raise ErroDeConfiguracao(f"o nome {nome!r} não serve: sem `|`, sem quebra de linha e "
+                                 "não vazio (é uma linha da tabela do jogos.md)")
+    if not pasta.is_dir():
+        raise ErroDeConfiguracao(f"{pasta.as_posix()}: a pasta do jogo não existe")
+    texto_ligado = _com_ligado(pasta)
+    texto_gitignore = _com_gitignore(pasta)
+    escritos = criar_central()
+    _escrever(pasta / LIGADO, texto_ligado, escritos)
+    _escrever(pasta / ".gitignore", texto_gitignore, escritos)
+    if not any(_mesma_pasta(p, pasta) for _, p, _ in ler_registro()):
+        arquivo = central() / REGISTRO
+        texto = _ler(arquivo)[0]
+        if not texto.endswith("\n"):
+            texto += "\n"
+        hoje = datetime.date.today().isoformat()
+        _escrever(arquivo, texto + f"| {nome} | {pasta.as_posix()} | {hoje} |\n", escritos)
+    return escritos
+
+
+def _relatar(escritos: list) -> None:
+    for caminho in escritos:
+        print(f"  escrito  {caminho.as_posix()}")
+    print(f"  {len(escritos)} arquivo(s) mudaram." if escritos else "  nada mudou")
+
+
+def aplicar_todos() -> int:
+    """O `aplicar` em cada jogo do registro; o jogo cuja pasta sumiu sai com um aviso."""
+    jogos = ler_registro()
+    if not jogos:
+        print(f"  nenhum jogo no registro ({(central() / REGISTRO).as_posix()})")
+        return 0
+    codigo = 0
+    for nome, pasta, _ in jogos:
+        print(f"== {nome} ({pasta})")
+        if not Path(pasta).is_dir():
+            print(f"  pulado   {nome}: a pasta não existe mais (apague a linha do jogos.md, se o "
+                  "jogo saiu desta máquina)")
+            continue
+        codigo = max(codigo, aplicar(Path(pasta)))
+    return codigo
+
+
+def onde(raiz: Path = RAIZ) -> int:
+    """Diz a raiz, o modo, o central e de onde vem cada linha da configuração."""
+    print(f"  projeto  {raiz.as_posix()}")
+    if not modo_plugin(raiz):
+        print("  modo     cópia: o kit mora no próprio projeto (.claude/); o central não conta")
+    else:
+        c = central()
+        print(f"  modo     plugin: o kit mora em {KIT.as_posix()}")
+        print(f"  central  {c.as_posix()}" + ("" if c.is_dir() else " (ainda não existe)"))
+    try:
+        do_central, do_projeto = niveis(raiz)
+        cfg = configuracao(raiz)
+    except ErroDeConfiguracao as e:
+        print(f"  ERRO     {e}")
+        return 1
+    for chave in VALORES:
+        if chave in do_projeto:
+            origem = "deste projeto"
+        elif chave in do_central:
+            origem = "do central"
+        else:
+            origem = "da receita" if chave != "receita" else "o padrão"
+        print(f"  {chave}: {cfg[chave]} ({origem})")
+    return 0
+
+
+USO = """uso: python3 .claude/golem.py <comando>
+
+  aplicar            junta a receita e as linhas do golem.toml (no plugin, as do central por
+                     baixo) e escreve o `model:` dos agentes e o bloco "Como o Golem trabalha aqui"
+                     do AGENTS.md
+  aplicar --todos    o mesmo, em cada jogo do registro do central
+  central            cria o Golem central, o que faltar ($GOLEM_CENTRAL, senão ~/Golem)
+  registrar <pasta> [--nome <nome>]
+                     põe o jogo no registro do central e o liga ("ligado" no
+                     .claude/settings.local.json do jogo)
+  onde               diz a raiz do projeto, o modo, o central e de onde vem cada linha
 """
+
+
+def _rodar(funcao, *args) -> int:
+    try:
+        _relatar(funcao(*args))
+    except ErroDeConfiguracao as e:
+        print(f"  ERRO     {e}\n  Nada foi escrito.")
+        return 1
+    return 0
 
 
 def main(args=None) -> int:
     args = sys.argv[1:] if args is None else args
     if args == ["aplicar"]:
         return aplicar()
+    if args == ["aplicar", "--todos"]:
+        return aplicar_todos()
+    if args == ["central"]:
+        return _rodar(criar_central)
+    if args == ["onde"]:
+        return onde()
+    if len(args) == 2 and args[0] == "registrar":
+        return _rodar(registrar, Path(args[1]))
+    if len(args) == 4 and args[0] == "registrar" and args[2] == "--nome":
+        return _rodar(registrar, Path(args[1]), args[3])
     print(USO)
     return 2
 

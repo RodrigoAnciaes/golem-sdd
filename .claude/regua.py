@@ -37,10 +37,29 @@ import subprocess
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[1]
+KIT = Path(__file__).resolve().parents[1]
+
+
+def raiz_do_projeto(kit: Path = KIT) -> Path:
+    """A posição, salvo no plugin (a pasta tem `.claude-plugin/plugin.json`): aí, o git da pasta
+    corrente, ou a pasta corrente. A mesma regra do `golem.py` (fase 3, o Golem central)."""
+    if not (kit / ".claude-plugin" / "plugin.json").is_file():
+        return kit
+    try:
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
+                           text=True, encoding="utf-8", timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return Path(r.stdout.strip()).resolve()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return Path.cwd().resolve()
+
+
+# Os dados (as lições, o índice) vêm da raiz do projeto; o gancho, irmão deste script, da posição.
+RAIZ = raiz_do_projeto()
 LICOES = RAIZ / "docs" / "licoes"
 INDICE = RAIZ / ".claude" / "indice"
-GANCHO = RAIZ / ".claude" / "hooks" / "licoes_relevantes.py"
+GANCHO = KIT / ".claude" / "hooks" / "licoes_relevantes.py"
 REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
 
 # O vocabulário controlado. Valor novo só com motivo, e atualize o README das lições junto.

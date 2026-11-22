@@ -16,9 +16,9 @@ preparar → constituição → spec da fase → implementar por grupos → vali
 
 | | |
 |---|---|
-| **Skill** | `iniciar-sdd` ("iniciar SDD neste projeto") |
-| **Entra** | o repositório como está |
-| **Sai** | `specs/`, `AGENTS.md`, `CHANGELOG.md` e o modelo de PR, **só o que falta** |
+| **Skill** | `iniciar-sdd` ("registrar um jogo", na pasta do Golem central; na cópia, "iniciar SDD neste projeto") |
+| **Entra** | o nome do jogo e a pasta dele, ou o repositório como está |
+| **Sai** | a pasta do jogo com `specs/`, `AGENTS.md`, as lições, `CHANGELOG.md` e o modelo de PR, **só o que falta**; no Golem central, também o jogo no registro e o plugin ligado nele |
 | **O usuário decide** | o que fazer com o que já existe: a skill nunca sobrescreve `AGENTS.md` nem `specs/`; ela propõe a junção |
 
 ---
@@ -113,13 +113,14 @@ motivos da regra 7), aviso à gerente ou um item na caixa de achados
 
 | | |
 |---|---|
-| **Agentes** | `revisor` e `validador`, abertos pela própria conversa, independentes entre si (no Claude Code, `.claude/agents/`; no Codex, `.codex/agents/`) |
+| **Agentes** | `revisor` e `validador`, abertos pela própria conversa, independentes entre si (no Claude Code, os do kit: `golem:revisor` e `golem:validador` no Golem central, `.claude/agents/` na cópia; no Codex, `.codex/agents/`) |
 | **Entra** | o diff do grupo (ou o da fase inteira, com a revisão por fase), a spec da fase e o `AGENTS.md` |
 | **Sai** | revisor: achados com `arquivo:linha` e gravidade, e "sem bloqueio" ou "com bloqueio"; validador: a prova por execução real e por mutação, e "valida" ou "não valida" |
 | **O usuário decide** | com `perguntar`, se a etapa roda; fora isso, nada no caso normal: a conversa aplica os achados e segue; o usuário entra quando a conversa discorda de um bloqueio ou quando o achado muda o escopo |
 
 Quem roda, quando e em que modelo está no bloco "Como o Golem trabalha aqui" do `AGENTS.md`, que
-sai do `golem.toml` (`docs/guia-configuracao.md`). Na receita `economico`, o padrão, é um revisor
+sai do `golem.toml` (o guia, `docs/guia-configuracao.md`, fica no kit: peça "configurar o
+Golem"). Na receita `economico`, o padrão, é um revisor
 só, uma vez por fase; na `completo`, os dois a cada grupo, mais o guardião. Os dois só leem e
 nunca editam. **Caminho rápido:** grupo ou PR só de documentação ou só de testes leva só o
 revisor, se ele roda, que confere fato por fato contra a fonte (regra 11).
@@ -175,7 +176,8 @@ fica em "Depois (não planejado)".
 | `auditar-specs` | de tempos em tempos: a distância entre o que as specs dizem e o que o código faz. Só relata; corrigir é decisão do usuário |
 | `iniciar-conversa` | no começo de toda sessão: confere o git e o registro da gerente e abre só o que a tarefa de hoje exige |
 | `diagnostico` | quando o gancho avisa que não achou o Python: pergunta se há Python e onde, procura nos lugares de costume e grava o caminho no `golem.local.toml` |
-| `configurar` | para escolher a receita (`so-eu`, `economico`, `completo`), o revisor e o parar a cada parte: escreve o `golem.toml` e roda o `aplicar` (`docs/guia-configuracao.md`) |
+| `configurar` | para escolher a receita (`so-eu`, `economico`, `completo`), o revisor e o parar a cada parte: escreve o `golem.toml` e roda o `aplicar` (o guia, `docs/guia-configuracao.md`, fica no kit) |
 | `sessao-gerente` | faz de uma conversa a gerente (GER), quando há várias frentes em paralelo (`docs/operacao-das-conversas.md`) |
 
-A lista completa das skills está em `.claude/skills/`.
+A lista completa das skills está em `.claude/skills/` do kit (no Golem central, elas aparecem como
+`golem:<nome>`).

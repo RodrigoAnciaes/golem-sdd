@@ -47,7 +47,7 @@ Compare `specs/tech-stack.md` com o manifesto de dependências real (`package.js
 
 ### 5. Lições e regras
 
-- `python3 .claude/regua.py --conferir`: o índice das lições bate com `docs/licoes/`
+- `python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir`: o índice das lições bate com `docs/licoes/`
 - Lição que manda uma ação obrigatória sem a regra correspondente no `AGENTS.md`
 
 ## Relatório

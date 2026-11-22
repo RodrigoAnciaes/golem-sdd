@@ -12,7 +12,9 @@ decidir. Código, commit e deploy são das conversas de fase; o merge também, d
 
 Antes de começar, leia `docs/operacao-das-conversas.md` (papéis, níveis de autonomia,
 PEDIDO/LIBERADO, cartão de decisão, fecho) e a referência do projeto, se houver:
-`references/<projeto>.md` nesta pasta (modelo em `references/projeto-modelo.md`).
+`references/<projeto>.md` nesta pasta (modelo em `references/projeto-modelo.md`). No Golem
+central, esta pasta é a do kit, que serve todos os jogos: não grave nada nela. A referência do
+projeto, se houver, fica no próprio projeto (em `docs/`), e você a lê de lá.
 
 ## Regras que não se negociam
 
@@ -95,7 +97,7 @@ temporário de `origin/main`. Ele confere:
 
 - a suíte completa na `main`;
 - marcas de conflito e seções duplicadas em roadmap e `CHANGELOG.md`;
-- `python3 .claude/regua.py --conferir` (o índice das lições);
+- `python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir` (o índice das lições);
 - se os documentos derivados batem com o código e se os arquivos citados existem e são rastreados;
 - os efeitos cruzados entre fases;
 - se as árvores mergeadas são as que a prova testou.

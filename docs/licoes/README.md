@@ -85,9 +85,11 @@ atualização leva rótulo terminado em ponto: `**Atualização de AAAA-MM-DD: o
 ## Vocabulário controlado
 
 Mantenha `area` e `tipo` nestes valores: é o que faz a busca por campo funcionar. Valor novo só com
-motivo, e atualize junto esta lista e o `AREAS_VALIDAS` ou o `TIPOS_VALIDOS` do `.claude/regua.py`
-(a régua recusa valor fora deles). Área nova também pede o `POR_CAMINHO` e o `POR_COMANDO` do
-`.claude/hooks/licoes_relevantes.py`, que dizem em que ação cada área acende.
+motivo, e atualize junto esta lista e o `AREAS_VALIDAS` ou o `TIPOS_VALIDOS` da régua do kit
+(`.claude/regua.py`, que recusa valor fora deles). Área nova também pede o `POR_CAMINHO` e o
+`POR_COMANDO` do gancho do kit (`.claude/hooks/licoes_relevantes.py`), que dizem em que ação cada
+área acende. No Golem central, esses dois arquivos moram no kit, e não no jogo: mudar ali muda
+para todos os jogos.
 
 ### `area`
 
@@ -105,7 +107,7 @@ motivo, e atualize junto esta lista e o `AREAS_VALIDAS` ou o `TIPOS_VALIDOS` do 
 
 ## Como o gancho entrega as lições
 
-O gancho em `.claude/hooks/` roda antes de uma ação do agente (editar ou escrever um arquivo,
+O gancho do kit (`.claude/hooks/`) roda antes de uma ação do agente (editar ou escrever um arquivo,
 rodar um comando) e põe no contexto o "Como perceber da próxima vez" das lições que importam para
 aquela ação. Ele não lê os arquivos de lição um a um: lê o **índice** que a régua gera
 (`.claude/indice/licoes.yaml`). Por isso, **depois de criar ou editar uma lição, rode:**
@@ -114,6 +116,10 @@ aquela ação. Ele não lê os arquivos de lição um a um: lê o **índice** qu
 git add docs/licoes/<id>.md          # a régua só indexa o que o git conhece
 python3 .claude/regua.py --gerar     # no Windows, python ou py -3
 ```
+
+Esse é o comando na cópia (o kit dentro do projeto). No Golem central, a régua mora no kit: peça à
+skill `licao`, que diz o comando com o caminho do kit, ou rode `python3 <pasta do kit>/.claude/regua.py
+--gerar` na pasta do jogo.
 
 Lição fora do índice não é entregue a ninguém. Confira: o id novo tem de aparecer no diff do
 índice. Se não aparecer, o arquivo não foi visto (faltou o `git add`).

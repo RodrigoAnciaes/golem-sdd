@@ -6,21 +6,46 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 # Configurar o Golem
 
-**Lê:** o `golem.toml` da raiz, se existir, e a linha `python` do `golem.local.toml`.
-**Escreve:** o `golem.toml` da raiz. Pelo `aplicar`, escreve também o bloco "Como o Golem trabalha
+**Lê:** o `golem.toml` da raiz (no Golem central, também o do central), se existir, e a linha
+`python` do `golem.local.toml`.
+**Escreve:** o `golem.toml` da raiz (no Golem central, o do central, que vale em todos os jogos). Pelo `aplicar`, escreve também o bloco "Como o Golem trabalha
 aqui" do `AGENTS.md` e o `model:` dos agentes `revisor` e `validador`. Sem Python, com o modo sem
 Python aceito, troca à mão só a linha do gancho nesse bloco.
 **Decide:** nada sozinha. Pergunta, mostra o arquivo e só grava depois do ok. O commit é do
 usuário.
 
-As receitas, cada chave e o que ela custa estão em `docs/guia-configuracao.md`. Abra o guia só se o
+As receitas, cada chave e o que ela custa estão em `${CLAUDE_SKILL_DIR}/../../../docs/guia-configuracao.md`. Abra o guia só se o
 usuário perguntar algo que esta skill não responde.
 
 ## 1. Ver o que já existe
 
+Primeiro, o modo: no Golem central (o plugin), a configuração se faz uma vez, no `golem.toml` do
+central, e vale em todos os jogos; o `golem.toml` do jogo só muda o que o usuário pedir "só neste
+jogo". Na cópia (o kit dentro do projeto), é o `golem.toml` da raiz, como sempre. Sem Python também
+funciona:
+
 ```bash
-cat golem.toml 2>/dev/null || echo "sem golem.toml: vale a receita economico"
+KIT=$(cd "${CLAUDE_SKILL_DIR}/../../.." && pwd)
+[ -f "$KIT/.claude/golem.py" ] || echo "ERRO: não achei o kit em $KIT; use a pasta de 'Base directory for this skill', três níveis acima"
+raiz=$(cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && pwd)
+if [ -f "$KIT/.claude-plugin/plugin.json" ] && [ "$KIT" != "$raiz" ]; then
+    echo "modo plugin; central: ${GOLEM_CENTRAL:-$HOME/Golem}"
+else
+    echo "modo cópia: o kit mora no próprio projeto"
+fi
 ```
+
+Se a primeira linha disser `ERRO`, pare: sem o kit, o modo sai errado.
+
+```bash
+cat golem.toml 2>/dev/null || echo "sem golem.toml neste projeto"
+cat "${GOLEM_CENTRAL:-$HOME/Golem}/golem.toml" 2>/dev/null   # só no modo plugin
+```
+
+No modo plugin, grave no `golem.toml` do central, salvo se o usuário pedir "só neste jogo"; diga no
+texto da primeira pergunta em qual dos dois arquivos vai gravar e que ele pode responder "só neste
+jogo". Sem nenhum dos dois, vale a
+receita `economico`.
 
 Se o arquivo existe, ponha-o inteiro no texto da primeira pergunta do passo 2: um texto à parte,
 entre a leitura e a pergunta, se perde (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`).
@@ -37,7 +62,8 @@ primeiro.
 **Nunca ofereça "o da receita"**: quem configura pela primeira vez não sabe o que a receita faz.
 Diga o valor por extenso e de qual receita ele vem, pela tabela do guia.
 
-1. **"Como o Golem deve trabalhar neste projeto?"**
+1. **"Como o Golem deve trabalhar neste projeto?"** (no Golem central, "em todos os seus jogos?",
+   salvo com o "só neste jogo")
    - `economico` (recomendado): um revisor, no Sonnet, uma vez por fase; para ao fim de cada parte
      para o seu ok;
    - `so-eu`: nenhuma conversa extra; ninguém além desta conversa lê o que foi feito; para ao fim
@@ -89,13 +115,15 @@ Grave só depois do ok.
 
 ## 4. Achar o Python
 
-O `aplicar` precisa de um Python 3.8+. Procure na ordem do gancho (`.claude/hooks/gancho.sh`): a
+O `aplicar` precisa de um Python 3.8+. Procure na ordem do gancho (o `gancho.sh` do kit): a
 linha `python` do `golem.local.toml`, o `.venv` da raiz e o da pasta principal, o PATH e os lugares
-do instalador do Windows.
+do instalador do Windows. No modo plugin (o passo 1), a linha `python` do `golem.local.toml` do
+central vem depois da do projeto e da pasta principal, antes dos `.venv`.
 
 ```bash
 principal=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")
-grep -h '^[[:space:]]*python[[:space:]]*=' golem.local.toml "$principal/golem.local.toml" 2>/dev/null
+grep -h '^[[:space:]]*python[[:space:]]*=' golem.local.toml "$principal/golem.local.toml" \
+    "${GOLEM_CENTRAL:-$HOME/Golem}/golem.local.toml" 2>/dev/null   # o último, só no modo plugin
 ls .venv/Scripts/python.exe .venv/bin/python \
    "$principal"/.venv/Scripts/python.exe "$principal"/.venv/bin/python 2>/dev/null
 command -v python3 python py
@@ -122,10 +150,13 @@ do modo sem Python do passo 6 (ela vem aqui, uma vez só). Se ainda não houver 
 ## 5. Aplicar
 
 ```bash
-"$PY" .claude/golem.py aplicar
+"$PY" "${CLAUDE_SKILL_DIR}/../../golem.py" aplicar            # na cópia, ou com "só neste jogo"
+"$PY" "${CLAUDE_SKILL_DIR}/../../golem.py" aplicar --todos    # no plugin, com a configuração do central
+"$PY" "${CLAUDE_SKILL_DIR}/../../golem.py" onde               # de onde vem cada linha agora
 ```
 
 - Mostre a saída. Se vier `ERRO`, corrija o `golem.toml` com o usuário, e a linha que ele cita vai
   no texto da pergunta de correção.
 - Diga que a configuração nova vale numa **conversa nova**: o `AGENTS.md` desta já foi lido.
-- Diga o que mudou (o `golem.toml`, o `AGENTS.md`, os agentes) e que o commit é dele.
+- Diga o que mudou (o `golem.toml`, o `AGENTS.md`, os agentes) e que o commit é dele. No plugin,
+  mostre a saída do `onde`: ela diz, linha por linha, o que vale do central e o que vale do jogo.

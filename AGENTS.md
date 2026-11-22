@@ -20,7 +20,7 @@ Roblox iniciantes.
 | Lições | `docs/licoes/` |
 | Como as conversas trabalham | `docs/operacao-das-conversas.md` |
 | Ferramental do agente | `.claude/` (skills, agentes, ganchos, régua): a fonte |
-| Cópias para o Codex | `.agents/skills/` e `.codex/` (agentes e gancho), geradas por `.claude/instalar_codex.py`, nunca à mão |
+| Cópias para o Codex | `.agents/skills/` e `.codex/` (agentes e gancho), geradas por `.claude/instalar_codex.py` (o Codex só usa a cópia do kit no projeto), nunca à mão |
 
 **Quem é quem.** O **usuário** decide produto, prioridade, stack, gasto e tudo que sai para fora,
 e faz os merges que a lista de nível 3 reserva a ele ("Convenções", abaixo). O agente decide o
@@ -70,7 +70,7 @@ os testes novos.
 <!-- golem:inicio -->
 ## Como o Golem trabalha aqui
 
-<!-- Gerado pelo `.claude/golem.py aplicar`. Não edite à mão: peça "configurar o Golem". -->
+<!-- Gerado pelo `aplicar` do Golem. Não edite à mão: peça "configurar o Golem". -->
 
 Receita `completo`; o guia é `docs/guia-configuracao.md`.
 
@@ -104,18 +104,24 @@ Receita `completo`; o guia é `docs/guia-configuracao.md`.
   com o LIBERADO (mais a palavra do usuário, no nível 3), o merge com o sha lido na saída. Ver
   `docs/operacao-das-conversas.md`, "Merge".
 - **Quem muda, varre.** Mudou um caminho, um comando, uma contagem ou o nome de uma variável? Busque
-  o nome antigo nos documentos e nos agentes (`.claude/agents/`) e corrija no mesmo commit. Caminho
-  errado num agente não dá erro: ele lê nada e responde com a mesma confiança.
-- O que é **gerado** (o índice da régua) se refaz com `python3 .claude/regua.py --gerar`, nunca à
-  mão. O bloco "Como o Golem trabalha aqui" e o `model:` dos agentes saem do `golem.toml` pelo
-  `python3 .claude/golem.py aplicar` (ou pela skill `configurar`). No Windows, `python` ou `py -3`
-  no lugar de `python3`, aqui e em todo o kit. As cópias para o Codex (`.agents/skills/`, `.codex/`)
-  também são geradas: mudou uma skill ou um agente em `.claude/`, rode
-  `python3 .claude/instalar_codex.py` e faça o commit das cópias junto (`--conferir` acusa a
+  o nome antigo nos documentos e nos agentes (`.claude/agents/`, quando o projeto os tem) e corrija
+  no mesmo commit. Caminho errado num agente não dá erro: ele lê nada e responde com a mesma
+  confiança.
+- O que é **gerado** (o índice da régua) se refaz pela régua do kit (`regua.py --gerar`; a skill
+  `licao` diz o comando), nunca à mão. O bloco "Como o Golem trabalha aqui" (e, na cópia, o
+  `model:` dos agentes) sai do `golem.toml` pelo `aplicar` do kit, que a skill `configurar` roda; no
+  Golem central, o `golem.toml` do central vale por baixo do deste projeto. Na cópia (o kit dentro
+  do projeto), os comandos são `python3 .claude/regua.py --gerar` e `python3 .claude/golem.py
+  aplicar`. No Windows, `python` ou `py -3` no lugar de `python3`, aqui e em todo o kit. As cópias
+  para o Codex (`.agents/skills/`, `.codex/`), que só usa a cópia, também são geradas: mudou uma
+  skill ou um agente em `.claude/`, rode `python3 .claude/instalar_codex.py` e faça o commit das
+  cópias junto
+  (`--conferir` acusa a
   divergência). O repositório do próprio kit não versiona as cópias: quem instala o kit as gera no
   projeto dele (`README.md` do kit, "Usando com o Codex").
 - Nenhum nome de cliente, de outro projeto ou de pessoa entra no kit, fora do crédito (a linha de
-  crédito, o `LICENSE` e a seção "Licença e crédito" do `README.md`).
+  crédito, o `LICENSE`, o `author` e o `owner` dos manifestos em `.claude-plugin/` e a seção
+  "Licença e crédito" do `README.md`).
 
 ---
 
@@ -160,9 +166,10 @@ Receita `completo`; o guia é `docs/guia-configuracao.md`.
    evidência**, **uma premissa do projeto se revelar falsa**, **um defeito custar mais de uma
    rodada** para diagnosticar, ou **o usuário corrigir** um entendimento seu: registre em
    `docs/licoes/` pela skill `licao`, no formato de `docs/licoes/README.md`, faça o `git add` dela
-   e rode `python3 .claude/regua.py --gerar`. Só esses quatro motivos: se não dá para escrever "o
-   que se achava", não é lição. Quando a lição implicar ação obrigatória, acrescente aqui uma regra
-   curta que a cite. Preferência do usuário e estado do projeto não são lição: vão para a memória.
+   e regere o índice pela régua do kit (a skill `licao` diz o comando). Só esses quatro motivos: se
+   não dá para escrever "o que se achava", não é lição. Quando a lição implicar ação obrigatória,
+   acrescente aqui uma regra curta que a cite. Preferência do usuário e estado do projeto não são
+   lição: vão para a memória.
    *Por quê:* a conversa seguinte não sabe o que esta aprendeu, e o gancho só entrega o que está
    escrito.
 
@@ -210,9 +217,10 @@ Receita `completo`; o guia é `docs/guia-configuracao.md`.
 11. **Revisor e validador independentes, conforme a configuração.** O bloco "Como o Golem trabalha
     aqui" diz se cada um roda (`sempre`, `perguntar` ou `nunca`), se por grupo ou uma vez por fase,
     e o guardião; sem o bloco, rode o `aplicar`, e sem Python vale a `economico`. Delegue a
-    eles: no Claude Code, são os de `.claude/agents/`, e o modelo já está no frontmatter (não passe
-    outro na chamada, salvo se a spec da fase pedir outro modelo); no Codex, os de `.codex/agents/`
-    (gerados pelo instalador). Os dois só leem. O revisor dá "sem bloqueio" ou "com bloqueio"; o
+    eles: no Claude Code, são os do kit (`golem:revisor` e `golem:validador` no Golem central, os de
+    `.claude/agents/` na cópia), chamados com o modelo que o bloco diz, passado na chamada (outro
+    modelo só se a spec da fase pedir): o guardião, com o do revisor; com "o da conversa", o
+    modelo desta conversa. No Codex, os de `.codex/agents/` (gerados pelo instalador). Os dois só leem. O revisor dá "sem bloqueio" ou "com bloqueio"; o
     validador dá "valida" ou "não valida". Bloqueio se corrige e volta à revisão.
     - **Os comandos do `validation.md` rodam sempre**, pela própria conversa, com a linha de resumo
       lida (regras 4 e 8), qualquer que seja a configuração.
@@ -251,4 +259,4 @@ regra 7 disparar e `replanejar-roadmap` quando o plano envelhecer. Os agentes `r
 `validador` servem à regra 11. O fluxo inteiro está em `WORKFLOW.md`.
 
 Skill nova só aparece em sessão nova: reinicie o agente (Claude Code ou Codex) depois de adicionar
-uma. No Codex, rode antes `python3 .claude/instalar_codex.py`.
+uma. No Codex (que usa o kit copiado no projeto), rode antes `python3 .claude/instalar_codex.py`.

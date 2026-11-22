@@ -56,14 +56,15 @@ Antes de fechar, compare o que foi implementado com `requirements.md`:
   concluídas, com data e nome da branch
 - Decisão cara de reverter tomada durante a fase vira ADR (skill `adr`)
 - Hipótese refutada ou defeito que custou mais de uma rodada vira lição (skill `licao`)
-- `python3 .claude/regua.py --conferir`: o índice das lições em dia. Índice desencontrado é defeito
+- `python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir`: o índice das lições em dia. Índice desencontrado é defeito
   da fase, não detalhe de arrumação
 
 ## 4. Fechamento
 
 Ordem: a revisão sobre o diff primeiro, conforme o bloco "Como o Golem trabalha aqui" do
 `AGENTS.md` (o revisor, o validador e o guardião, cada um com `sempre`, `perguntar` ou `nunca`; o
-caminho rápido e o guardião como a regra 11 os descreve); a prova (a CI, ou a suíte rodada
+caminho rápido e o guardião como a regra 11 os descreve; cada agente chamado com o modelo que o
+bloco diz e pelo nome que a sessão lista, `golem:revisor` no plugin); a prova (a CI, ou a suíte rodada
 localmente se a CI não roda) **uma vez**, no head final. Com o revisor uma vez por fase, a revisão
 que a `implementar-fase` já fez sobre o diff da fase vale aqui, se nada mudou depois dela.
 
