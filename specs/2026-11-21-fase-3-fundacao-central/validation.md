@@ -16,6 +16,7 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
 - [ ] `"$PY" -m pytest .claude/tests -o addopts= -q -p no:cacheprovider -rs` → `N passed`, sem
   falhas nem pulados. **N** é 134 (a contagem em `e1483ac`) mais os testes novos dos G1 a G4,
   anotados aqui ao fim de cada grupo. Se a `main` andar, a contagem dela entra no lugar do 134.
+  - **G1:** `150 passed`, sem pulados (134 + 16).
 - [ ] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`.
 - [ ] `"$PYR" .claude/golem.py aplicar`, no kit → `nada mudou`, e o `git status --short` continua
   igual: o kit não está no modo plugin (R2).
@@ -117,7 +118,7 @@ para ele, na configuração dele, com estes mesmos passos, e o PR diz isso. Toda
 - [ ] O `CLAUDE_PROJECT_DIR` apontando para uma pasta que não existe → o gancho cai na raiz de
   hoje, sem quebrar.
 - [ ] A régua e o `golem.py` do kit rodados com a pasta corrente fora do kit e fora de um git →
-  trabalham na pasta corrente e dizem qual é (sem escrever no kit).
+  trabalham na pasta corrente, sem escrever no kit. Quem diz qual é a raiz é o `onde` (G3).
 - [ ] Sem central nenhum, no modo plugin → a configuração é a da receita do jogo, sem erro, e o
   gancho entrega a lição.
 - [ ] O `golem.toml` do central com uma linha errada → o `aplicar` do jogo falha dizendo o arquivo

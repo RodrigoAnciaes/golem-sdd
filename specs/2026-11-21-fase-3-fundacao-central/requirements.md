@@ -112,7 +112,7 @@ cópia, em que a posição é o projeto.
     `.claude-plugin/plugin.json`). Aí a raiz é a do git da pasta corrente (ou a pasta corrente,
     fora do git). No kit, as duas dão a mesma pasta. Os testes que carregam os módulos de uma
     cópia sem `.claude-plugin/` continuam como hoje.
-- **O modo plugin** é a raiz do projeto ser outra que a pasta do kit. Só nele vale o central. No
+- **O modo plugin** é a pasta do kit ser o plugin (ter o `.claude-plugin/plugin.json`) e a raiz do projeto ser outra. Só nele vale o central. No
   repositório do kit e na instalação por cópia (a do Codex), nada muda.
 - **O central** é a pasta `~/Golem` (no Windows, `C:\Users\<você>\Golem`), o padrão do estudo
   aprovado na decisão 11. Uma regra só, igual no `sh` e no Python: a variável `GOLEM_CENTRAL`,
@@ -298,7 +298,7 @@ dele); a 12 (os emojis na configuração do central); e a 9 com o "Ficam para de
 - o central em `~/Golem`, o padrão do estudo, com a `GOLEM_CENTRAL` para os testes;
 - o registro em Markdown (`jogos.md`), e não em TOML: o leitor do `golem.toml` não lê tabelas
   (`golem.py:11-13`), e o estudo deixou a escolha para a spec. Descartado: estender o leitor;
-- o modo plugin decidido por "a raiz é outra que a pasta do kit", e não pelo registro: o gancho
+- o modo plugin decidido por "a pasta do kit é o plugin e a raiz é outra", e não pelo registro: o gancho
   não lê o registro a cada ação, e o kit e a instalação por cópia não mudam. O registro só é lido
   pelo `aplicar --todos` e pelo `onde`;
 - o gancho não confere o registro: fora dos jogos, o plugin nem entra na sessão (P5). A rodada

@@ -415,7 +415,7 @@ def _rodar_lancador(sh: str, lancador: Path, sessao: Path, ambiente: dict, cwd=N
     r = subprocess.run(_comando_do_lancador(sh, lancador, ambiente), input=payload,
                        capture_output=True, text=True, encoding="utf-8", env=ambiente, cwd=cwd)
     assert r.returncode == 0, r.stderr[:300]
-    return json.loads(r.stdout)
+    return json.loads(r.stdout) if r.stdout.strip() else {}
 
 
 def test_lancador_pula_o_venv_que_nao_roda(acervo, sessao, tmp_path):
@@ -1078,3 +1078,134 @@ def test_riscos_do_roblox_chegam_num_multi_edit(acervo, sessao):
     assert len(blocos) == len(titulos)
     for bloco in blocos:
         assert "https://create.roblox.com/docs/" in bloco, bloco.splitlines()[0]
+
+
+# ------------------------------------------- o modo plugin (fase 3, o Golem central)
+
+
+def _rodar_do_plugin(sh: str, plugin, sessao: Path, ambiente: dict, cwd: Path) -> dict:
+    """O gancho DO KIT (o plugin), com o JSON de um `pytest -q`; {} se ele não disse nada."""
+    return _rodar_lancador(sh, plugin.kit / ".claude" / "hooks" / "gancho.sh", sessao, ambiente,
+                           cwd=cwd)
+
+
+def test_plugin_entrega_a_licao_do_jogo_pelo_claude_project_dir(plugin, sessao, tmp_path):
+    """O harness passa o `CLAUDE_PROJECT_DIR` do jogo: a lição vem do jogo, e não do kit."""
+    sh = _sh()
+    _repassador(plugin.jogo / ".venv" / "bin" / "python")
+    fora = tmp_path / "fora"
+    fora.mkdir()
+    saida = _rodar_do_plugin(sh, plugin, sessao,
+                             {**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)}, cwd=fora)
+    assert "systemMessage" not in saida, saida.get("systemMessage")
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_no_proprio_kit_com_o_manifesto_o_central_nao_conta(plugin, sessao):
+    """O kit com o manifesto e a sessão nele (quem desenvolve o kit): o central fica de fora."""
+    sh = _sh()
+    _repassador(plugin.kit / ".venv" / "bin" / "python")
+    plugin.central.mkdir()
+    (plugin.central / "golem.toml").write_text('gancho = "desligado"\n', encoding="utf-8")
+    ambiente = {**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.kit)}
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.kit)
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-kit"]
+
+
+def test_plugin_a_linha_python_do_jogo_vence_a_do_central(plugin, sessao, tmp_path):
+    """A ordem da linha `python`: a do jogo, antes da do central (que aqui não roda)."""
+    sh = _sh()
+    plugin.central.mkdir()
+    (plugin.central / "golem.local.toml").write_text("python = '/nao/existe/python'\n",
+                                                     encoding="utf-8")
+    (plugin.jogo / "golem.local.toml").write_text(
+        f"python = '{Path(sys.executable).as_posix()}'\n", encoding="utf-8")
+    ambiente = {**_path_sem_python(tmp_path), "GOLEM_CENTRAL": str(plugin.central),
+                "CLAUDE_PROJECT_DIR": str(plugin.jogo)}
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo)
+    assert "systemMessage" not in saida, saida.get("systemMessage")
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_plugin_sem_claude_project_dir_usa_o_git_da_pasta_corrente(plugin, sessao):
+    """Pelo Bash (a `licao`, o `diagnostico`), sem a variável: a pasta corrente acha o jogo."""
+    sh = _sh()
+    _repassador(plugin.jogo / ".venv" / "bin" / "python")
+    saida = _rodar_do_plugin(sh, plugin, sessao, plugin.env, cwd=plugin.jogo / "docs")
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_plugin_com_claude_project_dir_que_nao_existe_nao_quebra(plugin, sessao, tmp_path):
+    sh = _sh()
+    _repassador(plugin.jogo / ".venv" / "bin" / "python")
+    ambiente = {**plugin.env, "CLAUDE_PROJECT_DIR": str(tmp_path / "nao-existe")}
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo)
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_plugin_o_central_desliga_e_o_jogo_religa(plugin, sessao):
+    """O `golem.toml` do central vale por baixo do do jogo: a linha `gancho` do jogo vence."""
+    sh = _sh()
+    _repassador(plugin.jogo / ".venv" / "bin" / "python")
+    plugin.central.mkdir()
+    (plugin.central / "golem.toml").write_text('gancho = "desligado"\n', encoding="utf-8")
+    ambiente = {**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)}
+    assert _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo) == {}
+    (plugin.jogo / "golem.toml").write_text('gancho = "ligado"\n', encoding="utf-8")
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo)
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_plugin_acha_o_python_so_no_golem_local_toml_do_central(plugin, sessao, tmp_path):
+    """Um Python só, no central: o PATH só tem Pythons quebrados e o jogo não tem `.venv`."""
+    sh = _sh()
+    plugin.central.mkdir()
+    (plugin.central / "golem.local.toml").write_text(
+        f"python = '{Path(sys.executable).as_posix()}'\n", encoding="utf-8")
+    ambiente = {**_path_sem_python(tmp_path), "GOLEM_CENTRAL": str(plugin.central),
+                "CLAUDE_PROJECT_DIR": str(plugin.jogo)}
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo)
+    assert "systemMessage" not in saida, saida.get("systemMessage")
+    assert ids_de(saida["hookSpecificOutput"]["additionalContext"]) == ["licao-do-jogo"]
+
+
+def test_fora_do_modo_plugin_o_central_nao_conta(plugin, sessao, tmp_path):
+    """Sem o manifesto (o kit copiado no projeto, o Codex), o central é ignorado: o Python que só
+    ele tem não é achado, e o aviso de "nenhum Python" sai."""
+    sh = _sh()
+    (plugin.kit / ".claude-plugin" / "plugin.json").unlink()
+    plugin.central.mkdir()
+    (plugin.central / "golem.local.toml").write_text(
+        f"python = '{Path(sys.executable).as_posix()}'\n", encoding="utf-8")
+    ambiente = {**_path_sem_python(tmp_path), "GOLEM_CENTRAL": str(plugin.central),
+                "CLAUDE_PROJECT_DIR": str(plugin.jogo)}
+    saida = _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo)
+    assert "nenhum Python" in saida.get("systemMessage", ""), saida
+
+
+def test_o_central_e_o_mesmo_no_sh_e_no_python(plugin, sessao, tmp_path):
+    """Sem `GOLEM_CENTRAL`, os dois usam o `$HOME/Golem`, mesmo com o `USERPROFILE` noutro lugar."""
+    sh = _sh()
+    _repassador(plugin.jogo / ".venv" / "bin" / "python")
+    casa, perfil = tmp_path / "casa", tmp_path / "perfil"
+    (casa / "Golem").mkdir(parents=True)
+    perfil.mkdir()
+    (casa / "Golem" / "golem.toml").write_text('gancho = "desligado"\n', encoding="utf-8")
+    ambiente = {k: v for k, v in plugin.env.items() if k != "GOLEM_CENTRAL"}
+    ambiente.update(HOME=str(casa), USERPROFILE=str(perfil), CLAUDE_PROJECT_DIR=str(plugin.jogo))
+    assert _rodar_do_plugin(sh, plugin, sessao, ambiente, cwd=plugin.jogo) == {}
+    r = subprocess.run([sys.executable, "-c", "import sys; sys.path.insert(0, sys.argv[1]); "
+                        "import golem; print(golem.central())", str(plugin.kit / ".claude")],
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente)
+    assert Path(r.stdout.strip()).resolve() == (casa / "Golem").resolve(), r.stdout + r.stderr
+
+
+def test_o_py_le_as_licoes_do_claude_project_dir(plugin, sessao):
+    """O `licoes_relevantes.py` do kit, com o `CLAUDE_PROJECT_DIR` do jogo, lê as lições do jogo."""
+    payload = json.dumps({"session_id": "s", "scratchpad_dir": str(sessao),
+                          "tool_input": {"command": "pytest -q"}})
+    script = plugin.kit / ".claude" / "hooks" / "licoes_relevantes.py"
+    r = subprocess.run([sys.executable, str(script)], input=payload, capture_output=True,
+                       text=True, encoding="utf-8",
+                       env={**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)})
+    assert ids_de(contexto_de(r)) == ["licao-do-jogo"]

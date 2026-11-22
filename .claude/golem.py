@@ -20,14 +20,63 @@ O `aplicar` escreve:
 
 O gancho das lições lê o mesmo arquivo: o teto pelo `teto_do_gancho()` daqui, e a linha `gancho`
 pelo próprio `gancho.sh`, em `sh`, para valer sem Python. Só biblioteca padrão.
+
+Duas raízes (fase 3, o Golem central):
+- `KIT` é a pasta de onde este script roda: no plugin, o kit; na instalação por cópia, o projeto.
+- `RAIZ` é a raiz do projeto: a posição, salvo quando a posição é o plugin (a pasta tem
+  `.claude-plugin/plugin.json`); aí, o git da pasta corrente (ou a pasta corrente, fora do git).
+- **O modo plugin** é a pasta do kit ser o plugin e a raiz do projeto ser outra. Só nele vale o
+  central (`central()`): o `golem.toml` dele fica por baixo do do jogo, linha a linha.
 """
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[1]
+KIT = Path(__file__).resolve().parents[1]
+
+
+def eh_plugin(pasta: Path = KIT) -> bool:
+    """A pasta é o plugin do Golem (tem o manifesto do plugin)."""
+    return (pasta / ".claude-plugin" / "plugin.json").is_file()
+
+
+def raiz_do_projeto(kit: Path = KIT) -> Path:
+    """A posição, salvo no plugin: aí, o git da pasta corrente, ou a pasta corrente."""
+    if not eh_plugin(kit):
+        return kit
+    try:
+        r = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True,
+                           text=True, encoding="utf-8", timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return Path(r.stdout.strip()).resolve()
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return Path.cwd().resolve()
+
+
+def central() -> Path:
+    """A pasta do Golem central: `GOLEM_CENTRAL`, senão `$HOME/Golem`, senão a do `Path.home()`.
+
+    A mesma regra do `gancho.sh` (que só tem o `HOME`): no Windows, o `Path.home()` usa o
+    `USERPROFILE`, e os dois achariam pastas diferentes com um `HOME` diferente dele.
+    """
+    pasta = os.environ.get("GOLEM_CENTRAL")
+    if pasta:
+        return Path(pasta)
+    casa = os.environ.get("HOME")
+    return (Path(casa) if casa else Path.home()) / "Golem"
+
+
+def modo_plugin(raiz: Path, kit: Path = KIT) -> bool:
+    """O kit é o plugin e o projeto é outro: só aí vale o central."""
+    return eh_plugin(kit) and Path(raiz).resolve() != kit.resolve()
+
+
+RAIZ = raiz_do_projeto()
 PADRAO = "economico"
 INICIO = "<!-- golem:inicio -->"
 FIM = "<!-- golem:fim -->"
@@ -113,12 +162,29 @@ def ler_texto(texto: str, origem: str = "golem.toml") -> dict:
     return linhas
 
 
+def _linhas(arquivo: Path, origem: str) -> dict:
+    return ler_texto(arquivo.read_text(encoding="utf-8"), origem) if arquivo.is_file() else {}
+
+
+def niveis(raiz: Path = RAIZ) -> tuple:
+    """(as linhas do central, as do projeto). Fora do modo plugin, o central não conta."""
+    do_projeto = _linhas(raiz / "golem.toml", "golem.toml")
+    do_central = {}
+    if modo_plugin(raiz):
+        arquivo = central() / "golem.toml"
+        do_central = _linhas(arquivo, arquivo.as_posix())
+    return do_central, do_projeto
+
+
 def configuracao(raiz: Path = RAIZ) -> dict:
-    """A configuração inteira: a receita, com as linhas do `golem.toml` por cima."""
-    arquivo = raiz / "golem.toml"
-    linhas = ler_texto(arquivo.read_text(encoding="utf-8")) if arquivo.is_file() else {}
-    receita = linhas.get("receita", PADRAO)
-    return {"receita": receita, **RECEITAS[receita], **linhas}
+    """A configuração inteira: a receita, com as linhas do central e as do projeto por cima.
+
+    Por chave, vale a linha do projeto, senão a do central, senão a da receita. A receita é a do
+    projeto, senão a do central, senão a `economico`.
+    """
+    do_central, do_projeto = niveis(raiz)
+    receita = do_projeto.get("receita", do_central.get("receita", PADRAO))
+    return {**RECEITAS[receita], **do_central, **do_projeto, "receita": receita}
 
 
 def teto_do_gancho(raiz: Path = RAIZ) -> int:

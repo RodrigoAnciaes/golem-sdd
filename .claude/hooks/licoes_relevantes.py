@@ -57,7 +57,12 @@ import tempfile
 import time
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[2]
+# Duas raízes (fase 3, o Golem central): os scripts irmãos vêm da posição (`KIT`); os dados (as
+# lições, o índice, o `golem.toml`), da raiz do projeto, que o `gancho.sh` passa no
+# `CLAUDE_PROJECT_DIR`. Sem a variável (o `.py` rodado direto, como na suíte), a posição.
+KIT = Path(__file__).resolve().parents[2]
+_PROJETO = os.environ.get("CLAUDE_PROJECT_DIR", "")
+RAIZ = Path(_PROJETO).resolve() if _PROJETO and Path(_PROJETO).is_dir() else KIT
 LICOES = RAIZ / "docs" / "licoes"
 INDICE = RAIZ / ".claude" / "indice" / "licoes.yaml"
 REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
@@ -66,12 +71,13 @@ REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
 def teto_do_gancho() -> int:
     """Quantas lições NOVAS por injeção: acima disso vira ruído e ninguém lê.
 
-    Vem do `golem.toml` da raiz (a linha `gancho_teto`, ou o da receita), pelo `.claude/golem.py`.
+    Vem do `golem.toml` da raiz (a linha `gancho_teto`, ou o da receita), pelo `.claude/golem.py`;
+    no modo plugin, com o do central por baixo.
     Sem `golem.toml`, ou com ele com erro, o da receita padrão. Sem o `golem.py` (a `.claude/` não
     foi copiada inteira), o script falha, e o `gancho.sh` avisa.
     """
     sys.dont_write_bytecode = True  # nada de .claude/__pycache__/ no projeto a cada ação
-    spec = importlib.util.spec_from_file_location("golem", RAIZ / ".claude" / "golem.py")
+    spec = importlib.util.spec_from_file_location("golem", KIT / ".claude" / "golem.py")
     golem = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(golem)
     return golem.teto_do_gancho(RAIZ)

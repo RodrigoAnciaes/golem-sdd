@@ -10,26 +10,26 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
 
 ## G1 — A raiz do projeto, o modo plugin e a configuração em dois níveis (R2)
 
-- [ ] `.claude/golem.py`:
+- [x] `.claude/golem.py`:
   - a raiz do projeto (a posição, ou o git da pasta corrente quando a posição é o plugin) e o modo
     plugin;
   - o central (`GOLEM_CENTRAL`, senão `$HOME/Golem`, senão o `Path.home()`);
   - a `configuracao` com o `golem.toml` do central por baixo do do jogo, só no modo plugin. A
     `teto_do_gancho` segue a mesma conta.
-- [ ] `.claude/hooks/gancho.sh`:
+- [x] `.claude/hooks/gancho.sh`:
   - a raiz pelo `CLAUDE_PROJECT_DIR`, quando ele existe e é uma pasta; sem ele, a posição, salvo
     quando a posição é o plugin (o git da pasta corrente); e o `CLAUDE_PROJECT_DIR` exportado com
     essa raiz para o `.py`;
   - no modo plugin, a linha `gancho` do `golem.toml` do central antes da do jogo (vale a última),
     e a linha `python` do `golem.local.toml` do central depois das duas de hoje;
   - o cabeçalho do arquivo dizendo a ordem nova.
-- [ ] `.claude/hooks/licoes_relevantes.py`: a raiz pelo `CLAUDE_PROJECT_DIR`, senão a posição; o
+- [x] `.claude/hooks/licoes_relevantes.py`: a raiz pelo `CLAUDE_PROJECT_DIR`, senão a posição; o
   teto pelo `golem.py` com essa raiz. O `golem.py` continua carregado pela posição (`:74`).
-- [ ] `.claude/regua.py`: a raiz como no `golem.py`; o gancho continua carregado pela posição
+- [x] `.claude/regua.py`: a raiz como no `golem.py`; o gancho continua carregado pela posição
   (`:43`, `:129`).
-- [ ] `.claude/tests/conftest.py`: o `AMBIENTE` sem `CLAUDE_PROJECT_DIR` e com o `GOLEM_CENTRAL`
+- [x] `.claude/tests/conftest.py`: o `AMBIENTE` sem `CLAUDE_PROJECT_DIR` e com o `GOLEM_CENTRAL`
   numa pasta vazia.
-- [ ] Testes novos (em `test_golem.py` e `test_gancho.py`), sobre um "kit" com
+- [x] Testes novos (em `test_golem.py` e `test_gancho.py`), sobre um "kit" com
   `.claude-plugin/plugin.json` e um "jogo" à parte, numa árvore descartável:
   - o gancho rodado da pasta do kit com o `CLAUDE_PROJECT_DIR` do jogo entrega a lição **do jogo**,
     e não a do kit;
@@ -45,7 +45,7 @@ branch trazida para a `main` do momento, se ela tiver andado, e as linhas citada
   - o `licoes_relevantes.py` rodado com o `CLAUDE_PROJECT_DIR` do jogo lê as lições do jogo;
   - o central: com o `HOME` numa pasta e o `USERPROFILE` noutra, sem `GOLEM_CENTRAL`, o `gancho.sh`
     e o `golem.py` acham o mesmo `$HOME/Golem`.
-- [ ] A suíte inteira, com a linha de resumo lida.
+- [x] A suíte inteira, com a linha de resumo lida: `150 passed`, sem pulados (134 + 16 novos: 10 no `test_gancho.py`, 6 no `test_golem.py`).
 
 **Revisão:** revisor e validador sobre o diff do grupo.
 
@@ -151,4 +151,4 @@ fato contra a fonte. Se ganhar código, volta ao caminho completo.
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
-| | | | |
+| 2026-11-22 | O modo plugin pede também que a pasta do kit seja o plugin (tenha o manifesto), e não só que a raiz seja outra | o revisor do G1: sem isso, um módulo do kit chamado com outra raiz (a suíte, a cópia do Codex) leria o central; a cópia e o kit não mudam, como o R2 já dizia | o agente, dentro do R2 (detalhe de implementação) |
