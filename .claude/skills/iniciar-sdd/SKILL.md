@@ -64,6 +64,9 @@ topo=$(t=$(git -C "$pasta" rev-parse --show-toplevel 2>/dev/null) && cd "$t" && 
 echo "raiz do git: ${topo:-não é um repositório git}"
 ```
 
+Se aparecer `ERRO`, pare e peça o caminho de novo: com a pasta vazia, o resto do passo age na pasta
+corrente.
+
 Daqui em diante, `<pasta>` é o caminho **absoluto** que o primeiro `echo` imprimiu (no Windows, na
 forma `C:/...`, a mesma que o `registrar` grava no `jogos.md`), escrito por extenso em
 cada comando (um `~` entre aspas não se expande, e um caminho relativo muda com o `cd`).
