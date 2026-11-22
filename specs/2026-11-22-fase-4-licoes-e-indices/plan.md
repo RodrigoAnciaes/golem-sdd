@@ -14,7 +14,7 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G1 — O gancho percebe a lição que falta no índice (R1)
 
-- [ ] `.claude/hooks/licoes_relevantes.py`:
+- [x] `.claude/hooks/licoes_relevantes.py`:
   - com o índice legível, a lista dos `docs/licoes/*.md` (sem o `README.md`), comparada com os ids
     do índice; cada lição que falta é lida do Markdown e entra no acervo;
   - a `candidatas` devolve também os ids que faltam;
@@ -22,15 +22,20 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
     fazer. Ele sai mesmo quando a ação não tem lição nem regra a receber, e é devolvido à marca se
     a entrega falhar, como as lições;
   - a docstring, na lista "Degradação".
-- [ ] `docs/licoes/README.md`, "Como o gancho entrega as lições" (`:108-111`): o gancho lê o índice
+- [x] `docs/licoes/README.md`, "Como o gancho entrega as lições" (`:108-111`): o gancho lê o índice
   e confere se falta alguma lição nele.
-- [ ] Testes novos em `.claude/tests/test_gancho.py`, sobre a árvore `acervo`:
+- [x] Testes novos em `.claude/tests/test_gancho.py`, sobre a árvore `acervo`:
   - com o índice em dia e uma lição nova fora dele, a ação que casa com o gatilho da nova recebe a
     lição e o aviso, com o id;
   - na mesma sessão, a segunda ação não recebe o aviso de novo;
   - a ação sem lição a receber recebe só o aviso, na primeira vez;
   - com o índice em dia, nada de aviso, e a entrega fica igual à de hoje;
-  - com o índice cortado, sai só o aviso de hoje (a varredura), e não o novo.
+  - com o índice cortado, sai só o aviso de hoje (a varredura), e não o novo;
+  - a lição fora do índice vale pelo nome do arquivo, e não pelo `id:`;
+  - uma pasta `x.md` em `docs/licoes/` não derruba o gancho.
+- [x] **Quem muda, varre** (achado do revisor): as frases que diziam que a lição fora do índice
+  nunca chega, na `licao` (`:11`, o título do passo 4 e o "Não é opcional"), na `diagnostico`
+  (`:171-173`) e na docstring de um teste da régua.
 
 ## G2 — A régua confere as `refs:` e o tamanho do `AGENTS.md` (R2, R3)
 
@@ -81,7 +86,9 @@ Só documentação: caminho rápido, só o revisor.
 - [ ] A regra 7 no `AGENTS.md` e no `templates/AGENTS.md`, com o mesmo texto. O conciliador tem de
   passar sem entrada nova em `PERMITIDAS`.
 - [ ] `docs/plano-produto.md`, seção 8: a decisão 13, o princípio do índice, com os campos do ADR e
-  a tabela do R5.
+  a tabela do R5. O PR do roteiro da GER (a fase 4b, decisão 14) entra antes e deixa na seção 8 o
+  item "13. **Reservada:** …": o texto da 13 entra **no lugar dele**, entre a 12 e a 14, sem item
+  novo. Antes do G3, a branch traz a `main` com esse PR (a GER, 2026-11-22).
 - [ ] **Quem muda, varre:** buscar `regra no \`AGENTS.md\``, `acrescente aqui uma regra`, `refs:` e
   `não lê os arquivos de lição` em `.claude/`, `docs/`, `templates/`, `WORKFLOW.md` e `README.md`, e
   corrigir o que repete o texto velho.
@@ -92,9 +99,12 @@ Só documentação: caminho rápido, só o revisor.
   colada nele.
 - [ ] As verificações manuais do `validation.md`.
 - [ ] O guardião sobre o diff inteiro do PR.
-- [ ] A `validar-fase`: o roteiro marcado, o PR aberto e o PEDIDO à GER.
+- [ ] A `validar-fase`: o roteiro marcado, o PR aberto e o PEDIDO à GER. A linha da fase 4 na
+  seção 7 é a nova do PR da GER, que termina em "o acervo geral é da fase 4b (decisão 14)".
 
 ## Alterações de escopo durante a fase
 
 | Data | O que mudou | Por quê | Quem aprovou |
 |---|---|---|---|
+| 2026-11-22 | O G1 corrige também a `licao` e a `diagnostico` (a lição fora do índice "nunca chega"), que estavam no G3 | O G1 tornou as frases falsas, e a varredura do G3 não as acharia (achado do revisor) | o agente: detalhe de implementação, dentro do R1 |
+| 2026-11-22 | O gancho só lê arquivo em `docs/licoes/` (`is_file`) | Uma pasta `x.md` derrubava o gancho a cada ação, visto pelo validador; já caía na varredura de hoje | o agente: falha vista, dentro do R1 |

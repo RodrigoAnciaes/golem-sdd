@@ -37,6 +37,9 @@ toca uma daquelas áreas, também uma vez por sessão. Sem o arquivo, nada muda.
 
 Degradação, sempre para injetar e nunca para o silêncio:
 - índice ilegível ou cortado → varre o Markdown de `docs/licoes/` (com aviso no texto);
+- índice legível, mas sem uma lição que está em `docs/licoes/` (escrita sem regerar, ou ainda
+  sem `git add`) → ela é lida do Markdown e entra no acervo, e o aviso "índice defasado" sai uma
+  vez por sessão e por agente, mesmo que a ação não tenha lição a receber;
 - marca da sessão ilegível → injeta sem deduplicar;
 - regex de gatilho inválida → é ignorada; se nenhuma da lição presta, ela volta a valer pela
   área. Quem acusa a regex inválida é a régua (`regua.py --gerar` recusa, `--conferir` falha).
@@ -270,22 +273,52 @@ def do_indice():
         return None
 
 
+def arquivos_de_licao() -> list:
+    """Os `docs/licoes/*.md`, sem o `README.md` (a subpasta `arquivo/` fica de fora do glob).
+
+    Só arquivos: uma pasta chamada `x.md` derrubava o gancho a cada ação (`PermissionError` no
+    Windows), na varredura e na conferência do índice.
+    """
+    if not LICOES.is_dir():
+        return []
+    return [arq for arq in sorted(LICOES.glob("*.md"))
+            if arq.name != "README.md" and arq.is_file()]
+
+
+def do_arquivo(arq: Path) -> tuple:
+    """(id, area, tipo, gatilhos) de UMA lição, lida do Markdown."""
+    texto = arq.read_text(encoding="utf-8", errors="ignore")
+    return (campo(texto, "id") or arq.stem, campo(texto, "area"), campo(texto, "tipo"),
+            ler_gatilhos(texto))
+
+
 def do_markdown():
     """Varredura do acervo: usada só quando o índice não presta."""
-    achadas = []
-    if not LICOES.is_dir():
-        return achadas
-    for arq in sorted(LICOES.glob("*.md")):
-        if arq.name == "README.md":
-            continue
-        texto = arq.read_text(encoding="utf-8", errors="ignore")
-        achadas.append((campo(texto, "id") or arq.stem, campo(texto, "area"),
-                        campo(texto, "tipo"), ler_gatilhos(texto)))
-    return achadas
+    return [do_arquivo(arq) for arq in arquivos_de_licao()]
+
+
+def fora_do_indice(acervo) -> tuple:
+    """(nomes, lições): as de `docs/licoes/` que o índice legível não traz, lidas do Markdown.
+
+    Lista os nomes e só abre os arquivos que faltam. O id é o nome do arquivo, e não o `id:`, que
+    a régua não conferiu nesta lição e pode ser qualquer coisa: o sinal se busca por
+    `<nome>.md`, e a marca da sessão leva o nome (um `id:` com `../` sairia da pasta da marca).
+    """
+    ids = {ident for ident, _a, _t, _g in acervo}
+    nomes, licoes = [], []
+    for arq in arquivos_de_licao():
+        if arq.stem not in ids:
+            _id, area, tipo, gatilhos = do_arquivo(arq)
+            nomes.append(arq.stem)
+            licoes.append((arq.stem, area, tipo, gatilhos))
+    return nomes, licoes
 
 
 def candidatas(areas, alvos):
-    """Devolve (lições, degradou). `degradou` = o índice não prestou e a lista veio do Markdown.
+    """Devolve (lições, degradou, faltam).
+
+    `degradou` = o índice não prestou e a lista veio do Markdown. `faltam` = os nomes das lições
+    que o índice legível não traz (vazio quando ele degradou): elas entram no acervo pelo Markdown.
 
     `alvos` = o caminho e o comando da ação, os textos contra os quais os gatilhos são testados.
     Lição com gatilho que presta só entra se um deles casar, e entra na frente; lição sem gatilho
@@ -293,8 +326,12 @@ def candidatas(areas, alvos):
     """
     acervo = do_indice()
     degradou = acervo is None
+    faltam = []
     if degradou:
         acervo = do_markdown()
+    else:
+        faltam, extras = fora_do_indice(acervo)
+        acervo = acervo + extras
     por_gatilho, por_area = [], []
     for ident, area, tipo, gatilhos in acervo:
         expressoes = compilar(gatilhos)
@@ -303,7 +340,7 @@ def candidatas(areas, alvos):
                 por_gatilho.append((ident, area, tipo))
         elif area in areas:
             por_area.append((ident, area, tipo))
-    return por_gatilho + por_area, degradou
+    return por_gatilho + por_area, degradou, faltam
 
 
 def regras_para(areas):
@@ -344,6 +381,9 @@ def sinal_de(ident: str) -> str:
 
 
 # ------------------------------------------------------------------ a marca da sessão
+
+# O nome da marca do aviso "índice defasado": sem `:`, como a `regra-N`.
+MARCA_DEFASADO = "aviso-indice-defasado"
 
 
 def pasta_de_marca(dados: dict):
@@ -516,21 +556,30 @@ def main():
     if not alvos:
         return
 
-    licoes, degradou = candidatas(areas, alvos)
+    licoes, degradou, faltam = candidatas(areas, alvos)
     regras = regras_para(areas)
-    if not licoes and not regras:
+    if not licoes and not regras and not faltam:
         return
 
-    # O teto antes de qualquer marca: se o golem.py faltar, o script cai aqui, sem ter marcado como
-    # entregue uma regra que não chegou.
-    teto = teto_do_gancho()
     marca = pasta_de_marca(dados)
     vistas = ja_entregues(marca)
+    # Nada novo para este agente (nem regra, nem lição, nem o aviso do índice defasado): sai antes
+    # de carregar o golem.py, que é o custo maior da ação.
+    if (all(f"regra-{r[0]}" in vistas for r in regras) and all(l[0] in vistas for l in licoes)
+            and not (faltam and MARCA_DEFASADO not in vistas)):
+        return
+
+    # O teto antes de qualquer reivindicação: se o golem.py faltar, o script cai aqui, sem ter
+    # marcado como entregue uma regra que não chegou.
+    teto = teto_do_gancho()
 
     # As regras vêm primeiro e SEM teto: são mandato, não sinal. O nome do arquivo de marca é
     # `regra-N` (`regra:N` não é nome de arquivo válido no Windows).
     regras_novas = [r for r in regras
                     if f"regra-{r[0]}" not in vistas and reivindicar(marca, f"regra-{r[0]}")]
+
+    # O aviso do índice defasado, uma vez por sessão e por agente, pela mesma marca.
+    avisar = bool(faltam) and MARCA_DEFASADO not in vistas and reivindicar(marca, MARCA_DEFASADO)
 
     # Lições: o pré-filtro descarta as já vistas; a reivindicação atômica decide as disputadas.
     entregar, examinadas = [], 0
@@ -544,12 +593,14 @@ def main():
             entregar.append(licao)
     restantes = sum(1 for l in licoes if l[0] not in vistas) - examinadas
 
-    if not regras_novas and not entregar:
+    if not regras_novas and not entregar and not avisar:
         return  # tudo o que vale aqui já foi entregue nesta sessão
 
-    reivindicadas = [f"regra-{n}" for n, _t, _c in regras_novas] + [i for i, _a, _t in entregar]
+    reivindicadas = ([f"regra-{n}" for n, _t, _c in regras_novas] + [i for i, _a, _t in entregar]
+                     + ([MARCA_DEFASADO] if avisar else []))
     try:
-        entregar_saida(areas, degradou, regras_novas, entregar, restantes)
+        entregar_saida(areas, degradou, regras_novas, entregar, restantes,
+                       faltam if avisar else [])
     except BaseException:
         # A marca foi gravada ANTES da entrega (é o que torna a reivindicação atômica). Se a
         # montagem ou a escrita falharem, devolve as lições; senão elas ficariam marcadas e nunca
@@ -558,12 +609,20 @@ def main():
         raise
 
 
-def entregar_saida(areas, degradou, regras_novas, entregar, restantes) -> None:
+def entregar_saida(areas, degradou, regras_novas, entregar, restantes, defasadas) -> None:
     linhas = []
     if degradou:
         linhas.append(
             "⚠️ O índice de lições (`.claude/indice/licoes.yaml`) está ilegível, cortado ou "
             "ausente: entregando pela varredura do Markdown. Rode `python3 .claude/regua.py --gerar`."
+        )
+        linhas.append("")
+    if defasadas:
+        linhas.append(
+            f"⚠️ O índice de lições (`.claude/indice/licoes.yaml`) está defasado: "
+            f"{len(defasadas)} lição(ões) de `docs/licoes/` fora dele ({', '.join(defasadas)}). "
+            f"Elas chegam mesmo assim, lidas do Markdown. Para pôr o índice em dia: o `git add` de "
+            f"cada uma e o `--gerar` da régua (o passo 4 da skill `licao` traz os comandos)."
         )
         linhas.append("")
     if regras_novas:

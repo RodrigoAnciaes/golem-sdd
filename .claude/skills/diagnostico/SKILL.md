@@ -168,9 +168,9 @@ echo '{"tool_input":{"command":"pytest -q"}}' | sh "${CLAUDE_SKILL_DIR}/../../ho
 - Se a saída traz uma lição, ou sai vazia, o Python rodou. Vazia quer dizer só que nenhuma lição
   casa com `pytest` neste projeto.
 - Com o Python rodando, confira o índice das lições: `"<o Python gravado>" "${CLAUDE_SKILL_DIR}/../../regua.py"
-  --conferir`. Lição escrita enquanto não havia Python fica fora do índice, e o gancho, que lê o
-  índice, nunca a entrega. Se o `--conferir` acusar, peça o ok para regerar, com a saída dele no
-  texto da pergunta. Com o ok, o `git add` das lições e o `--gerar`, como na skill `licao`, e diga
-  ao usuário que o índice mudou e que o commit é dele.
+  --conferir`. Lição escrita enquanto não havia Python fica fora do índice, e o gancho a entrega
+  lida do Markdown, com o aviso de índice defasado em toda sessão. Se o `--conferir` acusar, peça
+  o ok para regerar, com a saída dele no texto da pergunta. Com o ok, o `git add` das lições e o
+  `--gerar`, como na skill `licao`, e diga ao usuário que o índice mudou e que o commit é dele.
 
 Conte ao usuário o que foi gravado e onde, e o resultado do teste.

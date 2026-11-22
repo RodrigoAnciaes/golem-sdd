@@ -39,7 +39,7 @@ Quem executa: o agente, pelo Git Bash, com a saída colada aqui.
       `echo '{"session_id":"v1","tool_input":{"command":"comando-de-teste"}}' | CLAUDE_PROJECT_DIR="$TMP/kit" sh "$TMP/kit/.claude/hooks/gancho.sh"`.
       **Deve sair** o `**licao-de-teste**` e o aviso "índice defasado" com o id.
    4. Rode de novo, com a mesma sessão e o comando `ls`. **Não deve sair** o aviso.
-   5. Rode o `--gerar` e, numa sessão nova (`"session_id":"v2"`), o mesmo comando do passo 3.
+   5. Rode `git add docs/licoes/licao-de-teste.md` e o `--gerar` e, numa sessão nova (`"session_id":"v2"`), o mesmo comando do passo 3.
       **Deve sair** a lição, **sem** o aviso.
 2. **A ref deslocada sai com a linha nova (R2).** Na mesma cópia, ponha uma linha em branco no topo
    de um arquivo citado com linha e âncora por uma lição do kit, e rode o `--conferir`. **Deve

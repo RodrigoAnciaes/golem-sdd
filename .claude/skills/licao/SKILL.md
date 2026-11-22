@@ -8,8 +8,9 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 
 **Lê:** `docs/licoes/` (para não duplicar) e `docs/licoes/README.md` (o formato).
 **Escreve:** `docs/licoes/<id>.md`; **e obrigatoriamente** `.claude/indice/licoes.yaml`, pelo
-`--gerar`. Lição fora do índice **não chega pelo gancho**. Se a lição implicar ação
-obrigatória, escreve também a regra no `AGENTS.md`.
+`--gerar`. Lição fora do índice chega pelo gancho só lida do Markdown, com o aviso de índice
+defasado em toda sessão. Se a lição implicar ação obrigatória, escreve também a regra no
+`AGENTS.md`.
 **Decide:** se é lição mesmo: os quatro motivos abaixo, e nada além deles.
 
 ## Antes de escrever: isto é mesmo uma lição?
@@ -103,7 +104,7 @@ decidem **se** a lição existe; o `gatilho:` conta **onde** ela nasceu; os `gat
 - **Contradiz uma spec ou um ADR?** Diga ao usuário. Não corrija spec fechada por conta própria.
 - **É preferência do usuário ou estado do projeto?** Não é lição: vai para a memória do agente.
 
-## 4. Regerar o índice: sem isto a lição não chega pelo gancho
+## 4. Regerar o índice: sem isto o gancho avisa em toda sessão
 
 **Primeiro o `git add` da lição, depois o `--gerar`.** Se o índice só vê o que o git rastreia, sem o
 `git add` a lição fica de fora sem erro nenhum.
@@ -114,9 +115,9 @@ python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --gerar      # no Windows, python o
 python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir
 ```
 
-**Não é opcional.** O gancho, que entrega as lições a cada ação, lê `.claude/indice/licoes.yaml`,
-não a pasta. Lição escrita e índice não regerado = lição que existe no repositório e **nunca
-chega** a quem toca a área.
+**Não é opcional.** O gancho, que entrega as lições a cada ação, lê `.claude/indice/licoes.yaml`
+e confere, pelos nomes da pasta, se falta lição nele. A que falta chega lida do Markdown, mas com o
+aviso "índice defasado" em toda sessão de todo agente, até o índice ser regerado com ela.
 
 Se o comando recusar o arquivo (id fora de `[a-z0-9-]`, id diferente do nome do arquivo), o
 problema está no frontmatter, não no comando.

@@ -37,7 +37,7 @@ def test_gerar_seguido_de_conferir_passa(copia_do_kit):
 
 
 def test_conferir_falha_com_o_indice_velho(copia_do_kit):
-    """O motivo de o `--conferir` existir: índice que envelhece cala a lição nova."""
+    """O motivo de o `--conferir` existir: o índice que envelhece entrega a lição velha."""
     assert rodar(copia_do_kit, "--gerar").returncode == 0
     licao = copia_do_kit / "docs" / "licoes" / "suite-verde-so-vale-com-a-linha-de-resumo.md"
     licao.write_text(licao.read_text(encoding="utf-8").replace("area: processo", "area: codigo", 1),

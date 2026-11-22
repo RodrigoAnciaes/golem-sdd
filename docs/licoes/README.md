@@ -110,7 +110,8 @@ para todos os jogos.
 O gancho do kit (`.claude/hooks/`) roda antes de uma ação do agente (editar ou escrever um arquivo,
 rodar um comando) e põe no contexto o "Como perceber da próxima vez" das lições que importam para
 aquela ação. Ele não lê os arquivos de lição um a um: lê o **índice** que a régua gera
-(`.claude/indice/licoes.yaml`). Por isso, **depois de criar ou editar uma lição, rode:**
+(`.claude/indice/licoes.yaml`) e confere, pelos nomes em `docs/licoes/`, se falta alguma lição nele.
+Por isso, **depois de criar ou editar uma lição, rode:**
 
 ```bash
 git add docs/licoes/<id>.md          # a régua só indexa o que o git conhece
@@ -121,8 +122,10 @@ Esse é o comando na cópia (o kit dentro do projeto). No Golem central, a régu
 skill `licao`, que diz o comando com o caminho do kit, ou rode `python3 <pasta do kit>/.claude/regua.py
 --gerar` na pasta do jogo.
 
-Lição fora do índice não é entregue a ninguém. Confira: o id novo tem de aparecer no diff do
-índice. Se não aparecer, o arquivo não foi visto (faltou o `git add`).
+A lição que falta no índice ainda chega: o gancho a lê do Markdown e avisa, uma vez por sessão e
+por agente, que o índice está defasado, com o id dela. O aviso é para regerar, e não um jeito de
+dispensar a régua. Confira: o id novo tem de aparecer no diff do índice. Se não aparecer, o arquivo
+não foi visto (faltou o `git add`).
 
 ### `gatilhos:` — em que ação a lição chega
 
