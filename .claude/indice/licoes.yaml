@@ -1,6 +1,13 @@
 # GERADO por .claude/regua.py --gerar. NÃO EDITE À MÃO.
 # A fonte é o frontmatter de docs/licoes/*.md. `--conferir` falha se divergirem.
 licoes:
+  a-regra-de-area-chega-sem-a-introducao-do-arquivo:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-21"
+    gatilho: "escrever uma regra de área que se apoia num texto da introdução do docs/regras-de-area.md (o modelo templates/roblox/regras-de-area.md da fase 2)"
+    gatilhos: ["\\bregras-de-area\\.md$"]
+    arquivo: docs/licoes/a-regra-de-area-chega-sem-a-introducao-do-arquivo.md
   conferir-e-agir-em-chamadas-separadas:
     area: "processo"
     tipo: "armadilha"
@@ -22,6 +29,13 @@ licoes:
     gatilho: "a regra 10 («sem uma falha vista que a justifique») aplicada a um kit que outras pessoas vão usar, ao classificar os aprendizados de outro projeto com o mesmo método"
     gatilhos: ["specs/[^/]+/(requirements|plan)\\.md$", "specs/roadmap\\.md$", "docs/plano-produto\\.md$"]
     arquivo: docs/licoes/num-produto-a-falha-vista-vem-do-uso.md
+  o-agente-cria-script-pelo-execute-luau-sem-caminho:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-21"
+    gatilho: "pedir ao agente, num place do Roblox, um script novo, com o gancho das lições acendendo a área codigo só pelo caminho do multi_edit"
+    gatilhos: ["\\.claude/hooks/licoes_relevantes\\.py$"]
+    arquivo: docs/licoes/o-agente-cria-script-pelo-execute-luau-sem-caminho.md
   o-aviso-entre-duas-perguntas-fica-no-raciocinio:
     area: "processo"
     tipo: "armadilha"
@@ -29,6 +43,13 @@ licoes:
     gatilho: "a skill configurar mandava dizer, numa linha de texto entre duas chamadas da ferramenta de pergunta, o que fica sem revisão; em duas sessões novas, a linha não saiu"
     gatilhos: ["/SKILL\\.md$"]
     arquivo: docs/licoes/o-aviso-entre-duas-perguntas-fica-no-raciocinio.md
+  o-git-bash-troca-o-barra-c-do-cmd-por-c:
+    area: "processo"
+    tipo: "armadilha"
+    data: "2026-11-21"
+    gatilho: "registrar o servidor MCP do Roblox Studio no Claude Code com o comando que o quick connect do Studio mostra, rodado pela ferramenta Bash (Git Bash) no Windows"
+    gatilhos: ["\\bmcp\\s+add\\b", "\\bcmd(\\.exe)?\"?\\s+\"?/c\\b"]
+    arquivo: docs/licoes/o-git-bash-troca-o-barra-c-do-cmd-por-c.md
   o-grep-do-git-for-windows-aborta-com-i-e-varios-e:
     area: "processo"
     tipo: "erro-de-diagnostico"
@@ -36,6 +57,20 @@ licoes:
     gatilho: "a implementar-fase passou a mandar buscar lições com grep -il, e uma sessão rodou grep -il -e python -e teste"
     gatilhos: ["(?<!git )\\bgrep\\b[^|;&\\n]*\\s-e\\s[^|;&\\n]*\\s-e\\s", "stackdump"]
     arquivo: docs/licoes/o-grep-do-git-for-windows-aborta-com-i-e-varios-e.md
+  o-studio-nao-acessa-o-datastore-por-padrao:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-21"
+    gatilho: "escrever no kit o risco de rodar código no Studio com o jogo ligado (o guia, os modelos de Roblox e o validador da fase 2)"
+    gatilhos: ["\\bguia-roblox\\.md$", "\\.claude/agents/validador\\.md$"]
+    arquivo: docs/licoes/o-studio-nao-acessa-o-datastore-por-padrao.md
+  o-studio-recusa-salvar-a-copia-com-a-sessao-antiga-aberta:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-21"
+    gatilho: "voltar um place do Roblox a uma versão anterior pela cópia local do histórico, seguindo o docs/guia-roblox.md da fase 2"
+    gatilhos: ["\\bguia-roblox\\.md$"]
+    arquivo: docs/licoes/o-studio-recusa-salvar-a-copia-com-a-sessao-antiga-aberta.md
   o-windows-muda-o-que-o-sh-recebe-do-python:
     area: "processo"
     tipo: "armadilha"
@@ -43,6 +78,13 @@ licoes:
     gatilho: "testes do gancho.sh que rodam o sh do Git Bash pelo subprocess do Python, no Windows"
     gatilhos: ["\\bPROGRAMFILES\\b", "(^|/)\\.claude/tests/test_(gancho|codex)\\.py$"]
     arquivo: docs/licoes/o-windows-muda-o-que-o-sh-recebe-do-python.md
+  proibir-pelo-efeito-deixa-a-brecha-do-que-nao-tem-o-efeito:
+    area: "processo"
+    tipo: "premissa-falsa"
+    data: "2026-11-21"
+    gatilho: "chamar o agente validador sobre uma fase cujo código mora num place do Roblox Studio"
+    gatilhos: ["\\.claude/agents/validador\\.md$"]
+    arquivo: docs/licoes/proibir-pelo-efeito-deixa-a-brecha-do-que-nao-tem-o-efeito.md
   sem-python-no-path-nao-e-maquina-sem-python:
     area: "processo"
     tipo: "erro-de-diagnostico"
@@ -64,4 +106,4 @@ licoes:
     gatilho: "um teste manual da skill diagnostico: abrir o Claude Code com o LOCALAPPDATA numa pasta vazia, para ver o caminho de uma máquina sem Python"
     gatilhos: ["\\bLOCALAPPDATA=\\S", "\\$env:LOCALAPPDATA\\s*=", "\\bwinpty\\b"]
     arquivo: docs/licoes/trocar-o-localappdata-nao-esconde-o-python-do-agente.md
-total: 9
+total: 15

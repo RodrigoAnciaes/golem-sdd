@@ -115,6 +115,7 @@ def test_aplicar_escreve_o_model_dos_dois_agentes(copia_do_kit):
     # O revisor sem `model:` e em CRLF; o validador com um `model:` velho, em LF.
     revisor = (agentes / "revisor.md").read_bytes().decode("utf-8").replace("\r\n", "\n")
     revisor = "\n".join(l for l in revisor.split("\n") if not l.startswith("model:"))
+    tools = next(l for l in revisor.split("\n") if l.startswith("tools: "))
     escrever(agentes, revisor.replace("\n", "\r\n"), "revisor.md")
     validador = (agentes / "validador.md").read_bytes().decode("utf-8").replace("\r\n", "\n")
     validador = "\n".join(l for l in validador.split("\n") if not l.startswith("model:"))
@@ -124,7 +125,8 @@ def test_aplicar_escreve_o_model_dos_dois_agentes(copia_do_kit):
     assert golem.aplicar(copia_do_kit) == 0
 
     r = (agentes / "revisor.md").read_bytes().decode("utf-8")
-    assert "\ntools: Read, Grep, Glob, Bash\r\nmodel: haiku\r\n---\r\n" in r, r[:600]
+    # A linha `tools:` sai inteira (com as ferramentas do Studio, fase 2) e o `model:` vem depois.
+    assert f"\n{tools}\r\nmodel: haiku\r\n---\r\n" in r, r[:600]
     assert "\n" not in r.replace("\r\n", ""), "o CRLF do revisor se perdeu"
     v = (agentes / "validador.md").read_bytes().decode("utf-8")
     assert v.count("model:") == 1 and "\nmodel: opus\n---\n" in v, v[:600]

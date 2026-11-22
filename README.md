@@ -166,7 +166,9 @@ O projeto precisa ser um repositório git (`git init`, se ainda não for).
 
 O commit desses arquivos é seu: faça quando quiser, junto com o que mais estiver pendente.
 
-A pasta `templates/` é opcional: são os modelos de cada documento, com um exemplo por seção, para
+A pasta `templates/` é opcional (num jogo do Roblox, não: o executor de testes sai de
+`templates/roblox/`, como diz o `docs/guia-roblox.md`): são os modelos de cada documento, com um
+exemplo por seção, para
 quem quer ver a forma sem rodar a skill. A skill `iniciar-sdd` usa três deles (o do PR, o do
 `CHANGELOG.md` e o do ADR); se `templates/` não estiver no projeto, ela pergunta onde está o kit.
 
@@ -263,6 +265,7 @@ conversa para a gerente e o LIBERADO de volta. O método funciona igual; só o c
 | `WORKFLOW.md` | o fluxo, etapa por etapa |
 | `golem.toml` | (opcional, a skill `configurar` cria) a receita e as linhas que mudam como o Golem trabalha; sem ele, vale a `economico` |
 | `docs/guia-configuracao.md` | as receitas, o que cada linha do `golem.toml` faz e o que custa |
+| `docs/guia-roblox.md` | o Golem num jogo do Roblox sem Rojo: o Studio MCP, os modelos, os testes e como voltar atrás |
 | `docs/operacao-das-conversas.md` | os papéis das conversas, quem decide o quê, o fecho, o merge e as travas |
 | `docs/licoes/` | as lições: o formato no `README.md` e uma lição por arquivo |
 | `docs/regras-de-area.md` | (opcional, você cria) regras que só valem para quem mexe numa área; o gancho as entrega junto com as lições. Formato no topo do `.claude/hooks/licoes_relevantes.py` |
@@ -277,7 +280,7 @@ conversa para a gerente e o LIBERADO de volta. O método funciona igual; só o c
 | `.claude/instalar_codex.py` | gera as cópias do Codex (`.agents/skills/`, `.codex/agents/`, `.codex/hooks.json`) e confere que estão em dia (`--conferir`) |
 | `.agents/skills/`, `.codex/` | (geradas pelo instalador, só para o Codex) as cópias das skills, dos agentes e do gancho |
 | `.claude/tests/` | os testes do ferramental: `python3 -m pytest .claude/tests -o addopts= -q -p no:cacheprovider` |
-| `templates/` | os modelos da constituição, da spec de fase (e do formato curto, `templates/fase/curta.md`), do PR, do changelog e do ADR |
+| `templates/` | os modelos da constituição, da spec de fase (e do formato curto, `templates/fase/curta.md`), do PR, do changelog e do ADR; em `templates/roblox/`, os de um jogo do Roblox (o executor de testes, as lições e os riscos de exemplo) |
 | `specs/` | (criada pela `iniciar-sdd`) a constituição e uma pasta por fase |
 
 ## O que adaptar primeiro

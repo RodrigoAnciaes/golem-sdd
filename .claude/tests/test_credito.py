@@ -36,6 +36,7 @@ ARQUIVOS_DO_KIT = (
         ".claude/tests/test_golem.py",
         ".claude/tests/test_regua.py",
     )]
+    + [("templates/roblox/Executor.luau", f"-- {LINHA}")]
 )
 
 

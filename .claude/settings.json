@@ -23,6 +23,17 @@
             "statusMessage": "Lendo as lições da área..."
           }
         ]
+      },
+      {
+        "matcher": "^mcp__.+__(multi_edit|execute_luau)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null)}/.claude/hooks/gancho.sh\" || printf '%s\\n' '{\"systemMessage\":\"⚠️ O lançador do gancho das lições (.claude/hooks/gancho.sh) quebrou: nenhuma lição injetada.\",\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"⚠️ O lançador do gancho das lições (.claude/hooks/gancho.sh) quebrou: nenhuma lição nem regra de área foi injetada nesta ação. Leia docs/licoes/ à mão (índice em .claude/indice/licoes.yaml) e avise o usuário.\"}}'",
+            "timeout": 10,
+            "statusMessage": "Lendo as lições da área..."
+          }
+        ]
       }
     ]
   }
