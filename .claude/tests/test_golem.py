@@ -716,7 +716,9 @@ def test_o_subir_escreve_no_geral_e_a_licao_do_jogo_fica_igual(registrado, tmp_p
     g = carregar("golem_subidas", registrado.kit / ".claude" / "golem.py")
     with pytest.MonkeyPatch.context() as mp:
         mp.setenv("GOLEM_CENTRAL", str(registrado.central))
-        assert g.ler_subidas() == {"geral-a": (g.impressao(do_jogo), g.impressao(destino))}
+        assert g.ler_subidas(registrado.jogo) == {
+            "geral-a": (g.impressao(do_jogo), g.impressao(destino))}
+        assert g.ler_subidas(tmp_path) == {}, "a linha é deste jogo, e não de outro"
     # De novo, sem o --substituir: recusa; com ele, troca a linha, sem duplicar.
     _recusa(registrado, arq, motivo="--substituir")
     arq.write_text(arq.read_text(encoding="utf-8") + "\nMais evidência.\n", encoding="utf-8")

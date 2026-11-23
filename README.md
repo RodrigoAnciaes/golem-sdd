@@ -368,7 +368,7 @@ Na cópia (o Codex), o que mora no kit vai para dentro do projeto.
 | `specs/` | no jogo | a constituição e uma pasta por fase |
 | `CHANGELOG.md`, `.github/pull_request_template.md` | no jogo | o registro por data e o modelo de PR |
 | `.claude/indice/licoes.yaml` | no jogo, e no central | o índice das lições, gerado pela régua; nunca se edita à mão. O do central é o do acervo geral |
-| `.claude/indice/subidas.txt` | no central | as cópias ao acervo geral: por lição, uma impressão do texto do jogo e outra do geral, para a régua avisar quando divergem. Quem escreve é o `golem.py subir` |
+| `.claude/indice/subidas.txt` | no central | as cópias ao acervo geral: por lição e jogo, uma impressão do texto do jogo e outra do geral, para a régua avisar quando divergem. Quem escreve é o `golem.py subir` |
 | `.claude/LICENSE` | no kit e no jogo | a licença do kit (MIT), igual ao `LICENSE` da raiz do kit; a `iniciar-sdd` a copia ao jogo |
 | `.claude-plugin/` | no kit | o manifesto do plugin e do marketplace |
 | `.claude/skills/` | no kit | as skills do fluxo, uma pasta por skill |

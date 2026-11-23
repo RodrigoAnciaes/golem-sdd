@@ -62,7 +62,7 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
     sem a linha; e a conferência de como ela entra no `onde` e no guia (a tabela das receitas,
     `test_golem.py:226`), com o que se decidir anotado no `requirements.md`, R3;
   - o `onde`, no modo plugin: a linha "para terceiros" (`sim`, `não` ou "fora do registro");
-  - o `subir <arquivo> [--substituir]`, com as conferências do R4 antes de escrever, a escrita em
+  - o `subir <arquivo> [--substituir] [--palavra-comum]`, com as conferências do R4 antes de escrever, a escrita em
     `<central>/docs/licoes/<id>.md`, a régua do kit regerando o índice do geral (um subprocesso
     com a pasta corrente no central) e a linha da subida no `<central>/.claude/indice/subidas.txt`;
   - o `USO` (`:532-543`) com o comando novo e o `--terceiros`.

@@ -179,9 +179,11 @@ Depois de escrever `~/Golem/docs/licoes/<id>.md`, ele:
   `ERRO`, que diz a saída: copiar a lição à mão ao central, o `git add` dela e o subir de novo com
   o `--substituir`. Os `AVISO` dela
   (a lição fora do git do central, que fica fora do índice) saem no relato;
-- grava a subida em `~/Golem/.claude/indice/subidas.txt`, uma linha por id: o id, a impressão
-  (sha256) da lição do jogo e a da versão geral, como estavam na subida (R5). A linha do mesmo id
-  se troca;
+- grava a subida em `~/Golem/.claude/indice/subidas.txt`, uma linha por id e jogo: o id, a
+  impressão (sha256) da lição do jogo, a da versão geral e a pasta do jogo, como estavam na subida
+  (R5). A linha do mesmo id e do mesmo jogo se troca. Uma linha por id só (o desenho até o G4)
+  fazia dois jogos que sobem o mesmo id, o caminho do passo 1 da `licao`, se atropelarem: a
+  régua de um dava um aviso falso, sem fim (do guardião);
 - diz o que escreveu, uma linha por arquivo, como o `aplicar` (`golem.py:483-487`).
 
 A lição do jogo não muda: a subida copia (P2).
@@ -207,9 +209,10 @@ refs e do teto (`regua.py:377-387`).
   cabe dentro dela.
 - **A régua acha o central** pelo `golem.py`, que ela já carrega para o teto (`regua.py:348-359`):
   o `modo_plugin` e o `central()` (`golem.py:64-79`). Fora do modo plugin, nada muda.
-- **O caso aceito:** um segundo jogo com uma lição própria de mesmo id que uma geral subida de
-  outro jogo também sai no aviso. É raro, e o aviso tem uso aí: o gancho dele entrega a do jogo, e
-  não a geral (R2).
+- **Dois jogos com o mesmo id:** cada um compara com a linha dele. Quando o jogo B sobe de novo a
+  geral que veio do A, a régua do A diz "a versão geral mudou", que é verdade, e o A se põe em dia
+  subindo a versão geral de hoje. O jogo que tem uma lição de mesmo id e nunca subiu nada não tem
+  linha, e não recebe aviso.
 
 ### R6. A `licao` oferece a subida
 
@@ -268,8 +271,9 @@ Um passo novo na `licao` (`licao/SKILL.md`), depois do fecho (`:186-192`), só n
 - **O histórico do acervo geral.** O central não é um repositório git (R1), e a lição geral não tem
   commit. A lição continua no git do jogo de onde subiu. Pôr o central no git é escolha do usuário,
   e a régua já a trata (R1).
-- **Descer uma lição geral para um jogo, ou apagar uma geral:** à mão, apagando o arquivo e rodando
-  a régua no central. Nenhuma falha vista.
+- **Descer uma lição geral para um jogo, ou apagar uma geral:** à mão, apagando o arquivo e as
+  linhas do id no `~/Golem/.claude/indice/subidas.txt` (senão a régua do jogo de origem avisa que
+  a versão geral sumiu) e rodando a régua no central. Nenhuma falha vista.
 - **Mudar a resposta geral (R3) por uma skill:** à mão, na linha do `golem.toml`. Nenhuma falha
   vista.
 - **O Codex:** fica na instalação por cópia (decisão 11), sem central; o passo novo da `licao` não

@@ -75,7 +75,8 @@ grep -lE "^area:[[:space:]]*[\"']?deploy[\"']?([[:space:]]|#|$)" --exclude=READM
 ```
 
 A busca vai na pasta, e não no índice: a lição que entrou sem o índice regerado aparece também. No
-Golem central, rode as mesmas duas buscas também no acervo geral,
+Golem central (o modo plugin: o kit tem `.claude-plugin/plugin.json` e a raiz do projeto é outra
+pasta), rode as mesmas duas buscas também no acervo geral,
 `${GOLEM_CENTRAL:-$HOME/Golem}/docs/licoes/`, que vale para todo jogo.
 
 Abra em `docs/licoes/` só as lições que a busca apontar. Se o projeto tiver um gancho que injeta as

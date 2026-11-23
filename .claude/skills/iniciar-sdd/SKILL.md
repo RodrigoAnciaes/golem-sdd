@@ -65,7 +65,9 @@ grep -E '^\s*jogos_para_terceiros\s*=' "${GOLEM_CENTRAL:-$HOME/Golem}/golem.toml
 3. **Sem a linha** (o primeiro registro): **"Você costuma fazer jogos para estúdios ou outras
    pessoas?"** ("Não, só para mim (Recomendado)" e "Sim, às vezes"). Grave a resposta como a
    última linha do `golem.toml` do central: `jogos_para_terceiros = "nao"` ou `"sim"`. Ela não se
-   pergunta de novo; para mudar, a linha se troca à mão.
+   pergunta de novo; para mudar, a linha se troca à mão. Com "sim", num central que já tem jogos
+   registrados, diga em uma linha que eles ficaram como "para mim", e que o usuário diga se algum
+   é para outra pessoa.
 4. **Com `"sim"`**, pergunte por jogo: **"Você faz este jogo para você mesmo, nos seus próprios
    repositórios, ou para um estúdio ou outra pessoa?"**, com, no texto da pergunta: "Se for para
    outra pessoa, o Golem não leva nada deste jogo para o acervo geral, que todos os seus jogos

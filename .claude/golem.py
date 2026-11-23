@@ -202,7 +202,7 @@ def niveis(raiz: Path = RAIZ) -> tuple:
         for chave in FORA_DAS_RECEITAS:
             if chave in do_projeto:
                 onde_vale = (f" ({(central() / 'golem.toml').as_posix()})" if modo_plugin(raiz)
-                             else ", que esta instalação por cópia não tem")
+                             else ", e aqui não há modo plugin")
                 raise ErroDeConfiguracao(
                     f"golem.toml: a chave `{chave}` só vale no golem.toml do Golem central"
                     f"{onde_vale}; tire a linha `{chave}` deste")
@@ -619,17 +619,27 @@ def impressao(arquivo: Path) -> str:
     return hashlib.sha256(texto).hexdigest()
 
 
-def ler_subidas() -> dict:
-    """{id: (impressão da lição do jogo, impressão da versão geral)} do `subidas.txt` do central,
-    como estavam na subida; {} sem o arquivo."""
+def _linha_de_subida(linha: str):
+    """(id, impressão do jogo, impressão do geral, pasta do jogo) de uma linha do `subidas.txt`, ou
+    None. A pasta vem por último: ela pode ter espaços."""
+    if linha.startswith("#"):
+        return None
+    partes = linha.split(maxsplit=3)
+    return tuple(partes) if len(partes) == 4 else None
+
+
+def ler_subidas(raiz: Path) -> dict:
+    """{id: (impressão da lição do jogo, impressão da versão geral)} das subidas feitas DESTE jogo
+    (`raiz`), do `subidas.txt` do central, como estavam na subida; {} sem o arquivo. Uma linha por
+    id e jogo: dois jogos que sobem o mesmo id não se atropelam."""
     arquivo = central() / SUBIDAS
     if not arquivo.is_file():
         return {}
     subidas = {}
     for linha in _ler(arquivo)[0].splitlines():
-        partes = linha.split()
-        if len(partes) == 3 and not linha.startswith("#"):
-            subidas[partes[0]] = (partes[1], partes[2])
+        lida = _linha_de_subida(linha)
+        if lida and _mesma_pasta(lida[3], raiz):
+            subidas[lida[0]] = (lida[1], lida[2])
     return subidas
 
 
@@ -761,12 +771,18 @@ def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ,
             print(linha)                  # o central no git: a lição fora dele não entra no índice
     if indice.is_file() and indice.read_bytes() != antes[indice]:
         escritos.append(indice)
-    linha = f"{arquivo.stem} {impressao(do_jogo)} {impressao(destino)}"
+    linha = f"{arquivo.stem} {impressao(do_jogo)} {impressao(destino)} {raiz.as_posix()}"
     registro = central() / SUBIDAS
     linhas = _ler(registro)[0].splitlines() if registro.is_file() else [
-        "# As subidas ao acervo geral: o id, a impressão da lição do jogo e a da versão geral, "
-        "como estavam na subida. Quem escreve é o `golem.py subir`; a régua compara (fase 4b)."]
-    linhas = [l for l in linhas if l.split()[:1] != [arquivo.stem]] + [linha]
+        "# As subidas ao acervo geral: o id, a impressão da lição do jogo, a da versão geral e a "
+        "pasta do jogo, como estavam na subida. Quem escreve é o `golem.py subir`; a régua "
+        "compara (fase 4b)."]
+
+    def deste_jogo(l):
+        lida = _linha_de_subida(l)
+        return lida is not None and lida[0] == arquivo.stem and _mesma_pasta(lida[3], raiz)
+
+    linhas = [l for l in linhas if not deste_jogo(l)] + [linha]
     _escrever(registro, "\n".join(linhas) + "\n", escritos)
     return escritos
 

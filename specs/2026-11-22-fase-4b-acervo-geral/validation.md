@@ -20,13 +20,15 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
   - G3: 7 novos (no `test_regua.py`) → `251 passed in 136.47s`.
   - O nome comum (a decisão do cartão, depois do G3): 1 novo (no `test_golem.py`) → 252.
   - G5, em `ba4d722`: `252 passed in 139.73s (0:02:19)`, sem falhas nem puladas.
+  - Do guardião (dois jogos com o mesmo id): 1 novo (no `test_regua.py`) → `253 passed in
+    142.35s (0:02:22)`.
 - [x] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`,
   sai 0, sem nenhuma linha `AVISO`. Em `ba4d722`: a única linha é `ok       .claude/indice/licoes.yaml`, `rc=0`.
 - [x] `git diff "$BASE"..HEAD --stat -- .claude/indice/ docs/licoes/*.md` → vazio, fora o
   `docs/licoes/README.md`: a fase não cria nem muda lição do kit. Saiu só `docs/licoes/README.md | 10 ++++++++++`.
 - [x] `wc -w AGENTS.md templates/AGENTS.md` → os dois abaixo de 3.000: `2604` e `2552`.
-- [ ] `git diff "$BASE"..HEAD --name-only | grep -v -e '^specs/' -e '^docs/licoes/README\.md$' -e '^\.claude/' -e '^README\.md$' -e '^docs/guia-configuracao\.md$'`
-  → vazio: a fase não mexe fora do que a spec cita. [x] Vazio.
+- [x] `git diff "$BASE"..HEAD --name-only | grep -v -e '^specs/' -e '^docs/licoes/README\.md$' -e '^\.claude/' -e '^README\.md$' -e '^docs/guia-configuracao\.md$'`
+  → vazio: a fase não mexe fora do que a spec cita. Vazio.
 
 ## Verificações manuais
 
@@ -154,7 +156,11 @@ isso, fica no "Não exigido"):
   (`iniciar-sdd`, "nunca 'cliente'") e as Restrições antigas da `licao` (segredo de cliente).
 - [x] As cópias do Codex não se versionam no kit: `git diff "$BASE"..HEAD --name-only -- .agents .codex`
   → vazio. Vazio.
-- [ ] Revisor e validador por grupo, no Opus; o guardião sobre o diff inteiro antes do PEDIDO.
+- [x] Revisor e validador por grupo, no Opus; o guardião sobre o diff inteiro antes do PEDIDO. Os
+  G1 a G4 e os dois commits do nome comum (`f4e9b7a`, `1479840`) tiveram revisor e validador, cada
+  um até "sem bloqueio" e "valida" (o G4 pelo caminho completo, depois dos achados importantes).
+  O guardião, em `8b14b43`, deu "com bloqueio": o `subidas.txt` com uma linha por id fazia dois
+  jogos com o mesmo id se atropelarem. Corrigido com uma linha por id e jogo, e um teste novo.
 
 ## Registro
 

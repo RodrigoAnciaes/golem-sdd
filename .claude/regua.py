@@ -382,7 +382,7 @@ def avisos_de_divergencia() -> list:
     central = golem.central()
     if golem._mesma_pasta(RAIZ, central):
         return []                         # ali, as lições são as versões gerais
-    subidas = golem.ler_subidas()
+    subidas = golem.ler_subidas(RAIZ)
     fora = []
     for arq in arquivos_de_licao(todos=True):
         if arq.stem not in subidas:
@@ -394,7 +394,7 @@ def avisos_de_divergencia() -> list:
         elif not geral.is_file():
             motivo = "a versão geral sumiu"
         elif golem.impressao(geral) != do_geral:
-            motivo = "a versão geral mudou"
+            motivo = "a versão geral mudou (à mão, ou subida de novo por outro jogo)"
         else:
             continue
         saida = ("suba de novo uma versão geral dela (a skill `licao` faz isso)"

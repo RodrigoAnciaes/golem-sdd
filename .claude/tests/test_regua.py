@@ -532,9 +532,35 @@ def test_no_proprio_kit_com_o_manifesto_a_divergencia_nao_conta(plugin):
     `subidas.txt` do central do ambiente não conta, mesmo citando uma lição do kit."""
     indice = plugin.central / ".claude" / "indice"
     indice.mkdir(parents=True)
-    (indice / "subidas.txt").write_text(f"licao-do-kit {'0' * 64} {'1' * 64}\n", encoding="utf-8")
+    (indice / "subidas.txt").write_text(
+        f"licao-do-kit {'0' * 64} {'1' * 64} {plugin.kit.resolve().as_posix()}\n", encoding="utf-8")
     r = plugin.rodar("regua.py", "--gerar", cwd=plugin.kit)
     assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
+
+
+def test_dois_jogos_com_o_mesmo_id_nao_se_atropelam(plugin, tmp_path):
+    """Do guardião: o jogo B sobe a mesma lição geral (o passo 1 da `licao`), com --substituir. O
+    jogo A vê a verdade, "a versão geral mudou", e não um aviso falso sobre a lição dele; subindo a
+    versão geral de hoje, os dois ficam em dia."""
+    _licao_a, geral = _subido(plugin)
+    outro = tmp_path / "jogo-b"
+    outro.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=outro, check=True, capture_output=True)
+    licao_b = escrever_licao(outro, "geral-a", r"'\bcomando-geral\b'")
+    licao_b.write_text(licao_b.read_text(encoding="utf-8") + "\nEvidência de um segundo caso.\n",
+                       encoding="utf-8")
+    subprocess.run(["git", "add", "docs"], cwd=outro, check=True, capture_output=True)
+    assert plugin.rodar("regua.py", "--gerar", cwd=outro).returncode == 0
+    assert plugin.rodar("golem.py", "registrar", str(outro)).returncode == 0
+    r = plugin.rodar("golem.py", "subir", str(licao_b), "--substituir", cwd=outro)
+    assert r.returncode == 0, r.stdout + r.stderr
+    no_a = plugin.rodar("regua.py", "--conferir").stderr
+    assert "a versão geral mudou" in no_a and "a lição deste jogo mudou" not in no_a, no_a
+    assert DIVERGIU not in plugin.rodar("regua.py", "--conferir", cwd=outro).stderr
+    r = plugin.rodar("golem.py", "subir", str(geral))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert DIVERGIU not in plugin.rodar("regua.py", "--conferir").stderr
+    assert DIVERGIU not in plugin.rodar("regua.py", "--conferir", cwd=outro).stderr
 
 
 def _reescrita(plugin, tmp_path, ident: str = "geral-a"):
