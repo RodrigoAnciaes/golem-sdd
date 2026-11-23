@@ -142,7 +142,9 @@ você registra. Os seus outros projetos não mudam. A configuração também se 
 1. **Abra o Claude Code na pasta do Golem central** (`~/Golem`). Na primeira vez, ele pergunta se
    você confia na pasta: aceite, e só então o Golem liga ali.
 2. **Peça "registrar um jogo"** (a skill `golem:iniciar-sdd`). Ela pergunta o nome do jogo e se você
-   já tem uma pasta para ele; sem pasta, cria `~/Golem/jogos/<nome>/`. Depois prepara a pasta (um
+   já tem uma pasta para ele; sem pasta, cria `~/Golem/jogos/<nome>/`. Na primeira vez, pergunta
+   também se você costuma fazer jogos para estúdios ou outras pessoas: o que se aprende num jogo
+   assim não vai ao acervo geral de lições, que todos os seus jogos leem. Depois prepara a pasta (um
    repositório git, com o `AGENTS.md`, as lições e os modelos), põe o jogo no registro, liga o Golem
    nele, gera o índice das lições e aplica a configuração do central ao `AGENTS.md` do jogo.
 3. **Abra uma sessão nova do Claude Code na pasta do jogo** e confie na pasta quando ele perguntar.
@@ -354,25 +356,26 @@ Na cópia (o Codex), o que mora no kit vai para dentro do projeto.
 | `WORKFLOW.md` | no jogo | o fluxo, etapa por etapa |
 | `golem.toml` | no central, e no jogo se ele quiser | a receita e as linhas que mudam como o Golem trabalha. O do central vale em todos os jogos; o do jogo, se houver, vale por cima, linha a linha. Sem nenhum, vale a `economico` |
 | `golem.local.toml` | no central | o caminho do Python desta máquina (a skill `diagnostico` grava); fica fora do git |
-| `jogos.md` | no central | o registro dos jogos desta máquina: o nome, a pasta e a data |
+| `jogos.md` | no central | o registro dos jogos desta máquina: o nome, a pasta, a data e se o jogo é para terceiros (um estúdio ou outra pessoa: nada dele sobe ao acervo geral) |
 | `jogos/` | no central | as pastas dos jogos que não tinham pasta própria, uma por jogo, cada uma um repositório git |
 | `.claude/settings.local.json` | no jogo e no central | o "ligado": liga o plugin naquela pasta. Fica fora do git |
 | `docs/guia-configuracao.md` | no kit | as receitas, o que cada linha do `golem.toml` faz e o que custa |
 | `docs/guia-roblox.md` | no kit | o Golem num jogo do Roblox sem Rojo: o Studio MCP, os modelos, os testes e como voltar atrás |
 | `docs/operacao-das-conversas.md` | no jogo | os papéis das conversas, quem decide o quê, o fecho, o merge e as travas |
-| `docs/licoes/` | no jogo | as lições: o formato no `README.md` e uma lição por arquivo |
+| `docs/licoes/` | no jogo, e no central | as lições: o formato no `README.md` e uma lição por arquivo. A do central é o acervo geral, que o gancho lê em todos os jogos; uma lição chega lá pela skill `licao`, com o seu ok |
 | `docs/regras-de-area.md` | no jogo | (opcional, você cria) regras que só valem para quem mexe numa área; o gancho as entrega junto com as lições. Formato no topo do `.claude/hooks/licoes_relevantes.py` do kit |
 | `docs/adr/` | no jogo | as decisões técnicas, uma por arquivo, com o modelo em `docs/adr/modelo.md` |
 | `specs/` | no jogo | a constituição e uma pasta por fase |
 | `CHANGELOG.md`, `.github/pull_request_template.md` | no jogo | o registro por data e o modelo de PR |
-| `.claude/indice/licoes.yaml` | no jogo | o índice das lições, gerado pela régua; nunca se edita à mão |
+| `.claude/indice/licoes.yaml` | no jogo, e no central | o índice das lições, gerado pela régua; nunca se edita à mão. O do central é o do acervo geral |
+| `.claude/indice/subidas.txt` | no central | as cópias ao acervo geral: por lição e jogo, uma impressão do texto do jogo e outra do geral, para a régua avisar quando divergem. Quem escreve é o `golem.py subir` |
 | `.claude/LICENSE` | no kit e no jogo | a licença do kit (MIT), igual ao `LICENSE` da raiz do kit; a `iniciar-sdd` a copia ao jogo |
 | `.claude-plugin/` | no kit | o manifesto do plugin e do marketplace |
 | `.claude/skills/` | no kit | as skills do fluxo, uma pasta por skill |
 | `.claude/agents/` | no kit | os subagentes `revisor` e `validador` |
 | `.claude/hooks/` | no kit | o gancho que entrega as lições antes de uma ação |
-| `.claude/golem.py` | no kit | o `aplicar` (o bloco "Como o Golem trabalha aqui" do `AGENTS.md`, e o `model:` dos agentes na cópia), o `central`, o `registrar` e o `onde` |
-| `.claude/regua.py` | no kit | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`); avisa também da ref de lição que não bate com o arquivo citado e do `AGENTS.md` acima do teto (`agents_teto`); no plugin, no repositório da pasta corrente; na cópia, no projeto em que está |
+| `.claude/golem.py` | no kit | o `aplicar` (o bloco "Como o Golem trabalha aqui" do `AGENTS.md`, e o `model:` dos agentes na cópia), o `central`, o `registrar`, o `onde` e o `subir` (a cópia de uma lição ao acervo geral) |
+| `.claude/regua.py` | no kit | a régua: gera o índice das lições (`--gerar`) e confere que ele está em dia (`--conferir`); avisa também da ref de lição que não bate com o arquivo citado e do `AGENTS.md` acima do teto (`agents_teto`) e, no plugin, da lição do jogo que divergiu da cópia no acervo geral; no plugin, no repositório da pasta corrente; na cópia, no projeto em que está |
 | `.claude/settings.json` | no kit (na cópia, no projeto) | liga o gancho quando o kit está dentro do projeto; no plugin, quem liga o gancho é o `.claude/hooks/hooks.json` |
 | `.claude/instalar_codex.py` | no kit (na cópia, no projeto) | gera as cópias do Codex (`.agents/skills/`, `.codex/agents/`, `.codex/hooks.json`) e confere que estão em dia (`--conferir`) |
 | `.agents/skills/`, `.codex/` | na cópia | (geradas pelo instalador, só para o Codex) as cópias das skills, dos agentes e do gancho |

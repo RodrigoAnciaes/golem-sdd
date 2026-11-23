@@ -31,15 +31,23 @@ Como escolhe:
    é NOVO: a ação seguinte na mesma área entrega as próximas, até esgotar.
 5. O sinal sai **inteiro**. Truncar entrega meia verdade, e o agente completa de memória.
 
+Dois acervos (fase 4b): o do jogo, em `docs/licoes/` da raiz, e, só no modo plugin (o kit tem
+`.claude-plugin/plugin.json` e a raiz é outra pasta), o acervo geral do Golem central, em
+`docs/licoes/` da pasta que o `gancho.sh` passa no `GOLEM_CENTRAL`. A escolha é sobre os dois
+juntos, no mesmo teto: o gatilho antes da área, e, dentro de cada grupo, o jogo antes do geral. O
+id que está no jogo não entra do geral. As gerais saem num bloco próprio, com o sinal lido do
+Markdown do geral. Sem a pasta do geral, ou com a sessão aberta no próprio central, um acervo só.
+
 Regras de área (opcional): se existir `docs/regras-de-area.md`, cada bloco
 `## Regra N — Título` seguido de uma linha `areas: a, b` é entregue, inteiro e sem teto, a quem
 toca uma daquelas áreas, também uma vez por sessão. Sem o arquivo, nada muda.
 
-Degradação, sempre para injetar e nunca para o silêncio:
+Degradação, sempre para injetar e nunca para o silêncio, em cada acervo por si (o aviso diz qual):
 - índice ilegível ou cortado → varre o Markdown de `docs/licoes/` (com aviso no texto);
 - índice legível, mas sem uma lição que está em `docs/licoes/` (escrita sem regerar, ou ainda
   sem `git add`) → ela é lida do Markdown e entra no acervo, e o aviso "índice defasado" sai uma
-  vez por sessão e por agente, mesmo que a ação não tenha lição a receber;
+  vez por sessão e por agente, mesmo que a ação não tenha lição a receber (a marca do geral é
+  outra);
 - marca da sessão ilegível → injeta sem deduplicar;
 - regex de gatilho inválida → é ignorada; se nenhuma da lição presta, ela volta a valer pela
   área. Quem acusa a regex inválida é a régua (`regua.py --gerar` recusa, `--conferir` falha).
@@ -66,9 +74,33 @@ from pathlib import Path
 KIT = Path(__file__).resolve().parents[2]
 _PROJETO = os.environ.get("CLAUDE_PROJECT_DIR", "")
 RAIZ = Path(_PROJETO).resolve() if _PROJETO and Path(_PROJETO).is_dir() else KIT
-LICOES = RAIZ / "docs" / "licoes"
 INDICE = RAIZ / ".claude" / "indice" / "licoes.yaml"
 REGRAS_DE_AREA = RAIZ / "docs" / "regras-de-area.md"
+
+
+def _mesma_pasta(a: Path, b: Path) -> bool:
+    return os.path.normcase(str(a)) == os.path.normcase(str(b))
+
+
+def acervo_geral():
+    """A pasta do Golem central quando o acervo geral conta; None fora disso.
+
+    Conta só no modo plugin (o manifesto no kit e a raiz diferente do kit), com o `GOLEM_CENTRAL`
+    que o `gancho.sh` exporta, numa pasta que não é a raiz e que tem `docs/licoes/`. A conferência
+    do modo plugin é daqui também: a variável pode vir do ambiente fora dele.
+    """
+    if not (KIT / ".claude-plugin" / "plugin.json").is_file() or _mesma_pasta(RAIZ, KIT):
+        return None
+    valor = os.environ.get("GOLEM_CENTRAL", "")
+    if not valor:
+        return None
+    try:
+        pasta = Path(valor).resolve()
+        if _mesma_pasta(pasta, RAIZ) or not (pasta / "docs" / "licoes").is_dir():
+            return None
+    except Exception:
+        return None
+    return pasta
 
 
 def teto_do_gancho() -> int:
@@ -225,8 +257,8 @@ def compilar(gatilhos) -> list:
 # ------------------------------------------------------------------ o acervo
 
 
-def do_indice():
-    """Lê `.claude/indice/licoes.yaml`. Devolve [(id, area, tipo, gatilhos)] ou None se não der.
+def do_indice(indice: Path = INDICE):
+    """Lê o `.claude/indice/licoes.yaml` de um acervo. Devolve [(id, area, tipo, gatilhos)] ou None se não der.
 
     Leitor próprio do formato que a régua escreve, de propósito: depender de PyYAML aqui faria
     o gancho morrer num ambiente sem ele. `gatilhos` vem em JSON numa linha só; JSON que não lê
@@ -237,7 +269,7 @@ def do_indice():
     índice cortado seria servido como completo, e as lições do pedaço perdido sumiriam caladas.
     """
     try:
-        if not INDICE.is_file():
+        if not indice.is_file():
             return None
         achadas, ident, dados, lidas, total = [], None, {}, 0, None
 
@@ -248,7 +280,7 @@ def do_indice():
                     raise ValueError("gatilhos fora de lista")
                 achadas.append((ident, dados.get("area", ""), dados.get("tipo", ""), gatilhos))
 
-        for linha in INDICE.read_text(encoding="utf-8").splitlines():
+        for linha in indice.read_text(encoding="utf-8").splitlines():
             m = re.match(r"^total:\s*(\d+)\s*$", linha)
             if m:
                 total = int(m.group(1))
@@ -276,15 +308,15 @@ def do_indice():
         return None
 
 
-def arquivos_de_licao() -> list:
-    """Os `docs/licoes/*.md`, sem o `README.md` (a subpasta `arquivo/` fica de fora do glob).
+def arquivos_de_licao(licoes: Path) -> list:
+    """Os `docs/licoes/*.md` de um acervo, sem o `README.md` (a subpasta `arquivo/` fica de fora do glob).
 
     Só arquivos: uma pasta chamada `x.md` derrubava o gancho a cada ação (`PermissionError` no
     Windows), na varredura e na conferência do índice.
     """
-    if not LICOES.is_dir():
+    if not licoes.is_dir():
         return []
-    return [arq for arq in sorted(LICOES.glob("*.md"))
+    return [arq for arq in sorted(licoes.glob("*.md"))
             if arq.name != "README.md" and arq.is_file()]
 
 
@@ -295,12 +327,12 @@ def do_arquivo(arq: Path) -> tuple:
             ler_gatilhos(texto))
 
 
-def do_markdown():
+def do_markdown(licoes: Path):
     """Varredura do acervo: usada só quando o índice não presta."""
-    return [do_arquivo(arq) for arq in arquivos_de_licao()]
+    return [do_arquivo(arq) for arq in arquivos_de_licao(licoes)]
 
 
-def fora_do_indice(acervo) -> tuple:
+def fora_do_indice(acervo, pasta: Path) -> tuple:
     """(nomes, lições): as de `docs/licoes/` que o índice legível não traz, lidas do Markdown.
 
     Lista os nomes e só abre os arquivos que faltam. O id é o nome do arquivo, e não o `id:`, que
@@ -309,7 +341,7 @@ def fora_do_indice(acervo) -> tuple:
     """
     ids = {ident for ident, _a, _t, _g in acervo}
     nomes, licoes = [], []
-    for arq in arquivos_de_licao():
+    for arq in arquivos_de_licao(pasta):
         if arq.stem not in ids:
             _id, area, tipo, gatilhos = do_arquivo(arq)
             nomes.append(arq.stem)
@@ -317,33 +349,47 @@ def fora_do_indice(acervo) -> tuple:
     return nomes, licoes
 
 
-def candidatas(areas, alvos):
-    """Devolve (lições, degradou, faltam).
+def ler_acervo(pasta: Path) -> tuple:
+    """(lições, degradou, faltam) de UM acervo, o da raiz `pasta`.
 
     `degradou` = o índice não prestou e a lista veio do Markdown. `faltam` = os nomes das lições
-    que o índice legível não traz (vazio quando ele degradou): elas entram no acervo pelo Markdown.
+    que o índice legível não traz (vazio quando ele degradou): elas entram pelo Markdown.
+    """
+    licoes = pasta / "docs" / "licoes"
+    acervo = do_indice(pasta / ".claude" / "indice" / "licoes.yaml")
+    if acervo is None:
+        return do_markdown(licoes), True, []
+    faltam, extras = fora_do_indice(acervo, licoes)
+    return acervo + extras, False, faltam
+
+
+def candidatas(areas, alvos, geral=None):
+    """Devolve (lições, estados): as lições como (id, área, tipo, pasta das lições), na ordem de
+    entrega, e um estado por acervo lido, (geral?, degradou, faltam), o do jogo primeiro.
 
     `alvos` = o caminho e o comando da ação, os textos contra os quais os gatilhos são testados.
     Lição com gatilho que presta só entra se um deles casar, e entra na frente; lição sem gatilho
-    (ou só com gatilho inválido) entra pela área.
+    (ou só com gatilho inválido) entra pela área. `geral` = a pasta do central (`acervo_geral`):
+    as dele vêm depois das do jogo em cada grupo, e o id que está no jogo não entra dele.
     """
-    acervo = do_indice()
-    degradou = acervo is None
-    faltam = []
-    if degradou:
-        acervo = do_markdown()
-    else:
-        faltam, extras = fora_do_indice(acervo)
-        acervo = acervo + extras
-    por_gatilho, por_area = [], []
-    for ident, area, tipo, gatilhos in acervo:
-        expressoes = compilar(gatilhos)
-        if expressoes:
-            if any(rx.search(alvo) for rx in expressoes for alvo in alvos):
-                por_gatilho.append((ident, area, tipo))
-        elif area in areas:
-            por_area.append((ident, area, tipo))
-    return por_gatilho + por_area, degradou, faltam
+    acervos = [(False, RAIZ)] + ([(True, geral)] if geral is not None else [])
+    por_gatilho, por_area, estados, do_jogo = [], [], [], set()
+    for e_geral, pasta in acervos:
+        acervo, degradou, faltam = ler_acervo(pasta)
+        estados.append((e_geral, degradou, faltam))
+        licoes = pasta / "docs" / "licoes"
+        for ident, area, tipo, gatilhos in acervo:
+            if e_geral and ident in do_jogo:
+                continue                  # a do jogo vence a geral de mesmo id
+            expressoes = compilar(gatilhos)
+            if expressoes:
+                if any(rx.search(alvo) for rx in expressoes for alvo in alvos):
+                    por_gatilho.append((ident, area, tipo, licoes))
+            elif area in areas:
+                por_area.append((ident, area, tipo, licoes))
+        if not e_geral:
+            do_jogo = {ident for ident, _a, _t, _g in acervo}
+    return por_gatilho + por_area, estados
 
 
 def regras_para(areas):
@@ -375,9 +421,9 @@ def regras_para(areas):
     return fora
 
 
-def sinal_de(ident: str) -> str:
-    """Abre o Markdown de UMA lição: a evidência mora lá, não no índice."""
-    arq = LICOES / f"{ident}.md"
+def sinal_de(ident: str, licoes: Path) -> str:
+    """Abre o Markdown de UMA lição, no acervo dela: a evidência mora lá, não no índice."""
+    arq = licoes / f"{ident}.md"
     if not arq.is_file():
         return ""
     return como_perceber(arq.read_text(encoding="utf-8", errors="ignore"))
@@ -387,6 +433,7 @@ def sinal_de(ident: str) -> str:
 
 # O nome da marca do aviso "índice defasado": sem `:`, como a `regra-N`.
 MARCA_DEFASADO = "aviso-indice-defasado"
+MARCA_DEFASADO_GERAL = "aviso-indice-defasado-geral"
 
 
 def pasta_de_marca(dados: dict):
@@ -559,9 +606,14 @@ def main():
     if not alvos:
         return
 
-    licoes, degradou, faltam = candidatas(areas, alvos)
+    geral = acervo_geral()
+    licoes, estados = candidatas(areas, alvos, geral)
     regras = regras_para(areas)
-    if not licoes and not regras and not faltam:
+    # Os avisos "índice defasado" que esta ação pode dar: (marca, aviso), um por acervo.
+    defasados = [(MARCA_DEFASADO_GERAL if e_geral else MARCA_DEFASADO,
+                  aviso_defasado(faltam, geral if e_geral else None))
+                 for e_geral, _degradou, faltam in estados if faltam]
+    if not licoes and not regras and not defasados:
         return
 
     marca = pasta_de_marca(dados)
@@ -569,7 +621,7 @@ def main():
     # Nada novo para este agente (nem regra, nem lição, nem o aviso do índice defasado): sai antes
     # de carregar o golem.py, que é o custo maior da ação.
     if (all(f"regra-{r[0]}" in vistas for r in regras) and all(l[0] in vistas for l in licoes)
-            and not (faltam and MARCA_DEFASADO not in vistas)):
+            and all(m in vistas for m, _a in defasados)):
         return
 
     # O teto antes de qualquer reivindicação: se o golem.py faltar, o script cai aqui, sem ter
@@ -581,8 +633,8 @@ def main():
     regras_novas = [r for r in regras
                     if f"regra-{r[0]}" not in vistas and reivindicar(marca, f"regra-{r[0]}")]
 
-    # O aviso do índice defasado, uma vez por sessão e por agente, pela mesma marca.
-    avisar = bool(faltam) and MARCA_DEFASADO not in vistas and reivindicar(marca, MARCA_DEFASADO)
+    # O aviso do índice defasado, uma vez por sessão e por agente e por acervo, pela marca dele.
+    avisos = [(m, a) for m, a in defasados if m not in vistas and reivindicar(marca, m)]
 
     # Lições: o pré-filtro descarta as já vistas; a reivindicação atômica decide as disputadas.
     entregar, examinadas = [], 0
@@ -596,14 +648,16 @@ def main():
             entregar.append(licao)
     restantes = sum(1 for l in licoes if l[0] not in vistas) - examinadas
 
-    if not regras_novas and not entregar and not avisar:
+    if not regras_novas and not entregar and not avisos:
         return  # tudo o que vale aqui já foi entregue nesta sessão
 
-    reivindicadas = ([f"regra-{n}" for n, _t, _c in regras_novas] + [i for i, _a, _t in entregar]
-                     + ([MARCA_DEFASADO] if avisar else []))
+    reivindicadas = ([f"regra-{n}" for n, _t, _c in regras_novas]
+                     + [l[0] for l in entregar] + [m for m, _a in avisos])
+    degradados = [aviso_degradou(geral if e_geral else None)
+                  for e_geral, degradou, _f in estados if degradou]
     try:
-        entregar_saida(areas, degradou, regras_novas, entregar, restantes,
-                       faltam if avisar else [])
+        entregar_saida(areas, degradados + [a for _m, a in avisos], regras_novas, entregar,
+                       restantes, geral)
     except BaseException:
         # A marca foi gravada ANTES da entrega (é o que torna a reivindicação atômica). Se a
         # montagem ou a escrita falharem, devolve as lições; senão elas ficariam marcadas e nunca
@@ -612,21 +666,53 @@ def main():
         raise
 
 
-def entregar_saida(areas, degradou, regras_novas, entregar, restantes, defasadas) -> None:
+def _o_indice(geral) -> tuple:
+    """O índice de que o aviso fala, e como regerá-lo."""
+    if geral is None:
+        return ("O índice de lições (`.claude/indice/licoes.yaml`)",
+                "Rode `python3 .claude/regua.py --gerar`.")
+    indice = (geral / ".claude" / "indice" / "licoes.yaml").as_posix()
+    regua = (KIT / ".claude" / "regua.py").as_posix()
+    return (f"O índice do acervo geral (`{indice}`)",
+            f"Para regerá-lo, rode a régua do kit com a pasta corrente no central: "
+            f"`cd \"{geral.as_posix()}\" && python3 \"{regua}\" --gerar`.")
+
+
+def aviso_degradou(geral) -> str:
+    indice, regerar = _o_indice(geral)
+    return (f"⚠️ {indice} está ilegível, cortado ou ausente: entregando pela varredura do "
+            f"Markdown. {regerar}")
+
+
+def aviso_defasado(faltam, geral) -> str:
+    indice, regerar = _o_indice(geral)
+    pasta = "docs/licoes/" if geral is None else (geral / "docs" / "licoes").as_posix() + "/"
+    if geral is None:
+        regerar = ("Para pôr o índice em dia: o `git add` de cada uma e o `--gerar` da régua (o "
+                   "passo 4 da skill `licao` traz os comandos).")
+    return (f"⚠️ {indice} está defasado: {len(faltam)} lição(ões) de `{pasta}` fora dele "
+            f"({', '.join(faltam)}). Elas chegam mesmo assim, lidas do Markdown. {regerar}")
+
+
+def _itens(entregar) -> list:
     linhas = []
-    if degradou:
-        linhas.append(
-            "⚠️ O índice de lições (`.claude/indice/licoes.yaml`) está ilegível, cortado ou "
-            "ausente: entregando pela varredura do Markdown. Rode `python3 .claude/regua.py --gerar`."
-        )
-        linhas.append("")
-    if defasadas:
-        linhas.append(
-            f"⚠️ O índice de lições (`.claude/indice/licoes.yaml`) está defasado: "
-            f"{len(defasadas)} lição(ões) de `docs/licoes/` fora dele ({', '.join(defasadas)}). "
-            f"Elas chegam mesmo assim, lidas do Markdown. Para pôr o índice em dia: o `git add` de "
-            f"cada uma e o `--gerar` da régua (o passo 4 da skill `licao` traz os comandos)."
-        )
+    for ident, _area, tipo, licoes in entregar:
+        sinal = sinal_de(ident, licoes)
+        if not sinal:
+            linhas.append(f"- **{ident}** ({tipo})")
+        elif "\n" in sinal:
+            # Sinal de várias linhas vai como bloco indentado, senão a lista vira parágrafo.
+            linhas.append(f"- **{ident}** ({tipo}):")
+            linhas.extend("  " + l if l else "" for l in sinal.splitlines())
+        else:
+            linhas.append(f"- **{ident}** ({tipo}): {sinal}")
+    return linhas
+
+
+def entregar_saida(areas, avisos, regras_novas, entregar, restantes, geral=None) -> None:
+    linhas = []
+    for aviso in avisos:
+        linhas.append(aviso)
         linhas.append("")
     if regras_novas:
         linhas.append(
@@ -638,29 +724,34 @@ def entregar_saida(areas, degradou, regras_novas, entregar, restantes, defasadas
             linhas.append(corpo)
             linhas.append("")
 
-    if entregar:
-        # Ação sem área só chega aqui por gatilho: o rótulo não pode sair vazio.
+    # Ação sem área só chega aqui por gatilho: o rótulo não pode sair vazio.
+    para = ", ".join(sorted(areas)) or "esta ação"
+    do_jogo = [l for l in entregar if geral is None or l[3] != geral / "docs" / "licoes"]
+    gerais = [l for l in entregar if l not in do_jogo]
+    if do_jogo:
         linhas.append(
-            f"Lições registradas para {', '.join(sorted(areas)) or 'esta ação'} "
+            f"Lições registradas para {para} "
             f"(docs/licoes/ — armadilhas registradas neste projeto):"
         )
         linhas.append("")
-        for ident, _area, tipo in entregar:
-            sinal = sinal_de(ident)
-            if not sinal:
-                linhas.append(f"- **{ident}** ({tipo})")
-            elif "\n" in sinal:
-                # Sinal de várias linhas vai como bloco indentado, senão a lista vira parágrafo.
-                linhas.append(f"- **{ident}** ({tipo}):")
-                linhas.extend("  " + l if l else "" for l in sinal.splitlines())
-            else:
-                linhas.append(f"- **{ident}** ({tipo}): {sinal}")
-        if restantes:
-            # Com ações paralelas este número é aproximado; a entrega em si é exata.
-            linhas.append(
-                f"- (+{restantes} ainda não vistas nessa área: chegam na próxima ação que a "
-                f"tocar, ou leia docs/licoes/<id>.md)"
-            )
+        linhas.extend(_itens(do_jogo))
+    if gerais:
+        if do_jogo:
+            linhas.append("")
+        linhas.append(
+            f"Lições do acervo geral para {para} "
+            f"({(geral / 'docs' / 'licoes').as_posix()}/ — armadilhas que valem para todo jogo, "
+            f"no Golem central):"
+        )
+        linhas.append("")
+        linhas.extend(_itens(gerais))
+    if entregar and restantes:
+        # Com ações paralelas este número é aproximado; a entrega em si é exata.
+        onde = "docs/licoes/<id>.md" if geral is None else "o <id>.md na pasta de cada bloco"
+        linhas.append(
+            f"- (+{restantes} ainda não vistas nessa área: chegam na próxima ação que a "
+            f"tocar, ou leia {onde})"
+        )
 
     sys.stdout.write(json.dumps({
         "hookSpecificOutput": {

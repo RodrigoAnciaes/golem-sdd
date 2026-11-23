@@ -11,8 +11,11 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 `--gerar`. Lição fora do índice chega pelo gancho só lida do Markdown, com o aviso de índice
 defasado em toda sessão. Se a lição implicar ação obrigatória, escreve também a regra: no
 `AGENTS.md`, se ela vale para toda tarefa; no `docs/regras-de-area.md`, se ela só muda a decisão de
-quem mexe numa área (passo 3).
-**Decide:** se é lição mesmo: os quatro motivos abaixo, e nada além deles.
+quem mexe numa área (passo 3). No Golem central, com o ok do usuário, uma cópia da lição, sem nada
+do projeto, no acervo geral (`~/Golem/docs/licoes/`), pelo `golem.py subir` (passo 7), que regera
+o índice do geral e grava a subida no `subidas.txt` do central.
+**Decide:** se é lição mesmo: os quatro motivos abaixo, e nada além deles. E, no Golem central, se
+a lição parece valer para qualquer jogo, para oferecer a cópia; quem decide se ela vai é o usuário.
 
 ## Antes de escrever: isto é mesmo uma lição?
 
@@ -33,10 +36,17 @@ Escrever demais estraga o acervo. Na dúvida, não escreva.
 
 ```bash
 grep -ril "<palavra-chave do assunto>" docs/licoes/
+KIT=$(cd "${CLAUDE_SKILL_DIR}/../../.." && pwd)
+raiz=$(cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" && pwd)
+if [ -f "$KIT/.claude-plugin/plugin.json" ] && [ "$KIT" != "$raiz" ]; then   # o Golem central
+    grep -ril "<palavra-chave do assunto>" "${GOLEM_CENTRAL:-$HOME/Golem}/docs/licoes/" 2>/dev/null
+fi
 ```
 
 Se existir uma lição próxima, **atualize-a** em vez de criar outra: acrescente a nova evidência e a
-data. Duas lições sobre a mesma armadilha valem menos que uma.
+data. Duas lições sobre a mesma armadilha valem menos que uma. Se a próxima é do acervo geral (a
+segunda busca, no Golem central), escreva a lição deste jogo com o mesmo nome de arquivo dela e,
+no passo 7, a versão geral atualizada sobe com o `--substituir`, em vez de nascer outra.
 
 ## 2. Escrever `docs/licoes/<id>.md`
 
@@ -153,6 +163,11 @@ aviso "índice defasado" em toda sessão de todo agente, até o índice ser rege
 Se o comando recusar o arquivo (id fora de `[a-z0-9-]`, id diferente do nome do arquivo), o
 problema está no frontmatter, não no comando.
 
+No Golem central, a régua avisa também quando esta lição já foi copiada ao acervo geral e mudou
+desde então (`AVISO <id>: a lição deste jogo mudou desde a subida ao acervo geral`, ou a versão
+geral mudou, ou sumiu). Guarde o aviso: ele vai dentro da primeira pergunta do passo 7 ("A cópia
+desta lição no acervo geral ficou para trás"), e não num texto à parte.
+
 **Sem Python nesta máquina** (nenhum Python 3.8+ que rode, conferido como na skill `diagnostico`):
 pule o `--gerar` e o `--conferir` e diga ao usuário que pulou. A lição já vale para quem a busca
 em `docs/licoes/`; o índice fica defasado até alguém rodar a régua numa máquina com Python, e esse
@@ -190,6 +205,97 @@ no mesmo commit, senão o índice chega defasado na `main`. A regra do passo 3 (
 `docs/regras-de-area.md`) vai no mesmo commit. Sem Python, o commit leva só a lição, e a
 mensagem diz que o índice ficou para depois. Se a lição nasceu de uma correção do
 usuário, **cite a frase dele**: é o que torna o registro verificável depois.
+
+## 7. Oferecer o acervo geral (só no Golem central)
+
+No Golem central, o acervo geral (`~/Golem/docs/licoes/`) é lido pelo gancho em **todos** os jogos
+do usuário. Uma lição que vale para qualquer jogo pode ir para lá, como cópia: a deste jogo fica
+como está.
+
+**Quando o passo aparece.** Veja o modo e a marca do jogo:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/../../golem.py" onde     # no Windows, python ou py -3
+```
+
+- **Modo cópia** (o kit dentro do projeto, o Codex, o repositório do kit), ou o projeto **fora do
+  registro**: pule o passo, sem dizer nada.
+- **`para terceiros: sim`** (um estúdio ou outra pessoa): pule o passo e diga em uma linha que nada
+  deste jogo vai ao acervo geral, porque ele é feito para outra pessoa.
+- **`para terceiros: não`**: julgue pelo que a lição ensina. A armadilha da plataforma, da API ou
+  da ferramenta (o `DataStore` sem `pcall`, o Git Bash que troca o `/c`) **parece valer para
+  qualquer jogo**: siga. A que só existe por causa deste jogo (a chave do save dele, um NPC dele)
+  não parece: diga em uma linha que ela fica só aqui, e por quê. **Na dúvida, pergunte**: uma
+  pergunta a mais não atrapalha, desde que deixe óbvio o que está em jogo.
+
+**A primeira pergunta**, com botões (no Claude Code, a ferramenta de pergunta; onde não houver
+botões, em texto numerado). Ela diz o que é o acervo geral, porque quem a lê pode não saber:
+
+- **"Esta lição parece valer para qualquer jogo seu. Copio para o acervo geral?"**, com, no texto
+  da pergunta: "O acervo geral fica no Golem central, e todos os seus jogos o leem. Vai uma cópia,
+  sem nada deste projeto (nem o nome, nem as pastas, nem os arquivos); a lição deste jogo fica como
+  está."
+  - "Copiar ao acervo geral (Recomendado)";
+  - "Fica só neste jogo".
+- **Com o `AVISO` de divergência do passo 4** (a lição já tem cópia no acervo geral), a primeira
+  pergunta é outra: **"A cópia desta lição no acervo geral ficou para trás. Atualizo a cópia?"**,
+  com o aviso inteiro no texto da pergunta ("Atualizar a cópia (Recomendado)" e "Deixar como
+  está").
+
+**Com o sim, reescreva** a lição sem nada do projeto: o nome do jogo, as pastas, os arquivos dele,
+os scripts do place, as chaves do save, os nomes de NPC e de itens. As `refs:` que apontam arquivos
+do jogo ou do place saem ou viram prosa ("o `DataStore` de um placar"). A ref a um arquivo do kit
+fica. O `id` e o nome do arquivo ficam os da lição deste jogo. Quando a cópia geral já existe (a
+divergência, ou o passo 1 achou a geral), parta da versão geral de hoje
+(`${GOLEM_CENTRAL:-$HOME/Golem}/docs/licoes/<id>.md`) e junte a ela a evidência nova: outro jogo
+pode ter acrescentado algo que esta lição não tem.
+
+**A segunda pergunta** traz o texto reescrito **inteiro dentro dela**, e não num texto à parte
+antes dela, que se perde (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`):
+
+- **"Gravo no acervo geral assim?"**, com o texto todo, e as opções "Gravar no acervo geral" e "Não
+  gravar".
+
+**Com o segundo sim**, grave o texto numa pasta temporária, com o mesmo nome de arquivo da lição, e
+suba. São três chamadas, porque o Bash não guarda variáveis de uma para a outra:
+
+1. Crie a pasta e leia o caminho absoluto dela (no Windows, na forma `C:/...`). Os parênteses
+   deixam a pasta corrente no jogo: o `subir` roda dali.
+
+   ```bash
+   (cd "$(mktemp -d)" && { pwd -W 2>/dev/null || pwd; })
+   ```
+
+2. Escreva ali, pela ferramenta de escrita, `<a pasta>/<id>.md` com o texto aprovado.
+3. Suba, com o caminho por extenso (e o `--substituir`, se a cópia geral já existe):
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/../../golem.py" subir "<a pasta>/<id>.md"
+   ```
+
+- **`ERRO` pelo nome do jogo ou da pasta** ("o texto cita '<nome>'", ou dois nomes): o nome pode
+  ser uma palavra comum (o jogo "Obby" e uma lição sobre obbies). Pergunte com botões, com todos
+  os nomes que o `ERRO` cita: **"O texto cita '<nome>', o nome deste jogo ou da pasta dele. Ali é
+  a palavra comum, e não o seu jogo?"** ("Sim, é a palavra comum" e "Não, é o jogo:
+  reescrever"). Com o sim, rode o mesmo `subir` com o `--palavra-comum`. Com o não, reescreva o
+  trecho e volte à segunda pergunta.
+- **`ERRO` por outro motivo do texto** (o caminho da pasta, uma ref a um arquivo do jogo, o
+  frontmatter que a régua recusa): corrija o texto e volte à segunda pergunta.
+- **`ERRO` porque o id já está no acervo geral:** pergunte se troca, com a versão geral que existe
+  **inteira dentro da pergunta**, e não num texto à parte ("Trocar pela nova" e "Manter a que
+  existe"); com o sim, rode com o `--substituir`.
+- **Outro `ERRO`** (o arquivo que não existe, a régua que não regerou o índice do geral): mostre a
+  mensagem ao usuário, que já diz a saída.
+
+**A prova:** o índice do acervo geral traz o id, e a régua deste jogo não avisa divergência dele.
+Aqui o gancho entrega a lição deste jogo, e não a geral (a de mesmo id vence), então a prova é esta:
+
+```bash
+grep -n "^  <id>:" "${GOLEM_CENTRAL:-$HOME/Golem}/.claude/indice/licoes.yaml"
+python3 "${CLAUDE_SKILL_DIR}/../../regua.py" --conferir
+```
+
+O que fica no central não entra no commit do jogo: o central fica, normalmente, fora do git.
 
 ## Restrições
 

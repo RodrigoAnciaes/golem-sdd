@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import AMBIENTE, GANCHO, RAIZ as RAIZ_DO_KIT, contexto_de, invocar_gancho
+from conftest import AMBIENTE, GANCHO, RAIZ as RAIZ_DO_KIT, contexto_de, escrever_licao, invocar_gancho
 
 
 def ids_de(texto: str) -> list:
@@ -220,7 +220,7 @@ def test_licoes_voltam_quando_a_entrega_falha(acervo, sessao, monkeypatch):
     acervo.gerar()
     gancho = acervo.regua().carregar_gancho()
 
-    def explode(_ident):
+    def explode(*_a):
         raise FileNotFoundError("a lição sumiu entre o is_file e a leitura")
 
     monkeypatch.setattr(gancho, "sinal_de", explode)
@@ -1306,3 +1306,168 @@ def test_o_py_le_as_licoes_do_claude_project_dir(plugin, sessao):
                        text=True, encoding="utf-8",
                        env={**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)})
     assert ids_de(contexto_de(r)) == ["licao-do-jogo"]
+
+
+# ------------------------------------------- o acervo geral (fase 4b, o Golem central)
+
+
+def _geral(plugin, *licoes, gerar: bool = True) -> None:
+    """Lições no acervo geral (`<central>/docs/licoes/`), cada uma (id, gatilho), e o índice dele
+    pela régua do kit rodada com a pasta corrente no central, que não é git."""
+    for ident, gatilho in licoes:
+        escrever_licao(plugin.central, ident, gatilho)
+    if gerar:
+        r = plugin.rodar("regua.py", "--gerar", cwd=plugin.central)
+        assert r.returncode == 0, r.stdout + r.stderr
+
+
+def _no_jogo(plugin, sessao: Path, comando: str, raiz=None, env=None) -> str:
+    """O `additionalContext` do gancho DO KIT (o `gancho.sh`), com o `CLAUDE_PROJECT_DIR` no jogo
+    (ou em `raiz`) e o `GOLEM_CENTRAL` no central; '' se ele não disse nada."""
+    raiz = raiz or plugin.jogo
+    _repassador(raiz / ".venv" / "bin" / "python")
+    ambiente = {**(env or plugin.env), "CLAUDE_PROJECT_DIR": str(raiz)}
+    payload = json.dumps({"session_id": "s", "scratchpad_dir": str(sessao),
+                          "tool_input": {"command": comando}})
+    lancador = plugin.kit / ".claude" / "hooks" / "gancho.sh"
+    r = subprocess.run(_comando_do_lancador(_sh(), lancador, ambiente), input=payload,
+                       capture_output=True, text=True, encoding="utf-8", env=ambiente, cwd=raiz)
+    assert r.returncode == 0, r.stderr[:300]
+    if not r.stdout.strip():
+        return ""
+    saida = json.loads(r.stdout)
+    assert "systemMessage" not in saida, saida.get("systemMessage")
+    return saida["hookSpecificOutput"]["additionalContext"]
+
+
+GERAL = "Lições do acervo geral"
+
+
+def test_geral_chega_no_bloco_dele_com_o_sinal_do_geral(plugin, sessao):
+    _geral(plugin, ("so-no-geral", r"'\bcomando-geral\b'"))
+    texto = _no_jogo(plugin, sessao, "comando-geral")
+    assert ids_de(texto) == ["so-no-geral"]
+    assert GERAL in texto and (plugin.central / "docs" / "licoes").as_posix() in texto
+    assert "neste projeto" not in texto, "a geral não é do projeto"
+    assert "sinal de so-no-geral" in texto
+
+
+def test_o_mesmo_id_nos_dois_vale_o_do_jogo(plugin, sessao):
+    _geral(plugin, ("licao-do-jogo", r"'\bpytest\b'"))
+    arq = plugin.central / "docs" / "licoes" / "licao-do-jogo.md"
+    arq.write_text(arq.read_text(encoding="utf-8").replace("sinal de", "sinal geral de"),
+                   encoding="utf-8")
+    texto = _no_jogo(plugin, sessao, "pytest -q")
+    assert ids_de(texto) == ["licao-do-jogo"]
+    assert "sinal de licao-do-jogo" in texto and "sinal geral" not in texto
+    assert GERAL not in texto
+
+
+def test_a_geral_de_mesmo_id_nao_entra_nem_quando_so_ela_casa(plugin, sessao, tmp_path):
+    """A geral de mesmo id fica de fora mesmo com outro gatilho (a lição do jogo mudada depois da
+    subida), e mesmo sem a marca da sessão, que de outro jeito deduplicaria pelo id."""
+    _geral(plugin, ("licao-do-jogo", r"'\bcomando-geral\b'"))
+    assert _no_jogo(plugin, sessao, "comando-geral") == ""
+    payload = json.dumps({"tool_input": {"command": "comando-geral"}})   # sem sessão: sem marca
+    script = plugin.kit / ".claude" / "hooks" / "licoes_relevantes.py"
+    r = subprocess.run([sys.executable, str(script)], input=payload, capture_output=True,
+                       text=True, encoding="utf-8",
+                       env={**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)})
+    assert contexto_de(r) == ""
+
+
+def test_a_geral_por_gatilho_vem_antes_da_do_jogo_pela_area(plugin, sessao):
+    (plugin.jogo / "golem.toml").write_text("gancho_teto = 1\n", encoding="utf-8")
+    (plugin.jogo / "docs" / "licoes" / "jogo-pela-area.md").write_text(
+        "---\nid: jogo-pela-area\ndata: 2026-01-01\narea: deploy\ntipo: armadilha\n"
+        'custo: "x"\ngatilho: "x"\nrefs:\n  - x\n---\n\n**O que se achava:** x.\n\n'
+        "**O que é:** y.\n\n**Como perceber da próxima vez:** sinal de jogo-pela-area.\n",
+        encoding="utf-8")
+    subprocess.run(["git", "add", "docs"], cwd=plugin.jogo, check=True, capture_output=True)
+    assert plugin.rodar("regua.py", "--gerar").returncode == 0
+    _geral(plugin, ("geral-pelo-gatilho", r"'\bcomando-geral\b'"))
+    assert ids_de(_no_jogo(plugin, sessao, "docker ps && comando-geral")) == ["geral-pelo-gatilho"]
+    assert ids_de(_no_jogo(plugin, sessao, "docker ps && comando-geral")) == ["jogo-pela-area"]
+
+
+def test_os_dois_defasados_dao_os_dois_avisos_uma_vez(plugin, sessao):
+    """A marca do aviso do geral é outra: o do jogo não cala o do geral, nem na mesma ação."""
+    escrever_licao(plugin.jogo, "jogo-nova", r"'\bcomando-geral\b'")
+    _geral(plugin, ("geral-velha", r"'\boutro-comando\b'"))
+    _geral(plugin, ("geral-nova", r"'\bcomando-geral\b'"), gerar=False)
+    texto = _no_jogo(plugin, sessao, "comando-geral")
+    assert "O índice de lições (" in texto and "O índice do acervo geral" in texto
+    assert texto.count("está defasado") == 2
+    texto = _no_jogo(plugin, sessao, "ls")
+    assert "está defasado" not in texto, "cada aviso sai uma vez por sessão"
+
+
+def test_sem_golem_central_no_ambiente_o_central_e_o_da_casa(plugin, sessao):
+    """O caminho de todo usuário: o `gancho.sh` monta o `$HOME/Golem` e o passa ao `.py`."""
+    _geral(plugin, ("so-no-geral", r"'\bcomando-geral\b'"))
+    ambiente = {k: v for k, v in plugin.env.items() if k != "GOLEM_CENTRAL"}
+    ambiente["HOME"] = str(plugin.central.parent)
+    texto = _no_jogo(plugin, sessao, "comando-geral", env=ambiente)
+    assert ids_de(texto) == ["so-no-geral"] and GERAL in texto
+
+
+def test_no_teto_o_jogo_vem_antes_e_a_geral_na_acao_seguinte(plugin, sessao):
+    (plugin.jogo / "golem.toml").write_text("gancho_teto = 1\n", encoding="utf-8")
+    _geral(plugin, ("geral-do-pytest", r"'\bpytest\b'"))
+    assert ids_de(_no_jogo(plugin, sessao, "pytest -q")) == ["licao-do-jogo"]
+    texto = _no_jogo(plugin, sessao, "pytest -q")
+    assert ids_de(texto) == ["geral-do-pytest"] and GERAL in texto
+
+
+def test_geral_fora_do_indice_chega_com_o_aviso_do_geral_uma_vez(plugin, sessao):
+    _geral(plugin, ("geral-velha", r"'\boutro-comando\b'"))
+    _geral(plugin, ("geral-nova", r"'\bcomando-geral\b'"), gerar=False)
+    texto = _no_jogo(plugin, sessao, "comando-geral")
+    assert ids_de(texto) == ["geral-nova"]
+    assert "O índice do acervo geral" in texto and "defasado" in texto and "geral-nova" in texto
+    assert (plugin.central / ".claude" / "indice" / "licoes.yaml").as_posix() in texto
+    assert "O índice de lições (" not in texto, "o índice do jogo está em dia"
+    assert _no_jogo(plugin, sessao, "comando-geral") == "", "o aviso sai uma vez por sessão"
+
+
+def test_indice_do_geral_cortado_varre_o_geral_e_o_jogo_segue(plugin, sessao):
+    _geral(plugin, ("so-no-geral", r"'\bcomando-geral\b'"))
+    indice = plugin.central / ".claude" / "indice" / "licoes.yaml"
+    indice.write_text(re.sub(r"(?m)^total:.*$", "", indice.read_text(encoding="utf-8")),
+                      encoding="utf-8")
+    texto = _no_jogo(plugin, sessao, "pytest -q && comando-geral")
+    assert ids_de(texto) == ["licao-do-jogo", "so-no-geral"]
+    assert "O índice do acervo geral" in texto and "ilegível" in texto
+    assert "O índice de lições (" not in texto, "o índice do jogo presta"
+
+
+def test_sem_a_pasta_do_geral_a_saida_e_a_de_hoje(plugin, sessao, tmp_path):
+    antes = _no_jogo(plugin, sessao, "pytest -q")
+    plugin.central.mkdir()
+    (plugin.central / "golem.toml").write_text("# vazio\n", encoding="utf-8")
+    outra = tmp_path / "outra-sessao"
+    outra.mkdir()
+    assert _no_jogo(plugin, outra, "pytest -q") == antes
+    assert GERAL not in antes and ids_de(antes) == ["licao-do-jogo"]
+
+
+def test_fora_do_modo_plugin_o_geral_nao_chega(plugin, sessao):
+    """Sem o manifesto, o `gancho.sh` não monta o central, e o `.py` confere o modo: com o
+    `GOLEM_CENTRAL` no ambiente, nada do geral chega."""
+    _geral(plugin, ("so-no-geral", r"'\bcomando-geral\b'"))
+    (plugin.kit / ".claude-plugin" / "plugin.json").unlink()
+    assert _no_jogo(plugin, sessao, "comando-geral") == ""
+    payload = json.dumps({"session_id": "s2", "scratchpad_dir": str(sessao),
+                          "tool_input": {"command": "comando-geral"}})
+    script = plugin.kit / ".claude" / "hooks" / "licoes_relevantes.py"
+    r = subprocess.run([sys.executable, str(script)], input=payload, capture_output=True,
+                       text=True, encoding="utf-8",
+                       env={**plugin.env, "CLAUDE_PROJECT_DIR": str(plugin.jogo)})
+    assert contexto_de(r) == ""
+
+
+def test_a_sessao_no_proprio_central_le_um_acervo_so(plugin, sessao):
+    _geral(plugin, ("so-no-geral", r"'\bcomando-geral\b'"))
+    texto = _no_jogo(plugin, sessao, "comando-geral", raiz=plugin.central)
+    assert ids_de(texto) == ["so-no-geral"]
+    assert GERAL not in texto and "neste projeto" in texto

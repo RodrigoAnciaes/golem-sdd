@@ -55,11 +55,12 @@ def test_le_arquivo_em_crlf(tmp_path):
 def test_sem_golem_toml_vale_a_economico(tmp_path):
     c = golem.configuracao(tmp_path)
     # A tabela do R3 da spec da fase 1, escrita aqui por extenso de propósito (com o
-    # `agents_teto` do R3 da fase 4).
+    # `agents_teto` do R3 da fase 4, e a `jogos_para_terceiros` da fase 4b, fora das receitas).
     assert c == {"receita": "economico", "revisor": "sempre", "revisor_quando": "por_fase",
                  "modelo_revisor": "sonnet", "validador": "nunca", "modelo_validador": "opus",
                  "guardiao": "nunca", "parar_a_cada_parte": "sempre", "conversas": "uma",
-                 "gancho": "ligado", "gancho_teto": 2, "agents_teto": 3000}
+                 "gancho": "ligado", "gancho_teto": 2, "agents_teto": 3000,
+                 "jogos_para_terceiros": "nao"}
 
 
 def test_linha_vale_mais_que_a_receita(tmp_path):
@@ -466,3 +467,284 @@ def test_o_onde_diz_o_modo_e_de_onde_vem_cada_linha(plugin, copia_do_kit):
                        capture_output=True, text=True, encoding="utf-8", cwd=copia_do_kit,
                        env=plugin.env)
     assert "modo     cópia" in r.stdout and "revisor: sempre (da receita)" in r.stdout, r.stdout
+
+
+# ------------------------------------------- a marca de terceiros e o subir (fase 4b)
+
+
+def _registro(plugin) -> str:
+    return (plugin.central / "jogos.md").read_text(encoding="utf-8")
+
+
+def _versao(pasta: Path, ident: str, refs=("x",), corpo: str = "") -> Path:
+    """A versão geral de uma lição, numa pasta fora do jogo (como a `licao` a grava)."""
+    pasta.mkdir(parents=True, exist_ok=True)
+    arq = pasta / f"{ident}.md"
+    arq.write_text(
+        f"---\nid: {ident}\ndata: 2026-01-01\narea: processo\ntipo: armadilha\n"
+        f'custo: "x"\ngatilho: "x"\ngatilhos:\n  - \'\\bcomando-geral\\b\'\nrefs:\n'
+        + "".join(f"  - {r}\n" for r in refs)
+        + f"---\n\n**O que se achava:** x.\n\n**O que é:** y.{corpo}\n\n"
+        f"**Como perceber da próxima vez:** sinal de {ident}.\n", encoding="utf-8")
+    return arq
+
+
+def test_o_cabecalho_novo_tem_a_coluna_para_terceiros(plugin):
+    assert plugin.rodar("golem.py", "central").returncode == 0
+    assert "| Jogo | Pasta | Registrado em | Para terceiros |\n|---|---|---|---|\n" in _registro(plugin)
+
+
+def test_o_registro_de_tres_colunas_e_lido_e_passa_a_quatro(plugin, tmp_path):
+    plugin.central.mkdir()
+    velho = tmp_path / "velho"
+    velho.mkdir()
+    (plugin.central / "jogos.md").write_text(
+        "# Os jogos do Golem\n\n| Jogo | Pasta | Registrado em |\n|---|---|---|\n"
+        f"| Velho | {velho.resolve().as_posix()} | 2026-11-21 |\n", encoding="utf-8")
+    g = carregar("golem_registro", plugin.kit / ".claude" / "golem.py")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("GOLEM_CENTRAL", str(plugin.central))
+        assert g.ler_registro() == [("Velho", velho.resolve().as_posix(), "2026-11-21", "não")]
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "Novo").returncode == 0
+    texto = _registro(plugin)
+    assert "| Jogo | Pasta | Registrado em | Para terceiros |\n|---|---|---|---|\n" in texto
+    assert f"| Velho | {velho.resolve().as_posix()} | 2026-11-21 | não |" in texto
+    assert f"| Novo | {plugin.jogo.resolve().as_posix()} |" in texto and texto.endswith(" | não |\n")
+    assert "| Registrado em |\n" not in texto
+
+
+def test_o_registrar_com_terceiros_marca_e_sem_ele_nao_desmarca(plugin):
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "A").returncode == 0
+    assert _registro(plugin).count(" | não |") == 1
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--terceiros")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert _registro(plugin).count(" | sim |") == 1 and " | não |" not in _registro(plugin)
+    antes = _registro(plugin)
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo))
+    assert r.returncode == 0 and "nada mudou" in r.stdout, r.stdout
+    assert _registro(plugin) == antes
+    assert _registro(plugin).count(plugin.jogo.resolve().as_posix()) == 1
+
+
+def test_a_chave_jogos_para_terceiros(plugin, tmp_path):
+    g = carregar("golem_chave", plugin.kit / ".claude" / "golem.py")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("GOLEM_CENTRAL", str(plugin.central))
+        assert g.configuracao(plugin.jogo)["jogos_para_terceiros"] == "nao"
+        escrever(plugin.central, 'jogos_para_terceiros = "sim"\n')
+        assert g.configuracao(plugin.jogo)["jogos_para_terceiros"] == "sim"
+        escrever(plugin.central, 'jogos_para_terceiros = "talvez"\n')
+        with pytest.raises(g.ErroDeConfiguracao, match="jogos_para_terceiros"):
+            g.configuracao(plugin.jogo)
+
+
+def test_o_onde_diz_se_o_jogo_e_para_terceiros(plugin, tmp_path):
+    r = plugin.rodar("golem.py", "onde")
+    assert "para terceiros: fora do registro" in r.stdout, r.stdout
+    assert "jogos_para_terceiros: nao (o padrão)" in r.stdout, r.stdout
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    assert "para terceiros: não" in plugin.rodar("golem.py", "onde").stdout
+    outro = tmp_path / "estudio"
+    outro.mkdir()
+    assert plugin.rodar("golem.py", "registrar", str(outro), "--terceiros").returncode == 0
+    r = plugin.rodar("golem.py", "onde", cwd=outro)
+    assert "para terceiros: sim" in r.stdout and "cliente" not in r.stdout.lower(), r.stdout
+
+
+@pytest.fixture
+def registrado(plugin):
+    """O jogo do `Plugin`, registrado com o nome `Moedas Turbo`, que não é para terceiros, com a
+    lição `geral-a` no acervo dele (a subida copia uma lição do jogo)."""
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "Moedas Turbo")
+    assert r.returncode == 0, r.stdout + r.stderr
+    escrever_licao(plugin.jogo, "geral-a", r"'\bcomando-geral\b'")
+    return plugin
+
+
+def _estado(plugin) -> dict:
+    if not plugin.central.is_dir():
+        return {}
+    return {p.relative_to(plugin.central).as_posix(): p.read_bytes()
+            for p in plugin.central.rglob("*") if p.is_file()}
+
+
+def _recusa(plugin, arq: Path, *extra, motivo: str = "") -> None:
+    """O `subir` sai com ERRO e o motivo, e nada muda no central."""
+    antes = _estado(plugin)
+    r = plugin.rodar("golem.py", "subir", str(arq), *extra)
+    assert r.returncode == 1 and "ERRO" in r.stdout and "Nada foi escrito" in r.stdout, \
+        r.stdout + r.stderr
+    assert motivo in r.stdout, r.stdout
+    assert _estado(plugin) == antes
+
+
+def test_o_subir_recusa_fora_do_modo_plugin(registrado, tmp_path):
+    (registrado.kit / ".claude-plugin" / "plugin.json").unlink()
+    _recusa(registrado, _versao(tmp_path / "v", "geral-a"), motivo="modo plugin")
+
+
+def test_o_subir_recusa_fora_do_registro(plugin, tmp_path):
+    _recusa(plugin, _versao(tmp_path / "v", "geral-a"), motivo="registro")
+
+
+def test_o_subir_recusa_no_jogo_para_terceiros(plugin, tmp_path):
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--terceiros").returncode == 0
+    _recusa(plugin, _versao(tmp_path / "v", "geral-a"), motivo="para terceiros")
+    r = plugin.rodar("golem.py", "subir", str(_versao(tmp_path / "v", "geral-a")))
+    assert "cliente" not in r.stdout.lower(), r.stdout
+
+
+def test_o_registrar_com_nome_e_terceiros_juntos(plugin):
+    r = plugin.rodar("golem.py", "registrar", str(plugin.jogo), "--nome", "Do Estudio",
+                     "--terceiros")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert f"| Do Estudio | {plugin.jogo.resolve().as_posix()} |" in _registro(plugin)
+    assert _registro(plugin).rstrip().endswith("| sim |")
+
+
+def test_a_marca_escrita_a_mao_que_nao_e_nao_vale_sim(plugin):
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    arq = plugin.central / "jogos.md"
+    arq.write_text(arq.read_text(encoding="utf-8").replace("| não |", "| x |"), encoding="utf-8")
+    assert "para terceiros: sim" in plugin.rodar("golem.py", "onde").stdout
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    assert _registro(plugin).rstrip().endswith("| sim |")
+
+
+def test_a_chave_de_terceiros_no_golem_toml_do_jogo_e_erro(plugin):
+    escrever(plugin.jogo, 'jogos_para_terceiros = "nao"\n')
+    r = plugin.rodar("golem.py", "onde")
+    assert r.returncode == 1 and "só vale no golem.toml do Golem central" in r.stdout, r.stdout
+    # Na sessão aberta no próprio central, o golem.toml da raiz é o do central: vale.
+    escrever(plugin.central, 'jogos_para_terceiros = "sim"\n')
+    r = plugin.rodar("golem.py", "onde", cwd=plugin.central)
+    assert r.returncode == 0 and "jogos_para_terceiros: sim" in r.stdout, r.stdout
+
+
+@pytest.mark.parametrize("corpo, refs, motivo", [
+    (" Visto no MOEDAS TURBO.", ("x",), "Moedas Turbo"),
+    (" Visto em JOGO, a pasta.", ("x",), "'jogo'"),
+    ("", ("x",), "a pasta do jogo"),
+    ("", ("'src/moedas.lua:3 `local x`'",), "src/moedas.lua"),
+    ("", ("game.ServerScriptService.Moedas",), "script do place"),
+])
+def test_o_subir_recusa_o_que_cita_o_projeto(registrado, tmp_path, corpo, refs, motivo):
+    (registrado.jogo / "src").mkdir()
+    (registrado.jogo / "src" / "moedas.lua").write_text("a\nb\nlocal x\n", encoding="utf-8")
+    if motivo == "a pasta do jogo":
+        corpo = f" Rodado em {registrado.jogo.resolve().as_posix().upper()}."
+    _recusa(registrado, _versao(tmp_path / "v", "geral-a", refs, corpo), motivo=motivo)
+
+
+def test_o_nome_comum_tem_saida_e_o_resto_continua_conferido(registrado, tmp_path):
+    """A decisão do autor do kit (pela EST, 2026-11-22): "A: recusa com saída (Recomendado)". A
+    recusa pelo nome diz a saída; com o --palavra-comum, só o nome deixa de ser conferido."""
+    arq = _versao(tmp_path / "v", "geral-a", corpo=" Visto num jogo de moedas turbo qualquer.")
+    # Os dois nomes que batem (o do jogo e o da pasta, `jogo`) saem na recusa: o sim cobre os dois.
+    _recusa(registrado, arq, motivo="'Moedas Turbo' e 'jogo'")
+    _recusa(registrado, arq, motivo="--palavra-comum")
+    (registrado.jogo / "src").mkdir()
+    (registrado.jogo / "src" / "moedas.lua").write_text("a\nb\nlocal x\n", encoding="utf-8")
+    com_pasta = _versao(tmp_path / "p", "geral-a",
+                        corpo=f" Moedas Turbo em {registrado.jogo.resolve().as_posix()}.")
+    _recusa(registrado, com_pasta, "--palavra-comum", motivo="a pasta do jogo")
+    com_ref = _versao(tmp_path / "r", "geral-a", ("'src/moedas.lua:3 `local x`'",),
+                      corpo=" Moedas Turbo.")
+    _recusa(registrado, com_ref, "--palavra-comum", motivo="cita um arquivo do jogo")
+    r = registrado.rodar("golem.py", "subir", str(arq), "--palavra-comum")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (registrado.central / "docs" / "licoes" / "geral-a.md").read_bytes() == arq.read_bytes()
+
+
+def test_o_subir_recusa_o_frontmatter_que_a_regua_recusa(registrado, tmp_path):
+    arq = _versao(tmp_path / "v", "geral-a")
+    arq.write_text(arq.read_text(encoding="utf-8").replace("area: processo", "area: nenhuma"),
+                   encoding="utf-8")
+    _recusa(registrado, arq, motivo="a régua recusa")
+    assert "area" in registrado.rodar("golem.py", "subir", str(arq)).stdout
+
+
+def test_o_subir_recusa_as_bordas_da_entrada(registrado, tmp_path):
+    _recusa(registrado, tmp_path / "v" / "nao-existe.md", motivo="não existe")
+    _recusa(registrado, _versao(tmp_path / "r", "README"), motivo="não é uma lição")
+    _recusa(registrado, _versao(tmp_path / "v", "so-fora-do-jogo"), motivo="não existe")
+    latin = _versao(tmp_path / "v", "geral-a")
+    latin.write_bytes(latin.read_bytes() + "ação".encode("latin-1"))
+    _recusa(registrado, latin, motivo="UTF-8")
+
+
+def test_a_regua_que_falha_no_central_desfaz_a_escrita(registrado, tmp_path):
+    """O central no git, sem nenhuma lição rastreada: a régua recusa o índice, e o subir desfaz."""
+    registrado.central.mkdir(exist_ok=True)
+    subprocess.run(["git", "init", "-q"], cwd=registrado.central, check=True, capture_output=True)
+    _recusa(registrado, _versao(tmp_path / "v", "geral-a"), motivo="não regerou")
+    assert not (registrado.central / "docs").exists(), "a pasta criada agora sai com a lição"
+    r = registrado.rodar("golem.py", "subir", str(_versao(tmp_path / "v", "geral-a")))
+    assert "git add" in r.stdout and "--substituir" in r.stdout, r.stdout
+
+
+def test_o_subir_repassa_o_aviso_da_regua_do_central(registrado, tmp_path):
+    """O central no git com uma lição rastreada: a nova fica fora do índice, e o subir o diz."""
+    escrever_licao(registrado.central, "geral-velha", r"'\boutro\b'")
+    subprocess.run(["git", "init", "-q"], cwd=registrado.central, check=True, capture_output=True)
+    subprocess.run(["git", "add", "docs"], cwd=registrado.central, check=True, capture_output=True)
+    r = registrado.rodar("golem.py", "subir", str(_versao(tmp_path / "v", "geral-a")))
+    aviso = [l for l in r.stdout.splitlines() if "AVISO" in l]
+    assert r.returncode == 0 and aviso, r.stdout + r.stderr
+    assert "geral-a.md não está no git" in aviso[0], aviso
+
+
+def test_o_subir_escreve_no_geral_e_a_licao_do_jogo_fica_igual(registrado, tmp_path):
+    do_jogo = registrado.jogo / "docs" / "licoes" / "geral-a.md"
+    bruto = do_jogo.read_bytes()
+    # O mesmo caminho no jogo e no kit: a ref ao arquivo do kit passa (a exceção do kit).
+    (registrado.jogo / ".claude" / "golem.py").write_text("# Golem SDD\n", encoding="utf-8")
+    arq = _versao(tmp_path / "v", "geral-a",
+                  ("'.claude/golem.py:1 `Golem SDD`'", "a conversa da fase 4b"))
+    r = registrado.rodar("golem.py", "subir", str(arq))
+    assert r.returncode == 0, r.stdout + r.stderr
+    destino = registrado.central / "docs" / "licoes" / "geral-a.md"
+    assert destino.read_bytes() == arq.read_bytes() and do_jogo.read_bytes() == bruto
+    indice = (registrado.central / ".claude" / "indice" / "licoes.yaml").read_text(encoding="utf-8")
+    assert "  geral-a:" in indice and "total: 1" in indice
+    for caminho in (destino, registrado.central / ".claude" / "indice" / "licoes.yaml",
+                    registrado.central / ".claude" / "indice" / "subidas.txt"):
+        assert f"escrito  {caminho.as_posix()}" in r.stdout, r.stdout
+    # A própria versão geral, subida de novo sem o --substituir (o caminho da divergência): passa.
+    r = registrado.rodar("golem.py", "subir", str(destino))
+    assert r.returncode == 0, r.stdout + r.stderr
+    g = carregar("golem_subidas", registrado.kit / ".claude" / "golem.py")
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("GOLEM_CENTRAL", str(registrado.central))
+        assert g.ler_subidas(registrado.jogo) == {
+            "geral-a": (g.impressao(do_jogo), g.impressao(destino))}
+        assert g.ler_subidas(tmp_path) == {}, "a linha é deste jogo, e não de outro"
+    # De novo, sem o --substituir: recusa; com ele, troca a linha, sem duplicar.
+    _recusa(registrado, arq, motivo="--substituir")
+    arq.write_text(arq.read_text(encoding="utf-8") + "\nMais evidência.\n", encoding="utf-8")
+    r = registrado.rodar("golem.py", "subir", str(arq), "--substituir")
+    assert r.returncode == 0, r.stdout + r.stderr
+    subidas = (registrado.central / ".claude" / "indice" / "subidas.txt").read_text(encoding="utf-8")
+    assert subidas.count("geral-a ") == 1 and g.impressao(destino) in subidas
+    assert "Mais evidência." in destino.read_text(encoding="utf-8")
+
+
+def test_a_licao_subida_chega_pelo_gancho_em_outro_jogo(registrado, tmp_path):
+    arq = _versao(tmp_path / "v", "geral-a")
+    assert registrado.rodar("golem.py", "subir", str(arq)).returncode == 0
+    outro = tmp_path / "outro-jogo"
+    outro.mkdir()
+    subprocess.run(["git", "init", "-q"], cwd=outro, check=True, capture_output=True)
+    escrever_licao(outro, "licao-do-outro")
+    subprocess.run(["git", "add", "docs"], cwd=outro, check=True, capture_output=True)
+    assert registrado.rodar("regua.py", "--gerar", cwd=outro).returncode == 0
+    assert registrado.rodar("golem.py", "registrar", str(outro)).returncode == 0
+    payload = json.dumps({"session_id": "s", "tool_input": {"command": "comando-geral"},
+                          "scratchpad_dir": str(tmp_path / "sessao")})
+    r = subprocess.run([sys.executable, str(registrado.kit / ".claude" / "hooks" /
+                                            "licoes_relevantes.py")],
+                       input=payload, capture_output=True, text=True, encoding="utf-8",
+                       env={**registrado.env, "CLAUDE_PROJECT_DIR": str(outro)})
+    assert r.returncode == 0, r.stderr
+    texto = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+    assert "Lições do acervo geral" in texto and "**geral-a**" in texto, texto

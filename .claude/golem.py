@@ -32,11 +32,15 @@ Duas raízes (fase 3, o Golem central):
 from __future__ import annotations
 
 import datetime
+import hashlib
+import importlib.util
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 KIT = Path(__file__).resolve().parents[1]
@@ -104,7 +108,11 @@ VALORES = {
     "gancho": ("ligado", "desligado"),
     "gancho_teto": None,  # um inteiro de TETO_MIN a TETO_MAX
     "agents_teto": None,  # um inteiro de 1 em diante
+    "jogos_para_terceiros": ("sim", "nao"),
 }
+# As chaves que não dependem da receita, com o valor sem a linha. A `jogos_para_terceiros` é a
+# resposta da pergunta geral do registro (fase 4b), e só se lê do golem.toml do central.
+FORA_DAS_RECEITAS = {"jogos_para_terceiros": "nao"}
 
 # Os recomendados do kit (docs/guia-configuracao.md mostra esta tabela).
 RECEITAS = {
@@ -181,12 +189,23 @@ def _linhas(arquivo: Path, origem: str) -> dict:
 
 
 def niveis(raiz: Path = RAIZ) -> tuple:
-    """(as linhas do central, as do projeto). Fora do modo plugin, o central não conta."""
+    """(as linhas do central, as do projeto). Fora do modo plugin, o central não conta.
+
+    As chaves de `FORA_DAS_RECEITAS` só valem no `golem.toml` do central: num projeto que não é o
+    central, a linha delas é erro (o `golem.toml` do jogo vai ao git dele)."""
     do_projeto = _linhas(raiz / "golem.toml", "golem.toml")
     do_central = {}
     if modo_plugin(raiz):
         arquivo = central() / "golem.toml"
         do_central = _linhas(arquivo, arquivo.as_posix())
+    if not (modo_plugin(raiz) and _mesma_pasta(raiz, central())):
+        for chave in FORA_DAS_RECEITAS:
+            if chave in do_projeto:
+                onde_vale = (f" ({(central() / 'golem.toml').as_posix()})" if modo_plugin(raiz)
+                             else ", e aqui não há modo plugin")
+                raise ErroDeConfiguracao(
+                    f"golem.toml: a chave `{chave}` só vale no golem.toml do Golem central"
+                    f"{onde_vale}; tire a linha `{chave}` deste")
     return do_central, do_projeto
 
 
@@ -198,7 +217,8 @@ def configuracao(raiz: Path = RAIZ) -> dict:
     """
     do_central, do_projeto = niveis(raiz)
     receita = do_projeto.get("receita", do_central.get("receita", PADRAO))
-    return {**RECEITAS[receita], **do_central, **do_projeto, "receita": receita}
+    return {**FORA_DAS_RECEITAS, **RECEITAS[receita], **do_central, **do_projeto,
+            "receita": receita}
 
 
 def teto_do_gancho(raiz: Path = RAIZ) -> int:
@@ -365,8 +385,13 @@ CABECALHO_DO_REGISTRO = (
     "# Os jogos do Golem\n\n"
     "<!-- O registro dos jogos desta máquina. Quem escreve é o kit (\"registrar um jogo\"); uma "
     "linha se apaga à mão. -->\n\n"
-    "| Jogo | Pasta | Registrado em |\n"
-    "|---|---|---|\n")
+    "| Jogo | Pasta | Registrado em | Para terceiros |\n"
+    "|---|---|---|---|\n")
+# O cabeçalho da fase 3, de três colunas, e o de agora. A quarta coluna (fase 4b) diz se o jogo é
+# feito para um estúdio ou outra pessoa: nada dele sobe ao acervo geral. Na linha de três células,
+# vale `não`.
+_CABECALHOS = (["Jogo", "Pasta", "Registrado em"],
+               ["Jogo", "Pasta", "Registrado em", "Para terceiros"])
 GOLEM_TOML_DO_CENTRAL = (
     "# golem.toml do Golem central: a configuração de todos os jogos desta máquina.\n"
     "# O golem.toml de um jogo vale por cima, linha a linha. Para mudar, peça \"configurar o "
@@ -417,23 +442,40 @@ def _com_gitignore(pasta: Path) -> str:
     return texto.replace("\n", fim)
 
 
+def _linha_do_registro(linha: str):
+    """("jogo", [nome, pasta, data, para terceiros]), ("cabecalho", None), ("separador", None)
+    ou None (uma linha que não é da tabela). O cabeçalho e o separador se reconhecem pela linha
+    inteira: um jogo pode se chamar "Jogo". A linha de três células (a da fase 3) vale `não`, e a
+    marca escrita à mão que não é `não` vale `sim`: um erro de digitação não desprotege o jogo."""
+    celulas = [c.strip() for c in linha.strip().strip("|").split("|")]
+    if not linha.lstrip().startswith("|") or len(celulas) not in (3, 4):
+        return None
+    if celulas in _CABECALHOS:
+        return "cabecalho", None
+    if all(c and set(c) <= set("-: ") for c in celulas):
+        return "separador", None
+    # Na quarta célula, só `não` (ou `nao`) desprotege: outro valor escrito à mão vale `sim`.
+    marca = celulas[3].lower() if len(celulas) == 4 else "não"
+    return "jogo", celulas[:3] + ["não" if marca in ("não", "nao") else "sim"]
+
+
 def ler_registro() -> list:
-    """[(nome, pasta, data)] do `jogos.md` do central; [] sem o arquivo. O cabeçalho e o
-    separador se reconhecem pela linha inteira: um jogo pode se chamar "Jogo"."""
+    """[(nome, pasta, data, para terceiros)] do `jogos.md` do central; [] sem o arquivo. O último
+    vale `sim` ou `não`."""
     arquivo = central() / REGISTRO
     if not arquivo.is_file():
         return []
     jogos = []
     for linha in _ler(arquivo)[0].splitlines():
-        celulas = [c.strip() for c in linha.strip().strip("|").split("|")]
-        if not linha.lstrip().startswith("|") or len(celulas) != 3:
-            continue
-        if celulas == ["Jogo", "Pasta", "Registrado em"]:
-            continue
-        if all(c and set(c) <= set("-: ") for c in celulas):
-            continue
-        jogos.append(tuple(celulas))
+        lida = _linha_do_registro(linha)
+        if lida and lida[0] == "jogo":
+            jogos.append(tuple(lida[1]))
     return jogos
+
+
+def jogo_do_registro(pasta: Path):
+    """A linha do registro do jogo desta pasta, ou None (fora do registro)."""
+    return next((j for j in ler_registro() if _mesma_pasta(j[1], pasta)), None)
 
 
 def _mesma_pasta(a, b) -> bool:
@@ -456,8 +498,39 @@ def criar_central() -> list:
     return escritos
 
 
-def registrar(pasta: Path, nome: str = None) -> list:
-    """Põe o jogo no registro e o "ligado" nele. Confere tudo antes de escrever."""
+def _registro_com(pasta: Path, nome: str, terceiros: bool) -> str:
+    """O texto do `jogos.md` com o jogo: a linha dele, se já está (com o `sim` na marca, se
+    `terceiros`; sem ele, a marca fica como está), ou uma linha nova no fim. A tabela da fase 3
+    passa a quatro colunas, com `não` nas linhas que já existiam."""
+    texto = _ler(central() / REGISTRO)[0]
+    linhas, achou = [], False
+    for linha in texto.splitlines():
+        lida = _linha_do_registro(linha)
+        if lida is None:
+            linhas.append(linha)
+        elif lida[0] == "cabecalho":
+            linhas.append("| " + " | ".join(_CABECALHOS[1]) + " |")
+        elif lida[0] == "separador":
+            linhas.append("|---|---|---|---|")
+        else:
+            celulas = lida[1]
+            if _mesma_pasta(celulas[1], pasta):
+                achou = True
+                if terceiros:
+                    celulas[3] = "sim"
+            linhas.append("| " + " | ".join(celulas) + " |")
+    if not achou:
+        hoje = datetime.date.today().isoformat()
+        marca = "sim" if terceiros else "não"
+        linhas.append(f"| {nome} | {pasta.as_posix()} | {hoje} | {marca} |")
+    return "\n".join(linhas) + "\n"
+
+
+def registrar(pasta: Path, nome: str = None, terceiros: bool = False) -> list:
+    """Põe o jogo no registro e o "ligado" nele. Confere tudo antes de escrever.
+
+    `terceiros`: o jogo é feito para um estúdio ou outra pessoa (o `--terceiros`). Só marca: sem
+    ele, a marca que já existe fica (desmarcar é à mão, no `jogos.md`)."""
     pasta = Path(pasta).resolve()
     nome = (nome or pasta.name).strip()
     if not nome or "|" in nome or "\n" in nome or "\r" in nome:
@@ -470,13 +543,7 @@ def registrar(pasta: Path, nome: str = None) -> list:
     escritos = criar_central()
     _escrever(pasta / LIGADO, texto_ligado, escritos)
     _escrever(pasta / ".gitignore", texto_gitignore, escritos)
-    if not any(_mesma_pasta(p, pasta) for _, p, _ in ler_registro()):
-        arquivo = central() / REGISTRO
-        texto = _ler(arquivo)[0]
-        if not texto.endswith("\n"):
-            texto += "\n"
-        hoje = datetime.date.today().isoformat()
-        _escrever(arquivo, texto + f"| {nome} | {pasta.as_posix()} | {hoje} |\n", escritos)
+    _escrever(central() / REGISTRO, _registro_com(pasta, nome, terceiros), escritos)
     return escritos
 
 
@@ -493,7 +560,7 @@ def aplicar_todos() -> int:
         print(f"  nenhum jogo no registro ({(central() / REGISTRO).as_posix()})")
         return 0
     codigo = 0
-    for nome, pasta, _ in jogos:
+    for nome, pasta, *_ in jogos:
         print(f"== {nome} ({pasta})")
         if not Path(pasta).is_dir():
             print(f"  pulado   {nome}: a pasta não existe mais (apague a linha do jogos.md, se o "
@@ -506,12 +573,21 @@ def aplicar_todos() -> int:
 def onde(raiz: Path = RAIZ) -> int:
     """Diz a raiz, o modo, o central e de onde vem cada linha da configuração."""
     print(f"  projeto  {raiz.as_posix()}")
-    if not modo_plugin(raiz):
+    plugin = modo_plugin(raiz)
+    if not plugin:
         print("  modo     cópia: o kit mora no próprio projeto (.claude/); o central não conta")
     else:
         c = central()
         print(f"  modo     plugin: o kit mora em {KIT.as_posix()}")
         print(f"  central  {c.as_posix()}" + ("" if c.is_dir() else " (ainda não existe)"))
+        jogo = jogo_do_registro(raiz)
+        if jogo is None:
+            print("  para terceiros: fora do registro (sem ele, nada deste projeto sobe ao "
+                  "acervo geral)")
+        else:
+            print(f"  para terceiros: {jogo[3]}" + (
+                " (um estúdio ou outra pessoa: nada deste jogo vai ao acervo geral)"
+                if jogo[3] == "sim" else ""))
     try:
         do_central, do_projeto = niveis(raiz)
         cfg = configuracao(raiz)
@@ -519,14 +595,202 @@ def onde(raiz: Path = RAIZ) -> int:
         print(f"  ERRO     {e}")
         return 1
     for chave in VALORES:
+        if chave in FORA_DAS_RECEITAS and not plugin:
+            continue                      # só vale no central
         if chave in do_projeto:
             origem = "deste projeto"
         elif chave in do_central:
             origem = "do central"
         else:
-            origem = "da receita" if chave != "receita" else "o padrão"
+            origem = "o padrão" if chave == "receita" or chave in FORA_DAS_RECEITAS else "da receita"
         print(f"  {chave}: {cfg[chave]} ({origem})")
     return 0
+
+
+# ---------------------------------------------------------------- o acervo geral (fase 4b)
+
+SUBIDAS = Path(".claude") / "indice" / "subidas.txt"
+
+
+def impressao(arquivo: Path) -> str:
+    """A impressão (sha256) do texto de uma lição, com as quebras de linha em `\\n`: o
+    `core.autocrlf` do Git for Windows não muda a impressão."""
+    texto = arquivo.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(texto).hexdigest()
+
+
+def _linha_de_subida(linha: str):
+    """(id, impressão do jogo, impressão do geral, pasta do jogo) de uma linha do `subidas.txt`, ou
+    None. A pasta vem por último: ela pode ter espaços."""
+    if linha.startswith("#"):
+        return None
+    partes = linha.split(maxsplit=3)
+    return tuple(partes) if len(partes) == 4 else None
+
+
+def ler_subidas(raiz: Path) -> dict:
+    """{id: (impressão da lição do jogo, impressão da versão geral)} das subidas feitas DESTE jogo
+    (`raiz`), do `subidas.txt` do central, como estavam na subida; {} sem o arquivo. Uma linha por
+    id e jogo: dois jogos que sobem o mesmo id não se atropelam."""
+    arquivo = central() / SUBIDAS
+    if not arquivo.is_file():
+        return {}
+    subidas = {}
+    for linha in _ler(arquivo)[0].splitlines():
+        lida = _linha_de_subida(linha)
+        if lida and _mesma_pasta(lida[3], raiz):
+            subidas[lida[0]] = (lida[1], lida[2])
+    return subidas
+
+
+def _carregar_regua():
+    sys.dont_write_bytecode = True
+    spec = importlib.util.spec_from_file_location("regua_do_kit", KIT / ".claude" / "regua.py")
+    regua = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(regua)
+    return regua
+
+
+def _regua_em(pasta: Path) -> subprocess.CompletedProcess:
+    """A régua do kit, `--gerar`, com a pasta corrente em `pasta` (fora do git, a raiz é ela)."""
+    return subprocess.run([sys.executable, str(KIT / ".claude" / "regua.py"), "--gerar"],
+                          cwd=pasta, capture_output=True, text=True, encoding="utf-8",
+                          env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+
+
+def _cita_o_projeto(texto: str, nome: str, raiz: Path, refs: list, regua,
+                    palavra_comum: bool = False) -> str:
+    """O que a lição cita do projeto, ou ''. Sem diferenciar maiúsculas: o nome do jogo e o da
+    pasta (como palavra), o caminho da pasta, a ref a um arquivo do jogo e não do kit, a ref a um
+    script do place.
+
+    `palavra_comum`: o usuário disse que os nomes que aparecem são a palavra comum, e não o jogo (o
+    jogo "Obby" e a lição sobre obbies). Pula só a conferência do nome do jogo e do da pasta; o
+    caminho e as refs ficam. A recusa cita todos os nomes que batem: o sim cobre tudo o que pula.
+    """
+    reescreva = ". Reescreva a lição sem nada do projeto"
+    baixo = texto.lower()
+    for caminho in (raiz.as_posix(), str(raiz)):
+        if caminho.lower() in baixo:
+            return f"o texto cita a pasta do jogo ({raiz.as_posix()}){reescreva}"
+    citados = [p for p in dict.fromkeys(p for p in (nome, raiz.name) if p)
+               if re.search(rf"(?<![\w-]){re.escape(p.lower())}(?![\w-])", baixo)]
+    if citados and not palavra_comum:
+        nomes = " e ".join(repr(p) for p in citados)
+        return (f"o texto cita {nomes}, o nome do jogo ou da pasta dele{reescreva}; se ali é a "
+                f"palavra comum, e não o jogo, rode de novo com --palavra-comum (a skill `licao` "
+                f"pergunta antes)")
+    for item in refs:
+        if not isinstance(item, str):
+            continue
+        if item.startswith("game."):
+            return f"a ref {item!r} cita um script do place{reescreva}"
+        m = regua._REF.match(item)
+        if m and (raiz / m.group(1)).is_file() and not (KIT / m.group(1)).is_file():
+            return f"a ref {m.group(1)!r} cita um arquivo do jogo{reescreva}"
+    return ""
+
+
+def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ,
+          palavra_comum: bool = False) -> list:
+    """Copia ao acervo geral (`<central>/docs/licoes/`) a versão geral de uma lição, regera o
+    índice do geral e grava a subida em `<central>/.claude/indice/subidas.txt`. Confere tudo
+    antes de escrever; a lição do jogo não muda. `palavra_comum`: ver `_cita_o_projeto`."""
+    if not modo_plugin(raiz):
+        raise ErroDeConfiguracao("fora do modo plugin não há Golem central: o subir só vale num "
+                                 "jogo registrado no central")
+    jogo = jogo_do_registro(raiz)
+    if jogo is None:
+        raise ErroDeConfiguracao(f"{raiz.as_posix()} não está no registro do central "
+                                 f"({(central() / REGISTRO).as_posix()}): sem ele, não se sabe se "
+                                 "o jogo é para terceiros. Registre o jogo antes")
+    if jogo[3] == "sim":
+        raise ErroDeConfiguracao("este jogo é para terceiros (um estúdio ou outra pessoa): nada "
+                                 "dele vai ao acervo geral, porque o que se aprende nele pertence "
+                                 "a quem encomendou")
+    arquivo = Path(arquivo).resolve()
+    if not arquivo.is_file():
+        raise ErroDeConfiguracao(f"{arquivo.as_posix()}: o arquivo não existe")
+    if arquivo.suffix != ".md" or arquivo.name == "README.md":
+        raise ErroDeConfiguracao(f"{arquivo.as_posix()}: não é uma lição (um `<id>.md`, fora o "
+                                 "README.md)")
+    do_jogo = raiz / "docs" / "licoes" / arquivo.name
+    if not do_jogo.is_file():
+        raise ErroDeConfiguracao(f"{do_jogo.as_posix()} não existe: a subida copia uma lição "
+                                 "deste jogo, e a versão geral tem o nome do arquivo dela")
+    try:
+        texto = arquivo.read_bytes().decode("utf-8")
+    except UnicodeDecodeError:
+        raise ErroDeConfiguracao(f"{arquivo.as_posix()}: o texto não está em UTF-8") from None
+    regua = _carregar_regua()
+    problema = _cita_o_projeto(texto, jogo[0], raiz, regua._gancho().ler_gatilhos(texto, "refs"),
+                               regua, palavra_comum)
+    if problema:
+        raise ErroDeConfiguracao(problema)
+    geral = central() / "docs" / "licoes"
+    destino = geral / arquivo.name
+    if destino.is_file() and not substituir and not _mesma_pasta(destino, arquivo):
+        raise ErroDeConfiguracao(f"{destino.as_posix()} já existe no acervo geral: para trocá-la, "
+                                 "rode de novo com --substituir")
+    # A régua confere o acervo geral COM a lição nova numa cópia, antes de escrever no central.
+    with tempfile.TemporaryDirectory() as tmp:
+        copia = Path(tmp) / "docs" / "licoes"
+        copia.mkdir(parents=True)
+        for velha in (geral.glob("*.md") if geral.is_dir() else []):
+            shutil.copy2(velha, copia / velha.name)
+        (copia / arquivo.name).write_bytes(texto.encode("utf-8"))
+        r = _regua_em(Path(tmp))
+        if r.returncode != 0:
+            raise ErroDeConfiguracao("a régua recusa o acervo geral com esta lição:\n"
+                                     + _saida_da_regua(r))
+    indice = central() / ".claude" / "indice" / "licoes.yaml"
+    antes = {p: p.read_bytes() if p.is_file() else None for p in (destino, indice)}
+    pastas_novas = [p for p in (geral, geral.parent) if not p.is_dir()]
+    escritos = []
+    _escrever(destino, texto, escritos)
+    r = _regua_em(central())
+    if r.returncode != 0:
+        # Desfaz a escrita, e a pasta criada agora: com a `docs/licoes/` vazia no central, o gancho
+        # avisaria "índice ilegível" do geral em todo jogo. O "Nada foi escrito" tem de ser verdade.
+        for caminho, bruto in antes.items():
+            if bruto is None:
+                caminho.unlink(missing_ok=True)
+            else:
+                caminho.write_bytes(bruto)
+        for pasta in pastas_novas:
+            if pasta.is_dir() and not any(pasta.iterdir()):
+                pasta.rmdir()
+        saida = ""
+        if (central() / ".git").exists():
+            saida = (f"\n  Com o central no git: copie a lição à mão a {destino.as_posix()}, faça "
+                     "o `git add` dela no central e rode o subir de novo com --substituir.")
+        raise ErroDeConfiguracao("a régua não regerou o índice do acervo geral:\n"
+                                 + _saida_da_regua(r) + saida)
+    for linha in r.stderr.splitlines():
+        if "AVISO" in linha:
+            print(linha)                  # o central no git: a lição fora dele não entra no índice
+    if indice.is_file() and indice.read_bytes() != antes[indice]:
+        escritos.append(indice)
+    linha = f"{arquivo.stem} {impressao(do_jogo)} {impressao(destino)} {raiz.as_posix()}"
+    registro = central() / SUBIDAS
+    linhas = _ler(registro)[0].splitlines() if registro.is_file() else [
+        "# As subidas ao acervo geral: o id, a impressão da lição do jogo, a da versão geral e a "
+        "pasta do jogo, como estavam na subida. Quem escreve é o `golem.py subir`; a régua "
+        "compara (fase 4b)."]
+
+    def deste_jogo(l):
+        lida = _linha_de_subida(l)
+        return lida is not None and lida[0] == arquivo.stem and _mesma_pasta(lida[3], raiz)
+
+    linhas = [l for l in linhas if not deste_jogo(l)] + [linha]
+    _escrever(registro, "\n".join(linhas) + "\n", escritos)
+    return escritos
+
+
+def _saida_da_regua(r: subprocess.CompletedProcess) -> str:
+    """A saída da régua, sem a frase "Nada foi escrito" dela (o `_rodar` diz a sua)."""
+    texto = (r.stdout + r.stderr).replace(" Nada foi escrito.", "").replace("Nada foi escrito.", "")
+    return "\n".join(l for l in texto.splitlines() if l.strip()).rstrip()
 
 
 USO = """uso: python3 .claude/golem.py <comando>
@@ -536,10 +800,17 @@ USO = """uso: python3 .claude/golem.py <comando>
                      do AGENTS.md
   aplicar --todos    o mesmo, em cada jogo do registro do central
   central            cria o Golem central, o que faltar ($GOLEM_CENTRAL, senão ~/Golem)
-  registrar <pasta> [--nome <nome>]
+  registrar <pasta> [--nome <nome>] [--terceiros]
                      põe o jogo no registro do central e o liga ("ligado" no
-                     .claude/settings.local.json do jogo)
+                     .claude/settings.local.json do jogo); o --terceiros marca o jogo como feito
+                     para um estúdio ou outra pessoa: nada dele sobe ao acervo geral
   onde               diz a raiz do projeto, o modo, o central e de onde vem cada linha
+  subir <arquivo> [--substituir] [--palavra-comum]
+                     copia ao acervo geral do central a versão geral de uma lição (sem nada do
+                     projeto) e regera o índice dele; só num jogo do registro que não é para
+                     terceiros. O --palavra-comum pula só a conferência do nome do jogo e do da
+                     pasta, quando aparecem como palavra comum (o jogo "Obby" e a lição sobre
+                     obbies); o caminho da pasta e as refs continuam conferidos
 """
 
 
@@ -562,10 +833,19 @@ def main(args=None) -> int:
         return _rodar(criar_central)
     if args == ["onde"]:
         return onde()
-    if len(args) == 2 and args[0] == "registrar":
-        return _rodar(registrar, Path(args[1]))
-    if len(args) == 4 and args[0] == "registrar" and args[2] == "--nome":
-        return _rodar(registrar, Path(args[1]), args[3])
+    if args[:1] == ["registrar"]:
+        resto = [a for a in args[1:] if a != "--terceiros"]
+        terceiros = len(resto) < len(args) - 1
+        if len(resto) == 1:
+            return _rodar(registrar, Path(resto[0]), None, terceiros)
+        if len(resto) == 3 and resto[1] == "--nome":
+            return _rodar(registrar, Path(resto[0]), resto[2], terceiros)
+    if args[:1] == ["subir"]:
+        opcoes = {"--substituir", "--palavra-comum"}
+        resto = [a for a in args[1:] if a not in opcoes]
+        if len(resto) == 1:
+            return _rodar(subir, Path(resto[0]), "--substituir" in args, RAIZ,
+                          "--palavra-comum" in args)
     print(USO)
     return 2
 
