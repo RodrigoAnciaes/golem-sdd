@@ -69,6 +69,13 @@ caminho do `$TMP` encurtado): M1 a M4 passaram.
   --substituir …`, `rc=0`; 3, depois do `subir --substituir`, só o `ok`; 4, `AVISO …: a versão
   geral mudou desde a subida …`, `rc=0`.
 
+**De novo em `4780e59`** (as correções do guardião: o `subidas.txt` com a pasta do jogo), o M1 e
+o M4, numa árvore nova: M1.1, três `escrito`, e a linha do `subidas.txt` com o id, as duas
+impressões e a pasta; M1.2, no `jogo-b`, o bloco "Lições do acervo geral" com a
+`**datastore-sem-pcall**`; M4.1, nenhum aviso; M4.2, `AVISO … a lição deste jogo mudou desde a
+subida`; M4.3, depois do `--substituir`, nenhum aviso; M4.4, `AVISO … a versão geral mudou (à mão,
+ou subida de novo por outro jogo)`, `rc=0`.
+
 1. **A subida e a lição em outro jogo (R2, R4).**
    1. No `jogo-a`, uma lição `datastore-sem-pcall` com o gatilho `\bcomando-geral\b`, sem nada do
       jogo. Com a pasta corrente no `jogo-a`: `"$PYR" "$TMP/kit/.claude/golem.py" subir docs/licoes/datastore-sem-pcall.md`.
