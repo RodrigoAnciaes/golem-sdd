@@ -640,6 +640,8 @@ def test_o_nome_comum_tem_saida_e_o_resto_continua_conferido(registrado, tmp_pat
     """A decisão do autor do kit (pela EST, 2026-11-22): "A: recusa com saída (Recomendado)". A
     recusa pelo nome diz a saída; com o --palavra-comum, só o nome deixa de ser conferido."""
     arq = _versao(tmp_path / "v", "geral-a", corpo=" Visto num jogo de moedas turbo qualquer.")
+    # Os dois nomes que batem (o do jogo e o da pasta, `jogo`) saem na recusa: o sim cobre os dois.
+    _recusa(registrado, arq, motivo="'Moedas Turbo' e 'jogo'")
     _recusa(registrado, arq, motivo="--palavra-comum")
     (registrado.jogo / "src").mkdir()
     (registrado.jogo / "src" / "moedas.lua").write_text("a\nb\nlocal x\n", encoding="utf-8")

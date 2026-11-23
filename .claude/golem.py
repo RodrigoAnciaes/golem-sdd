@@ -654,26 +654,30 @@ def _cita_o_projeto(texto: str, nome: str, raiz: Path, refs: list, regua,
     pasta (como palavra), o caminho da pasta, a ref a um arquivo do jogo e não do kit, a ref a um
     script do place.
 
-    `palavra_comum`: o usuário disse que o nome que aparece é a palavra comum, e não o jogo (o
-    jogo "Obby" e a lição sobre obbies). Pula só a conferência do nome; o caminho e as refs ficam.
+    `palavra_comum`: o usuário disse que os nomes que aparecem são a palavra comum, e não o jogo (o
+    jogo "Obby" e a lição sobre obbies). Pula só a conferência do nome do jogo e do da pasta; o
+    caminho e as refs ficam. A recusa cita todos os nomes que batem: o sim cobre tudo o que pula.
     """
+    reescreva = ". Reescreva a lição sem nada do projeto"
     baixo = texto.lower()
     for caminho in (raiz.as_posix(), str(raiz)):
         if caminho.lower() in baixo:
-            return f"o texto cita a pasta do jogo ({raiz.as_posix()})"
-    for palavra in dict.fromkeys(p for p in (nome, raiz.name) if p and not palavra_comum):
-        if re.search(rf"(?<![\w-]){re.escape(palavra.lower())}(?![\w-])", baixo):
-            return (f"o texto cita {palavra!r}, o nome do jogo ou da pasta dele. Reescreva a lição "
-                    f"sem nada do projeto; se ali {palavra!r} é a palavra comum, e não o jogo, "
-                    f"rode de novo com --palavra-comum (a skill `licao` pergunta antes)")
+            return f"o texto cita a pasta do jogo ({raiz.as_posix()}){reescreva}"
+    citados = [p for p in dict.fromkeys(p for p in (nome, raiz.name) if p)
+               if re.search(rf"(?<![\w-]){re.escape(p.lower())}(?![\w-])", baixo)]
+    if citados and not palavra_comum:
+        nomes = " e ".join(repr(p) for p in citados)
+        return (f"o texto cita {nomes}, o nome do jogo ou da pasta dele{reescreva}; se ali é a "
+                f"palavra comum, e não o jogo, rode de novo com --palavra-comum (a skill `licao` "
+                f"pergunta antes)")
     for item in refs:
         if not isinstance(item, str):
             continue
         if item.startswith("game."):
-            return f"a ref {item!r} cita um script do place"
+            return f"a ref {item!r} cita um script do place{reescreva}"
         m = regua._REF.match(item)
         if m and (raiz / m.group(1)).is_file() and not (KIT / m.group(1)).is_file():
-            return f"a ref {m.group(1)!r} cita um arquivo do jogo"
+            return f"a ref {m.group(1)!r} cita um arquivo do jogo{reescreva}"
     return ""
 
 
@@ -712,8 +716,6 @@ def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ,
     problema = _cita_o_projeto(texto, jogo[0], raiz, regua._gancho().ler_gatilhos(texto, "refs"),
                                regua, palavra_comum)
     if problema:
-        if "--palavra-comum" not in problema:
-            problema += ". Reescreva a lição sem nada do projeto"
         raise ErroDeConfiguracao(problema)
     geral = central() / "docs" / "licoes"
     destino = geral / arquivo.name
@@ -790,8 +792,9 @@ USO = """uso: python3 .claude/golem.py <comando>
   subir <arquivo> [--substituir] [--palavra-comum]
                      copia ao acervo geral do central a versão geral de uma lição (sem nada do
                      projeto) e regera o índice dele; só num jogo do registro que não é para
-                     terceiros. O --palavra-comum pula só a conferência do nome do jogo, quando
-                     ele aparece como palavra comum (o jogo "Obby" e a lição sobre obbies)
+                     terceiros. O --palavra-comum pula só a conferência do nome do jogo e do da
+                     pasta, quando aparecem como palavra comum (o jogo "Obby" e a lição sobre
+                     obbies); o caminho da pasta e as refs continuam conferidos
 """
 
 
