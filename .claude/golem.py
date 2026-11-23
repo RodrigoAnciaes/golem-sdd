@@ -648,17 +648,24 @@ def _regua_em(pasta: Path) -> subprocess.CompletedProcess:
                           env={**os.environ, "PYTHONIOENCODING": "utf-8"})
 
 
-def _cita_o_projeto(texto: str, nome: str, raiz: Path, refs: list, regua) -> str:
+def _cita_o_projeto(texto: str, nome: str, raiz: Path, refs: list, regua,
+                    palavra_comum: bool = False) -> str:
     """O que a lição cita do projeto, ou ''. Sem diferenciar maiúsculas: o nome do jogo e o da
     pasta (como palavra), o caminho da pasta, a ref a um arquivo do jogo e não do kit, a ref a um
-    script do place."""
+    script do place.
+
+    `palavra_comum`: o usuário disse que o nome que aparece é a palavra comum, e não o jogo (o
+    jogo "Obby" e a lição sobre obbies). Pula só a conferência do nome; o caminho e as refs ficam.
+    """
     baixo = texto.lower()
     for caminho in (raiz.as_posix(), str(raiz)):
         if caminho.lower() in baixo:
             return f"o texto cita a pasta do jogo ({raiz.as_posix()})"
-    for palavra in dict.fromkeys(p for p in (nome, raiz.name) if p):
+    for palavra in dict.fromkeys(p for p in (nome, raiz.name) if p and not palavra_comum):
         if re.search(rf"(?<![\w-]){re.escape(palavra.lower())}(?![\w-])", baixo):
-            return f"o texto cita {palavra!r}, o nome do jogo ou da pasta dele"
+            return (f"o texto cita {palavra!r}, o nome do jogo ou da pasta dele. Reescreva a lição "
+                    f"sem nada do projeto; se ali {palavra!r} é a palavra comum, e não o jogo, "
+                    f"rode de novo com --palavra-comum (a skill `licao` pergunta antes)")
     for item in refs:
         if not isinstance(item, str):
             continue
@@ -670,10 +677,11 @@ def _cita_o_projeto(texto: str, nome: str, raiz: Path, refs: list, regua) -> str
     return ""
 
 
-def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ) -> list:
+def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ,
+          palavra_comum: bool = False) -> list:
     """Copia ao acervo geral (`<central>/docs/licoes/`) a versão geral de uma lição, regera o
     índice do geral e grava a subida em `<central>/.claude/indice/subidas.txt`. Confere tudo
-    antes de escrever; a lição do jogo não muda."""
+    antes de escrever; a lição do jogo não muda. `palavra_comum`: ver `_cita_o_projeto`."""
     if not modo_plugin(raiz):
         raise ErroDeConfiguracao("fora do modo plugin não há Golem central: o subir só vale num "
                                  "jogo registrado no central")
@@ -702,9 +710,11 @@ def subir(arquivo: Path, substituir: bool = False, raiz: Path = RAIZ) -> list:
         raise ErroDeConfiguracao(f"{arquivo.as_posix()}: o texto não está em UTF-8") from None
     regua = _carregar_regua()
     problema = _cita_o_projeto(texto, jogo[0], raiz, regua._gancho().ler_gatilhos(texto, "refs"),
-                               regua)
+                               regua, palavra_comum)
     if problema:
-        raise ErroDeConfiguracao(f"{problema}. Reescreva a lição sem nada do projeto")
+        if "--palavra-comum" not in problema:
+            problema += ". Reescreva a lição sem nada do projeto"
+        raise ErroDeConfiguracao(problema)
     geral = central() / "docs" / "licoes"
     destino = geral / arquivo.name
     if destino.is_file() and not substituir and not _mesma_pasta(destino, arquivo):
@@ -777,10 +787,11 @@ USO = """uso: python3 .claude/golem.py <comando>
                      .claude/settings.local.json do jogo); o --terceiros marca o jogo como feito
                      para um estúdio ou outra pessoa: nada dele sobe ao acervo geral
   onde               diz a raiz do projeto, o modo, o central e de onde vem cada linha
-  subir <arquivo> [--substituir]
+  subir <arquivo> [--substituir] [--palavra-comum]
                      copia ao acervo geral do central a versão geral de uma lição (sem nada do
                      projeto) e regera o índice dele; só num jogo do registro que não é para
-                     terceiros
+                     terceiros. O --palavra-comum pula só a conferência do nome do jogo, quando
+                     ele aparece como palavra comum (o jogo "Obby" e a lição sobre obbies)
 """
 
 
@@ -811,9 +822,11 @@ def main(args=None) -> int:
         if len(resto) == 3 and resto[1] == "--nome":
             return _rodar(registrar, Path(resto[0]), resto[2], terceiros)
     if args[:1] == ["subir"]:
-        resto = [a for a in args[1:] if a != "--substituir"]
+        opcoes = {"--substituir", "--palavra-comum"}
+        resto = [a for a in args[1:] if a not in opcoes]
         if len(resto) == 1:
-            return _rodar(subir, Path(resto[0]), len(resto) < len(args) - 1)
+            return _rodar(subir, Path(resto[0]), "--substituir" in args, RAIZ,
+                          "--palavra-comum" in args)
     print(USO)
     return 2
 

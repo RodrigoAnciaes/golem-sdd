@@ -106,7 +106,8 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 - [ ] `.claude/skills/licao/SKILL.md`: o passo 1 busca também no geral, no modo plugin; o passo
   novo "Oferecer o acervo geral", depois do fecho, com as condições (o "parece valer para qualquer
   jogo", e na dúvida pergunta), as duas perguntas (o texto reescrito dentro da segunda), o `subir`
-  e a prova pelo gancho; o `AVISO` da divergência no passo 4; o "Escreve:" do topo.
+  e a prova pelo gancho; a pergunta do nome comum e o `--palavra-comum`; o `AVISO` da divergência
+  no passo 4; o "Escreve:" do topo.
 - [ ] `docs/licoes/README.md`: a tabela "Onde cada coisa mora" e "Como o gancho entrega as lições".
 - [ ] `README.md`: o "Mapa das pastas" (as linhas do `jogos.md`, do `docs/licoes/` e do índice, e o
   `subidas.txt`).
@@ -135,3 +136,4 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 | Data | O quê | Por quê | Quem aprovou |
 |---|---|---|---|
+| 2026-11-22 | O `subir --palavra-comum` e a pergunta da `licao` sobre o nome comum (R4, R6) | A revisão do G2 mostrou a recusa pelo nome sem saída, com nomes comuns ("Obby", a pasta `jogo`) | O autor do kit, pela EST: "A: recusa com saída (Recomendado)" |

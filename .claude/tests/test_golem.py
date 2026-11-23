@@ -636,6 +636,24 @@ def test_o_subir_recusa_o_que_cita_o_projeto(registrado, tmp_path, corpo, refs, 
     _recusa(registrado, _versao(tmp_path / "v", "geral-a", refs, corpo), motivo=motivo)
 
 
+def test_o_nome_comum_tem_saida_e_o_resto_continua_conferido(registrado, tmp_path):
+    """A decisão do autor do kit (pela EST, 2026-11-22): "A: recusa com saída (Recomendado)". A
+    recusa pelo nome diz a saída; com o --palavra-comum, só o nome deixa de ser conferido."""
+    arq = _versao(tmp_path / "v", "geral-a", corpo=" Visto num jogo de moedas turbo qualquer.")
+    _recusa(registrado, arq, motivo="--palavra-comum")
+    (registrado.jogo / "src").mkdir()
+    (registrado.jogo / "src" / "moedas.lua").write_text("a\nb\nlocal x\n", encoding="utf-8")
+    com_pasta = _versao(tmp_path / "p", "geral-a",
+                        corpo=f" Moedas Turbo em {registrado.jogo.resolve().as_posix()}.")
+    _recusa(registrado, com_pasta, "--palavra-comum", motivo="a pasta do jogo")
+    com_ref = _versao(tmp_path / "r", "geral-a", ("'src/moedas.lua:3 `local x`'",),
+                      corpo=" Moedas Turbo.")
+    _recusa(registrado, com_ref, "--palavra-comum", motivo="cita um arquivo do jogo")
+    r = registrado.rodar("golem.py", "subir", str(arq), "--palavra-comum")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (registrado.central / "docs" / "licoes" / "geral-a.md").read_bytes() == arq.read_bytes()
+
+
 def test_o_subir_recusa_o_frontmatter_que_a_regua_recusa(registrado, tmp_path):
     arq = _versao(tmp_path / "v", "geral-a")
     arq.write_text(arq.read_text(encoding="utf-8").replace("area: processo", "area: nenhuma"),

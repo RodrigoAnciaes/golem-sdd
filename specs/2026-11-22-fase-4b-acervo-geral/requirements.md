@@ -161,7 +161,12 @@ de escrever e, se recusar, diz por quê e não escreve nada:
 
   A lição do kit e a ref em prosa passam. A conferência é mecânica e não substitui a leitura do
   usuário: ela pega o caso grosseiro (o nome, a pasta, o arquivo), e a releitura pega o resto (a
-  chave do save, o nome de um NPC);
+  chave do save, o nome de um NPC).
+
+  **O nome que é palavra comum** (o jogo "Obby" e a lição sobre obbies; a pasta `jogo`): a
+  recusa pelo nome diz a saída, o `--palavra-comum`, que pula só a conferência do nome do jogo e
+  do da pasta. O caminho da pasta e as refs continuam conferidos. Quem o passa é a `licao`, depois
+  de perguntar (R6). Da revisão do G2, decidido pelo autor do kit ("Decisões");
 - **o frontmatter passa na régua** (o `id` igual ao nome do arquivo, a `area`, o `tipo`, os
   `gatilhos`): a régua do kit roda numa cópia do acervo geral com a lição nova, antes de escrever
   no central;
@@ -225,6 +230,10 @@ Um passo novo na `licao` (`licao/SKILL.md`), depois do fecho (`:186-192`), só n
   jogo, o place, as chaves) e mostra o texto **dentro da pergunta** "Gravo no acervo geral assim?"
   (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`: o texto entre duas perguntas fica no
   raciocínio). Só com o segundo sim ele grava a versão numa pasta temporária e roda o `subir`;
+- **o nome comum:** se o `subir` recusar pelo nome do jogo, a skill pergunta com botões: "O texto
+  cita '<nome>', o nome deste jogo. Aqui é a palavra comum, e não o seu jogo?". Com o sim, roda o
+  `subir` de novo com o `--palavra-comum`; com o não, reescreve o trecho e volta à segunda
+  pergunta;
 - **a prova:** o gancho rodado com a ação que deve receber a lição, como no passo 5
   (`:161-178`), mostra o id com o rótulo do geral;
 - **o passo 1** ("Conferir se já existe", `:32-39`) passa a buscar também no geral, no modo plugin:
@@ -294,6 +303,10 @@ suas recomendações, então." O que ele aceitou:
 - **P3, o jogo para terceiros lê o acervo geral:** sim. Só não sobe nada.
 - **A oferta só quando a lição parece geral** (R6), e não ao fim de toda lição, com a nuance dele:
   "algumas perguntas a mais do usuário não tem problema. Ela só tem que deixar mais óbvia."
+- **O nome do jogo que é palavra comum** (cartão da EST, depois da revisão do G2, que mostrou a
+  recusa sem saída com nomes como "Obby", "Moedas" ou a pasta `jogo`): "A: recusa com saída
+  (Recomendado)" (2026-11-22). As outras opções eram tirar a conferência do nome (B) e não mudar
+  nada (C). O R4 e o R6 trazem o que muda.
 
 **Do agente, dentro destas:**
 - **O geral em `~/Golem/docs/licoes/`**, com o índice em `~/Golem/.claude/indice/`, e não numa

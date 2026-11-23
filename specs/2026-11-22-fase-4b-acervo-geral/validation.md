@@ -18,6 +18,7 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
   - G1: 13 novos (12 no `test_gancho.py`, 1 no `test_regua.py`) → `222 passed in 105.02s`.
   - G2: 22 novos (no `test_golem.py`, um deles com 5 casos) → `244 passed`.
   - G3: 7 novos (no `test_regua.py`) → `251 passed in 136.47s`.
+  - O nome comum (a decisão do cartão, depois do G3): 1 novo (no `test_golem.py`) → 252.
 - [ ] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`,
   sai 0, sem nenhuma linha `AVISO`.
 - [ ] `git diff "$BASE"..HEAD --stat -- .claude/indice/ docs/licoes/*.md` → vazio, fora o
@@ -57,6 +58,10 @@ JSON; aqui entra o `additionalContext` decodificado.
       `jogo-a`;
    4. no `jogo-a`, de novo a `datastore-sem-pcall`, sem o `--substituir`;
    5. no repositório do kit (fora do modo plugin), qualquer lição.
+
+   E o nome comum: no `jogo-a`, a recusa do item 2 **deve dizer** a saída (`--palavra-comum`);
+   rodada de novo com ela, a lição **deve subir**, e a do item 3 com ela **deve continuar**
+   recusada pela ref.
 
    E o `onde`, com a pasta corrente em cada jogo, **deve dizer** `não` na linha "para terceiros" no
    `jogo-a` e `sim` no `jogo-c`.
