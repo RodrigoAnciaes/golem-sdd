@@ -60,6 +60,12 @@ As receitas são os recomendados do kit. Cada linha escrita no `golem.toml` vale
   (`regua.py --gerar` e `--conferir`) avisar. O arquivo entra inteiro em toda conversa. Acima do
   teto, a regra que só vale para quem mexe numa área sai para o `docs/regras-de-area.md` (a skill
   `licao` diz como). O aviso não muda o código de saída da régua.
+- **`jogos_para_terceiros`** (`sim`, `nao`; só no `golem.toml` do Golem central, e fora das
+  receitas): se você costuma fazer jogos para estúdios ou outras pessoas. A skill `iniciar-sdd`
+  pergunta uma vez, no primeiro registro, e grava a linha. Com `sim`, cada registro pergunta se o
+  jogo é para terceiros (nada dele sobe ao acervo geral); com `nao`, não pergunta por jogo. Sem a
+  linha, vale `nao`, e o próximo registro faz a pergunta geral.
+  Num `golem.toml` de jogo, a linha é erro. Não custa nada.
 
 ## O que nenhuma receita corta
 

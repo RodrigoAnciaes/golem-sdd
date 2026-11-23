@@ -143,7 +143,7 @@ A marca é por jogo, mas a pergunta por jogo só aparece para quem faz jogos par
 
 ### R4. O comando de subir
 
-Novo comando do `golem.py`: **`subir <arquivo> [--substituir]`**. O `<arquivo>` é a versão da
+Novo comando do `golem.py`: **`subir <arquivo> [--substituir] [--palavra-comum]`**. O `<arquivo>` é a versão da
 lição que vai ao geral, já reescrita sem o projeto e lida pelo usuário (R6). Ele confere tudo antes
 de escrever e, se recusar, diz por quê e não escreve nada:
 
@@ -230,12 +230,15 @@ Um passo novo na `licao` (`licao/SKILL.md`), depois do fecho (`:186-192`), só n
   jogo, o place, as chaves) e mostra o texto **dentro da pergunta** "Gravo no acervo geral assim?"
   (lição `o-aviso-entre-duas-perguntas-fica-no-raciocinio`: o texto entre duas perguntas fica no
   raciocínio). Só com o segundo sim ele grava a versão numa pasta temporária e roda o `subir`;
-- **o nome comum:** se o `subir` recusar pelo nome do jogo, a skill pergunta com botões: "O texto
-  cita '<nome>', o nome deste jogo. Aqui é a palavra comum, e não o seu jogo?". Com o sim, roda o
+- **o nome comum:** se o `subir` recusar pelo nome do jogo ou da pasta, a skill pergunta com
+  botões, com todos os nomes que a recusa cita (ela cita todos os que batem, e o `--palavra-comum`
+  pula todos): "O texto cita '<nome>', o nome deste jogo ou da pasta dele. Ali é a palavra comum,
+  e não o seu jogo?". Com o sim, roda o
   `subir` de novo com o `--palavra-comum`; com o não, reescreve o trecho e volta à segunda
   pergunta;
-- **a prova:** o gancho rodado com a ação que deve receber a lição, como no passo 5
-  (`:161-178`), mostra o id com o rótulo do geral;
+- **a prova:** o índice do acervo geral traz o id, e a régua do jogo não avisa divergência dele.
+  No próprio jogo, o gancho entrega a lição do jogo, e não a geral (a de mesmo id vence, R2): a
+  prova pelo gancho, que este item pedia antes do G4, não mostraria o rótulo do geral ali;
 - **o passo 1** ("Conferir se já existe", `:32-39`) passa a buscar também no geral, no modo plugin:
   a lição geral próxima se atualiza (com o `--substituir`), em vez de nascer outra;
 - **o `AVISO` da divergência** (R5), quando a régua do passo 4 o der depois de a lição do jogo

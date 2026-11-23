@@ -15,6 +15,7 @@ para a busca e o gancho, e prosa curta para o resto.
 | `specs/` | o que foi construído e por quê | por fase |
 | `CHANGELOG.md` | o que mudou, por data | cronológico |
 | **`docs/licoes/`** | **a armadilha que custou caro descobrir** | o que se achava × o que é |
+| `~/Golem/docs/licoes/` (só no Golem central) | o acervo geral: a lição que vale para qualquer jogo, copiada de um jogo com o seu ok e sem nada dele | o mesmo formato; o gancho a lê em todos os jogos |
 
 Uma lição vira **também** regra quando implica ação obrigatória daqui para frente: no `AGENTS.md`,
 se vale para toda tarefa; no `docs/regras-de-area.md`, se só muda a decisão de quem mexe numa área
@@ -128,6 +129,15 @@ python3 .claude/regua.py --gerar     # no Windows, python ou py -3
 Esse é o comando na cópia (o kit dentro do projeto). No Golem central, a régua mora no kit: peça à
 skill `licao`, que diz o comando com o caminho do kit, ou rode `python3 <pasta do kit>/.claude/regua.py
 --gerar` na pasta do jogo.
+
+**No Golem central, dois acervos.** Além das lições do jogo, o gancho lê o acervo geral, em
+`~/Golem/docs/licoes/`, com o índice dele em `~/Golem/.claude/indice/licoes.yaml`. Os dois
+dividem o teto de lições por ação: a que casou por `gatilhos:` vem antes da que veio só pela área,
+e, em cada grupo, as do jogo vêm antes das gerais. Se o mesmo id está nos dois, vale a do jogo. As
+gerais chegam num bloco próprio, "Lições do acervo geral". Quem copia uma lição ao acervo geral é
+a skill `licao` (o `golem.py subir`), só com o seu ok e nunca de um jogo feito para terceiros (um
+estúdio ou outra pessoa); a régua do jogo avisa quando a lição e a cópia geral divergem. Fora do
+Golem central (a cópia, o Codex), só o acervo do jogo conta.
 
 A lição que falta no índice ainda chega: o gancho a lê do Markdown e avisa, uma vez por sessão e
 por agente, que o índice está defasado, com o id dela. O aviso é para regerar, e não um jeito de

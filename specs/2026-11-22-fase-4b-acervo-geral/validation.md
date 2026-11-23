@@ -60,7 +60,8 @@ JSON; aqui entra o `additionalContext` decodificado.
    5. no repositório do kit (fora do modo plugin), qualquer lição.
 
    E o nome comum: no `jogo-a`, a recusa do item 2 **deve dizer** a saída (`--palavra-comum`);
-   rodada de novo com ela, a lição **deve subir**, e a do item 3 com ela **deve continuar**
+   rodada de novo com ela (numa lição do `jogo-a` que ainda não subiu, ou com o `--substituir`),
+   a lição **deve subir**, e a do item 3 com ela **deve continuar**
    recusada pela ref.
 
    E o `onde`, com a pasta corrente em cada jogo, **deve dizer** `não` na linha "para terceiros" no

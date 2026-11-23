@@ -100,19 +100,19 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G4 — As skills e os documentos (R3, R6, R7)
 
-- [ ] `.claude/skills/iniciar-sdd/SKILL.md`: no passo 2, a pergunta geral quando o `golem.toml` do
+- [x] `.claude/skills/iniciar-sdd/SKILL.md`: no passo 2, a pergunta geral quando o `golem.toml` do
   central não tem a linha (e a escrita da linha), a pergunta por jogo com `sim`, a linha de aviso
   com `nao`; o `--terceiros` no passo 5; a coluna nova no caminho sem Python (`:135-142`).
-- [ ] `.claude/skills/licao/SKILL.md`: o passo 1 busca também no geral, no modo plugin; o passo
+- [x] `.claude/skills/licao/SKILL.md`: o passo 1 busca também no geral, no modo plugin; o passo
   novo "Oferecer o acervo geral", depois do fecho, com as condições (o "parece valer para qualquer
   jogo", e na dúvida pergunta), as duas perguntas (o texto reescrito dentro da segunda), o `subir`
-  e a prova pelo gancho; a pergunta do nome comum e o `--palavra-comum`; o `AVISO` da divergência
+  e a prova (o índice do geral e a régua do jogo); a pergunta do nome comum e o `--palavra-comum`; o `AVISO` da divergência
   no passo 4; o "Escreve:" do topo.
-- [ ] `docs/licoes/README.md`: a tabela "Onde cada coisa mora" e "Como o gancho entrega as lições".
-- [ ] `README.md`: o "Mapa das pastas" (as linhas do `jogos.md`, do `docs/licoes/` e do índice, e o
+- [x] `docs/licoes/README.md`: a tabela "Onde cada coisa mora" e "Como o gancho entrega as lições".
+- [x] `README.md`: o "Mapa das pastas" (as linhas do `jogos.md`, do `docs/licoes/` e do índice, e o
   `subidas.txt`).
-- [ ] `docs/guia-configuracao.md`: a chave `jogos_para_terceiros`, como o G2 decidiu.
-- [ ] **Quem muda, varre** (as buscas abaixo), e o que achar entra neste grupo:
+- [x] `docs/guia-configuracao.md`: a chave `jogos_para_terceiros`, como o G2 decidiu.
+- [x] **Quem muda, varre** (as buscas abaixo), e o que achar entra neste grupo:
 
   ```bash
   grep -rn "Registrado em" --include=*.md --include=*.py . | grep -v '^./specs/'
@@ -136,4 +136,5 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 | Data | O quê | Por quê | Quem aprovou |
 |---|---|---|---|
+| 2026-11-22 | A prova da `licao` (R6): o índice do geral e a régua do jogo, e não o gancho | No jogo de onde a lição subiu, o gancho entrega a do jogo (a de mesmo id vence, R2), sem o rótulo do geral | O agente, no G4 (detalhe de implementação) |
 | 2026-11-22 | O `subir --palavra-comum` e a pergunta da `licao` sobre o nome comum (R4, R6) | A revisão do G2 mostrou a recusa pelo nome sem saída, com nomes comuns ("Obby", a pasta `jogo`) | O autor do kit, pela EST: "A: recusa com saída (Recomendado)" |

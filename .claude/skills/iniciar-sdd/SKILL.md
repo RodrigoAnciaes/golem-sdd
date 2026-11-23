@@ -1,6 +1,6 @@
 ---
 name: iniciar-sdd
-description: Prepara um jogo para o Golem e, no Golem central, registra o jogo e liga o kit nele. Pergunta o nome e se já existe uma pasta, copia o AGENTS.md, as lições e os modelos, liga o plugin no jogo e gera o índice. Use quando o usuário disser "registrar um jogo", "começar um jogo novo", "iniciar SDD neste projeto", "preparar o projeto para specs" ou invocar /iniciar-sdd.
+description: Prepara um jogo para o Golem e, no Golem central, registra o jogo e liga o kit nele. Pergunta o nome, se já existe uma pasta e, uma vez, se o usuário faz jogos para estúdios ou outras pessoas; copia o AGENTS.md, as lições e os modelos, liga o plugin no jogo e gera o índice. Use quando o usuário disser "registrar um jogo", "começar um jogo novo", "iniciar SDD neste projeto", "preparar o projeto para specs" ou invocar /iniciar-sdd.
 license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/RodrigoAnciaes/golem-sdd (texto em .claude/LICENSE)"
 ---
 
@@ -10,7 +10,7 @@ license: "MIT. © 2026 Rodrigo Anciães Patelli. Golem SDD, https://github.com/R
 existe.
 **Escreve:** na pasta do jogo, **só o que falta**: o `AGENTS.md`, o `CLAUDE.md`, as lições, os
 modelos, a `specs/`, o índice, o `.gitignore` e o "ligado" do plugin. No central, a linha do jogo
-no `jogos.md`.
+no `jogos.md` e, no primeiro registro, a linha `jogos_para_terceiros` do `golem.toml` do central.
 **Decide:** o que já existe e não deve ser recriado. Sobrescrever o `AGENTS.md` de um projeto vivo
 apaga regra comprada com falha. **Não escreve a constituição**: isso é a skill `constituicao`,
 chamada depois, já na pasta do jogo.
@@ -52,6 +52,31 @@ Com botões (no Claude Code, a ferramenta de pergunta), ou em texto numerado ond
 
 Se o jogo já está no registro (a lista do passo 1), diga isso e pergunte se é para conferir o que
 falta nele, em vez de registrar de novo.
+
+**Para quem é o jogo.** O Golem tem um acervo geral de lições, no central, que todos os jogos do
+usuário leem; o que se aprende num jogo feito para outra pessoa não vai para lá. A pergunta tem dois
+níveis, para não pesar em quem faz jogos só para si:
+
+```bash
+grep -E '^\s*jogos_para_terceiros\s*=' "${GOLEM_CENTRAL:-$HOME/Golem}/golem.toml" 2>/dev/null \
+    || echo "sem a linha: pergunte uma vez"
+```
+
+3. **Sem a linha** (o primeiro registro): **"Você costuma fazer jogos para estúdios ou outras
+   pessoas?"** ("Não, só para mim (Recomendado)" e "Sim, às vezes"). Grave a resposta como a
+   última linha do `golem.toml` do central: `jogos_para_terceiros = "nao"` ou `"sim"`. Ela não se
+   pergunta de novo; para mudar, a linha se troca à mão.
+4. **Com `"sim"`**, pergunte por jogo: **"Você faz este jogo para você mesmo, nos seus próprios
+   repositórios, ou para um estúdio ou outra pessoa?"**, com, no texto da pergunta: "Se for para
+   outra pessoa, o Golem não leva nada deste jogo para o acervo geral, que todos os seus jogos
+   leem, porque o que se aprende nele pertence a quem encomendou." ("Para mim" e "Para um estúdio
+   ou outra pessoa"). Com a segunda, o `registrar` da seção 5 leva o `--terceiros`.
+5. **Com `"nao"`**, não pergunte por jogo: no fecho, diga em uma linha "se este jogo for de um
+   estúdio ou de outra pessoa, me diga". Se o usuário disser, rode o `registrar` da seção 5 de
+   novo com o `--terceiros`.
+
+Nas perguntas e nas respostas ao usuário, a palavra é "para terceiros" ("um estúdio ou outra
+pessoa"), nunca "cliente".
 
 ## 3. A pasta e o git
 
@@ -111,12 +136,13 @@ cp -n "$KIT/.claude/LICENSE" .claude/LICENSE
 
 ```bash
 KIT=$(cd "${CLAUDE_SKILL_DIR}/../../.." && pwd)
-python3 "$KIT/.claude/golem.py" registrar "<pasta>" --nome "<nome>"
+python3 "$KIT/.claude/golem.py" registrar "<pasta>" --nome "<nome>"   # e --terceiros, se for
 ```
 
 No Windows, `python` ou `py -3` no lugar de `python3`. Ele põe o jogo no `jogos.md` do central, liga
 o plugin no `.claude/settings.local.json` do jogo e tira esse arquivo do git dele. Rodado de novo,
-não duplica nada. Se ele disser `ERRO`, mostre a mensagem ao usuário: nada foi escrito.
+não duplica nada; com o `--terceiros`, marca o jogo, e sem ele não desmarca (desmarcar é à mão, no
+`jogos.md`). Se ele disser `ERRO`, mostre a mensagem ao usuário: nada foi escrito.
 
 ## 6. O índice das lições e a configuração
 
@@ -137,9 +163,12 @@ Se o `--gerar` recusar porque nenhuma lição está no git, faltou o `git add`.
   arquivo, com `{"enabledPlugins": {"golem@golem": true}}`, se não existir; se existir, guarde o
   resto);
 - acrescente `.claude/settings.local.json` ao `.gitignore` do jogo;
-- no fim do `jogos.md` do central, uma linha `| <nome> | <pasta> | <data> |`, com a data no formato
-  `AAAA-MM-DD`. Sem o `jogos.md`, crie-o antes com o cabeçalho `| Jogo | Pasta | Registrado em |` e
-  a linha `|---|---|---|`.
+- no fim do `jogos.md` do central, uma linha `| <nome> | <pasta> | <data> | não |` (ou `sim`, se o
+  jogo é para terceiros), sempre com as quatro células, com a data no formato `AAAA-MM-DD`. Sem o
+  `jogos.md`, crie-o antes com o cabeçalho `| Jogo | Pasta | Registrado em | Para terceiros |` e a
+  linha `|---|---|---|---|`. Num `jogos.md` de três colunas (o de antes desta versão), passe-o a
+  quatro, como o `registrar` faz: o cabeçalho e o separador com a coluna nova, e `não` no fim de
+  cada linha que já existe.
 Pule o índice e o `aplicar`, e diga ao usuário que pulou: o bloco do `AGENTS.md` fica com a receita
 `economico` do modelo até o `aplicar` rodar.
 

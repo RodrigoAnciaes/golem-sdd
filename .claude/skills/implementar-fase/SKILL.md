@@ -26,7 +26,9 @@ outro sistema ou outra equipe.
    no shell, `grep -ilE 'termo1|termo2' docs/licoes/*.md`. Nunca `-i` com dois `-e`: o grep do Git
    for Windows aborta (lição `o-grep-do-git-for-windows-aborta-com-i-e-varios-e`). Busque aqui e
    de novo antes de rodar os testes. Vale com ou sem gancho: sem Python, o gancho pode estar
-   desligado e o índice envelhece. Armadilha registrada não se paga duas vezes.
+   desligado e o índice envelhece. Armadilha registrada não se paga duas vezes. No Golem central,
+   busque também no acervo geral, `${GOLEM_CENTRAL:-$HOME/Golem}/docs/licoes/`, que vale para todo
+   jogo.
 5. Leia o bloco "Como o Golem trabalha aqui" do `AGENTS.md`: ele diz que revisão roda, quando, e
    se a implementação para a cada grupo. Sem o bloco (um `AGENTS.md` sem as marcas), rode
    `python3 "${CLAUDE_SKILL_DIR}/../../golem.py" aplicar`; sem Python, siga a receita `economico`
