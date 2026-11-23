@@ -52,7 +52,7 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G2 — A marca de jogo para terceiros e o comando de subir (R3, R4)
 
-- [ ] `.claude/golem.py`:
+- [x] `.claude/golem.py`:
   - o registro com a coluna `Para terceiros`: o `ler_registro` lê as linhas de três e de quatro
     células (a de três vale `não`); o cabeçalho novo; a primeira escrita passa o arquivo a quatro
     colunas;
@@ -66,7 +66,7 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
     `<central>/docs/licoes/<id>.md`, a régua do kit regerando o índice do geral (um subprocesso
     com a pasta corrente no central) e a linha da subida no `<central>/.claude/indice/subidas.txt`;
   - o `USO` (`:532-543`) com o comando novo e o `--terceiros`.
-- [ ] Testes novos em `.claude/tests/test_golem.py`:
+- [x] Testes novos em `.claude/tests/test_golem.py`:
   - o registro antigo, de três colunas, é lido, com `não`, e passa a quatro na primeira escrita;
   - o `registrar --terceiros` marca; rodado de novo sem ele, a marca fica; não duplica a linha;
   - a chave `jogos_para_terceiros`: aceita no central, `nao` sem a linha, e um valor fora de

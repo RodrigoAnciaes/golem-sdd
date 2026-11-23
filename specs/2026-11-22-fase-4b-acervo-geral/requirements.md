@@ -107,8 +107,12 @@ A marca é por jogo, mas a pergunta por jogo só aparece para quem faz jogos par
   - **A leitura:** pela leitura de hoje do `golem.toml`, que recusa chave desconhecida
     (`golem.py:155-157`), com a chave nova entre as que valem (`VALORES`, `:94-107`). A linha só
     vale no `golem.toml` do central. Ela não depende da receita, e o guia ganha uma linha para ela
-    (R7). Como ela entra no `onde` e na tabela das receitas do guia (que o
-    `test_golem.py:226` confere célula por célula) fica **a conferir no G2**.
+    (R7). **Conferido no G2:** ela fica fora das `RECEITAS`, num `FORA_DAS_RECEITAS` com o `nao`
+    sem a linha, que a `configuracao` põe por baixo da receita. O `onde` a mostra só no modo
+    plugin, com "(o padrão)" sem a linha. No guia, ela não entra na tabela das receitas, que o
+    `test_golem.py:226` confere célula por célula contra as `RECEITAS`: entra na lista "O que cada
+    chave faz", em prosa. A linha num `golem.toml` que não é o do central é erro, que diz a chave
+    e onde ela vale (da revisão do G2: senão a do jogo, que vai ao git dele, venceria a do central).
   - **Mudar a resposta:** à mão, na linha do `golem.toml` do central, como as outras chaves
     (`docs/guia-configuracao.md:72`).
 - **Com `sim`, a pergunta por jogo, ao registrar:** "Você faz este jogo para você mesmo, nos seus
@@ -125,7 +129,8 @@ A marca é por jogo, mas a pergunta por jogo só aparece para quem faz jogos par
 - **O `registrar <pasta> --terceiros`** marca o jogo. Rodado num jogo já registrado, troca a marca
   para `sim` sem duplicar a linha. Rodado de novo **sem** o `--terceiros`, não desmarca: desmarcar
   é à mão, no `jogos.md`, como apagar uma linha hoje (`golem.py:364-366`). Assim, nenhum comando
-  repetido tira a proteção sem querer.
+  repetido tira a proteção sem querer. Pela mesma razão, só `não` (ou `nao`) desmarca: outro valor
+  escrito à mão na coluna vale `sim` (da revisão do G2).
 - **O registro antigo** (três colunas, da fase 3) continua sendo lido, com `não` em todo jogo. A
   primeira escrita do `registrar` o passa a quatro colunas, com `não` nas linhas que já existiam,
   para a tabela não ficar com linhas de tamanhos diferentes.
@@ -145,6 +150,9 @@ de escrever e, se recusar, diz por quê e não escreve nada:
 - **só no modo plugin** (`modo_plugin`, `golem.py:77-79`): fora dele, não há central;
 - **só num jogo do registro e que não é para terceiros:** o projeto fora do registro também recusa,
   porque aí não se sabe para quem ele é;
+- **só uma lição do jogo:** um `<id>.md` (não o `README.md`), em UTF-8, com a lição de mesmo nome
+  no `docs/licoes/` do jogo ("toda lição nasce no jogo", o estudo; e é a impressão dela que o R5
+  compara). Da revisão do G2;
 - **o texto não cita o projeto.** Recusa se o arquivo traz, sem diferenciar maiúsculas:
   - o nome do jogo no registro, ou o nome da pasta dele;
   - o caminho da pasta do jogo;
@@ -155,12 +163,17 @@ de escrever e, se recusar, diz por quê e não escreve nada:
   usuário: ela pega o caso grosseiro (o nome, a pasta, o arquivo), e a releitura pega o resto (a
   chave do save, o nome de um NPC);
 - **o frontmatter passa na régua** (o `id` igual ao nome do arquivo, a `area`, o `tipo`, os
-  `gatilhos`), pelas mesmas funções;
+  `gatilhos`): a régua do kit roda numa cópia do acervo geral com a lição nova, antes de escrever
+  no central;
 - **o id ainda não está no geral**, salvo com o `--substituir` (a lição geral atualizada com
   evidência nova, como manda o passo 1 da `licao`).
 
 Depois de escrever `~/Golem/docs/licoes/<id>.md`, ele:
-- regera o índice do geral (a régua do kit, com a raiz no central);
+- regera o índice do geral (a régua do kit, com a raiz no central). Se a régua falhar ali (o
+  central posto no git sem lição rastreada), desfaz a escrita (e a pasta que ela criou) e sai com o
+  `ERRO`, que diz a saída: copiar a lição à mão ao central, o `git add` dela e o subir de novo com
+  o `--substituir`. Os `AVISO` dela
+  (a lição fora do git do central, que fica fora do índice) saem no relato;
 - grava a subida em `~/Golem/.claude/indice/subidas.txt`, uma linha por id: o id, a impressão
   (sha256) da lição do jogo e a da versão geral, como estavam na subida (R5). A linha do mesmo id
   se troca;
@@ -348,4 +361,5 @@ suas recomendações, então." O que ele aceitou:
 
 - **A rodada com login** (validation.md, L1), para ver a `iniciar-sdd` e a `licao` numa sessão de
   verdade: pergunta-se na hora do G5, como na fase 3.
-- **A conferir no G2:** como a chave `jogos_para_terceiros` entra no `onde` e no guia (R3).
+- ~~A conferir no G2: como a chave `jogos_para_terceiros` entra no `onde` e no guia (R3).~~
+  Conferido no G2: ver o R3, "A leitura".
