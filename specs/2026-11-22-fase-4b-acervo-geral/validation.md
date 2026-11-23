@@ -17,6 +17,7 @@ O contrato de merge da fase. Os comandos rodam da raiz do worktree, no Git Bash.
   anotados aqui ao fim de cada grupo. Se a `main` andar, a contagem dela entra no lugar do 209.
   - G1: 13 novos (12 no `test_gancho.py`, 1 no `test_regua.py`) → `222 passed in 105.02s`.
   - G2: 22 novos (no `test_golem.py`, um deles com 5 casos) → `244 passed`.
+  - G3: 7 novos (no `test_regua.py`) → `251 passed in 136.47s`.
 - [ ] `"$PYR" .claude/regua.py --conferir` → termina com `ok       .claude/indice/licoes.yaml`,
   sai 0, sem nenhuma linha `AVISO`.
 - [ ] `git diff "$BASE"..HEAD --stat -- .claude/indice/ docs/licoes/*.md` → vazio, fora o

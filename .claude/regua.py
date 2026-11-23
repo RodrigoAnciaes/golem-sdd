@@ -27,7 +27,10 @@ Avisa no stderr, sem mudar o código de saída (fase 4), no `--gerar` e no `--co
   arquivo que não existe não avisa: a instalação por cópia não leva o que elas citam (o teste do
   kit confere sem essa folga, com `estrito`). A prosa e o `game.…` não se conferem;
 - o `AGENTS.md` da raiz acima do teto de palavras: a linha `agents_teto` do `golem.toml`, lida
-  pelo `golem.py`, com 3.000 por padrão.
+  pelo `golem.py`, com 3.000 por padrão;
+- no modo plugin (fase 4b), a lição do jogo que divergiu da versão subida ao acervo geral do
+  central: ela, ou a versão geral, mudou desde a subida (as impressões do `subidas.txt` do
+  central, que o `golem.py subir` grava), ou a versão geral sumiu.
 
 ONDE MUDAR O VOCABULÁRIO: `AREAS_VALIDAS` e `TIPOS_VALIDOS`, logo abaixo. Ao mudar uma área,
 ajuste junto o `POR_CAMINHO` e o `POR_COMANDO` de `.claude/hooks/licoes_relevantes.py` (o teste
@@ -345,18 +348,63 @@ def problemas_de_refs(estrito: bool = False) -> list:
     return fora
 
 
-def teto_do_agents() -> int:
-    """A linha `agents_teto` do golem.toml (no plugin, com o central por baixo), pelo golem.py.
-    Sem ele, ou com o golem.toml com erro, o padrão: quem acusa o erro é o `aplicar`."""
+def _carregar_golem():
+    """O `golem.py` do kit, ou None se ele falta ou não carrega."""
     sys.dont_write_bytecode = True
     try:
         spec = importlib.util.spec_from_file_location("golem", KIT / ".claude" / "golem.py")
         golem = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(golem)
-        teto = golem.teto_do_agents
-    except (OSError, ImportError, SyntaxError, AttributeError):
+        return golem
+    except (OSError, ImportError, SyntaxError):
+        return None
+
+
+def teto_do_agents() -> int:
+    """A linha `agents_teto` do golem.toml (no plugin, com o central por baixo), pelo golem.py.
+    Sem ele, ou com o golem.toml com erro, o padrão: quem acusa o erro é o `aplicar`."""
+    teto = getattr(_carregar_golem(), "teto_do_agents", None)
+    if teto is None:
         return AGENTS_TETO_PADRAO        # o golem.py falta ou não carrega
     return teto(RAIZ)
+
+
+def avisos_de_divergencia() -> list:
+    """As lições deste jogo que divergiram da versão subida ao acervo geral (fase 4b): no modo
+    plugin, a lição cujo id está no `subidas.txt` do central e cuja impressão, ou a da versão
+    geral, não é a gravada na subida (ou a versão geral sumiu). Vazio fora do modo plugin, na
+    sessão aberta no próprio central e sem o `subidas.txt`."""
+    if not (KIT / ".claude-plugin" / "plugin.json").is_file():
+        return []                         # o kit e a cópia: nem carrega o golem.py
+    golem = _carregar_golem()
+    if golem is None or not golem.modo_plugin(RAIZ):
+        return []
+    central = golem.central()
+    if golem._mesma_pasta(RAIZ, central):
+        return []                         # ali, as lições são as versões gerais
+    subidas = golem.ler_subidas()
+    fora = []
+    for arq in arquivos_de_licao(todos=True):
+        if arq.stem not in subidas:
+            continue
+        do_jogo, do_geral = subidas[arq.stem]
+        geral = central / "docs" / "licoes" / arq.name
+        if golem.impressao(arq) != do_jogo:
+            motivo = "a lição deste jogo mudou"
+        elif not geral.is_file():
+            motivo = "a versão geral sumiu"
+        elif golem.impressao(geral) != do_geral:
+            motivo = "a versão geral mudou"
+        else:
+            continue
+        saida = ("suba de novo uma versão geral dela (a skill `licao` faz isso)"
+                 if motivo == "a versão geral sumiu" else
+                 "confira a versão geral e suba de novo com `golem.py subir <a versão geral> "
+                 "--substituir` (a skill `licao` faz isso)")
+        fora.append(f"{arq.stem}: {motivo} desde a subida ao acervo geral (docs/licoes/{arq.name} "
+                    f"e {geral.as_posix()}). Para pôr em dia, {saida}: a subida renova a "
+                    f"conferência")
+    return fora
 
 
 def aviso_do_teto() -> str | None:
@@ -381,6 +429,8 @@ def avisar_refs_e_teto() -> None:
     aviso = aviso_do_teto()
     if aviso:
         print(f"  AVISO    {aviso}", file=sys.stderr)
+    for divergencia in avisos_de_divergencia():
+        print(f"  AVISO    {divergencia}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------- gerar / conferir

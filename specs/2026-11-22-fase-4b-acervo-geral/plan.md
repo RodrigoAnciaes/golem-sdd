@@ -83,17 +83,20 @@ grupo, na branch da fase, se o autor do kit o aprovar junto com a spec.
 
 ## G3 — A régua avisa a divergência (R5)
 
-- [ ] `.claude/regua.py`: no modo plugin (pelo `golem.py`, que ela já carrega, `:348-359`), o
+- [x] `.claude/regua.py`: no modo plugin (pelo `golem.py`, que ela já carrega, `:348-359`), o
   `AVISO` de cada lição do jogo com id no `subidas.txt` do central e com a impressão do jogo ou a
   do geral diferente da gravada (ou o geral sumido), junto dos avisos das refs e do teto
   (`:377-387`). A impressão com as quebras de linha passadas a `\n`. A docstring do topo.
-- [ ] Testes novos em `.claude/tests/test_regua.py`, sobre a árvore `Plugin`:
+- [x] Testes novos em `.claude/tests/test_regua.py`, sobre a árvore `Plugin`:
   - logo depois do `subir`, o `--conferir` no jogo não avisa;
   - a lição do jogo mudada: o `AVISO` com as duas pastas, e a régua sai 0;
   - a versão geral mudada à mão, e a apagada: o `AVISO`;
   - só a troca de `\n` por `\r\n` na lição do jogo: nenhum aviso;
   - o `subir --substituir` depois da mudança: o aviso some;
-  - fora do modo plugin, com o `subidas.txt` no central do ambiente: nenhum aviso.
+  - fora do modo plugin, com o `subidas.txt` no central do ambiente: nenhum aviso;
+  - da revisão do G3: a sessão aberta no próprio central, com uma versão geral reescrita (outro
+    texto que o da lição do jogo), não avisa; e o repositório do kit, com o manifesto e a raiz
+    nele, não avisa.
 
 ## G4 — As skills e os documentos (R3, R6, R7)
 

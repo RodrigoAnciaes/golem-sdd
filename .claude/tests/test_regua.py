@@ -456,3 +456,102 @@ def test_no_central_sem_git_a_regua_indexa_o_disco(plugin):
         encoding="utf-8").count("licao-geral"), "o índice do jogo não muda"
     r = plugin.rodar("regua.py", "--conferir", cwd=plugin.central)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+# ------------------------------------------- a divergência com o acervo geral (fase 4b)
+
+DIVERGIU = "desde a subida ao acervo geral"
+
+
+def _subido(plugin):
+    """O jogo do `Plugin` registrado, com a lição `geral-a` no git e subida ao acervo geral."""
+    assert plugin.rodar("golem.py", "registrar", str(plugin.jogo)).returncode == 0
+    licao = escrever_licao(plugin.jogo, "geral-a", r"'\bcomando-geral\b'")
+    subprocess.run(["git", "add", "docs"], cwd=plugin.jogo, check=True, capture_output=True)
+    assert plugin.rodar("regua.py", "--gerar").returncode == 0
+    r = plugin.rodar("golem.py", "subir", str(licao))
+    assert r.returncode == 0, r.stdout + r.stderr
+    return licao, plugin.central / "docs" / "licoes" / "geral-a.md"
+
+
+def test_logo_depois_da_subida_a_regua_nao_avisa(plugin):
+    _subido(plugin)
+    r = plugin.rodar("regua.py", "--conferir")
+    assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
+
+
+def test_a_licao_do_jogo_mudada_sai_no_aviso_e_a_regua_sai_0(plugin):
+    licao, geral = _subido(plugin)
+    licao.write_text(licao.read_text(encoding="utf-8") + "\nEvidência nova.\n", encoding="utf-8")
+    r = plugin.rodar("regua.py", "--conferir")
+    assert r.returncode == 0, r.stdout + r.stderr
+    aviso = [l for l in r.stderr.splitlines() if DIVERGIU in l]
+    assert len(aviso) == 1 and "AVISO" in aviso[0] and "a lição deste jogo mudou" in aviso[0]
+    assert "docs/licoes/geral-a.md" in aviso[0] and geral.as_posix() in aviso[0]
+    assert "--substituir" in aviso[0]
+    # Subir de novo, com o --substituir, renova a conferência: o aviso some.
+    r = plugin.rodar("golem.py", "subir", str(licao), "--substituir")
+    assert r.returncode == 0, r.stdout + r.stderr
+    r = plugin.rodar("regua.py", "--conferir")
+    assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
+
+
+def test_a_versao_geral_mudada_ou_apagada_sai_no_aviso(plugin):
+    _licao, geral = _subido(plugin)
+    geral.write_text(geral.read_text(encoding="utf-8") + "\nMudada à mão.\n", encoding="utf-8")
+    assert "a versão geral mudou" in plugin.rodar("regua.py", "--conferir").stderr
+    geral.unlink()
+    assert "a versão geral sumiu" in plugin.rodar("regua.py", "--conferir").stderr
+
+
+def test_so_o_fim_de_linha_trocado_nao_avisa(plugin):
+    licao, _geral = _subido(plugin)
+    bruto = licao.read_bytes()
+    em_lf = bruto.replace(b"\r\n", b"\n")
+    # O outro fim de linha (o Windows grava o texto em CRLF; noutro sistema, em LF).
+    licao.write_bytes(em_lf.replace(b"\n", b"\r\n") if bruto == em_lf else em_lf)
+    assert licao.read_bytes() != bruto
+    r = plugin.rodar("regua.py", "--conferir")
+    assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
+
+
+def test_fora_do_modo_plugin_a_divergencia_nao_conta(plugin, copia_do_kit):
+    """A instalação por cópia, com o `GOLEM_CENTRAL` no ambiente e um `subidas.txt` que não bate
+    com a lição dela: nenhum aviso de divergência."""
+    _subido(plugin)
+    escrever_licao(copia_do_kit, "geral-a", r"'\boutra-coisa\b'")
+    r = subprocess.run([sys.executable, str(copia_do_kit / ".claude" / "regua.py"), "--gerar"],
+                       capture_output=True, text=True, encoding="utf-8", cwd=copia_do_kit,
+                       env=plugin.env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert DIVERGIU not in r.stderr, r.stderr
+
+
+def test_no_proprio_kit_com_o_manifesto_a_divergencia_nao_conta(plugin):
+    """O repositório do kit tem o manifesto, mas a raiz é o próprio kit: não é o modo plugin, e o
+    `subidas.txt` do central do ambiente não conta, mesmo citando uma lição do kit."""
+    indice = plugin.central / ".claude" / "indice"
+    indice.mkdir(parents=True)
+    (indice / "subidas.txt").write_text(f"licao-do-kit {'0' * 64} {'1' * 64}\n", encoding="utf-8")
+    r = plugin.rodar("regua.py", "--gerar", cwd=plugin.kit)
+    assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
+
+
+def _reescrita(plugin, tmp_path, ident: str = "geral-a"):
+    """Uma versão geral reescrita (outro texto que o da lição do jogo), subida com --substituir:
+    o caso real, em que a versão geral sai sem nada do projeto."""
+    versao = tmp_path / "versao" / f"{ident}.md"
+    versao.parent.mkdir(exist_ok=True)
+    texto = (plugin.jogo / "docs" / "licoes" / f"{ident}.md").read_text(encoding="utf-8")
+    versao.write_text(texto.replace("sinal de", "sinal reescrito de"), encoding="utf-8")
+    r = plugin.rodar("golem.py", "subir", str(versao), "--substituir")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_a_sessao_no_proprio_central_nao_avisa_a_divergencia(plugin, tmp_path):
+    """No central, as lições são as versões gerais: comparar com as do jogo daria aviso falso."""
+    _subido(plugin)
+    _reescrita(plugin, tmp_path)
+    assert DIVERGIU not in plugin.rodar("regua.py", "--conferir").stderr, "no jogo, em dia"
+    r = plugin.rodar("regua.py", "--conferir", cwd=plugin.central)
+    assert r.returncode == 0 and DIVERGIU not in r.stderr, r.stdout + r.stderr
